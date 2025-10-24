@@ -1,0 +1,183 @@
+// 국어 학습 통합 시스템 - Prisma Schema
+// Database: PostgreSQL (Supabase)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================
+// NextAuth.js 관련
+// ===========================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // bcrypt 해시
+  role          Role      @default(STUDENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+
+  // 교사 정보 (role이 TEACHER인 경우)
+  teacher       Teacher?
+  // 학생 정보 (role이 STUDENT인 경우)
+  student       Student?
+
+  @@map("users")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ===========================
+// 국어 학습 시스템
+// ===========================
+
+model Teacher {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  teacherId String   @unique // 교사 고유 ID (예: T001)
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("teachers")
+}
+
+model Student {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  studentId   String   @unique // 학번 (예: 030201 - 3학년 2반 1번)
+  name        String
+  grade       Int      // 학년 (1, 2, 3)
+  class       Int      // 반
+  number      Int      // 번호
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  results Result[]
+
+  @@map("students")
+}
+
+model Passage {
+  id            String   @id @default(cuid())
+  title         String
+  category      String   // 비문학, 문학, 문법
+  difficulty    String   // 중학교, 고1-2, 고3
+  contentBlocks Json     // [{ para: string, q: string, a: string }]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  questions Question[]
+  results   Result[]
+
+  @@map("passages")
+}
+
+model Question {
+  id          String  @id @default(cuid())
+  passageId   String? // null인 경우 문법/개념 문제
+  type        String  // 객관식, 단답형, 서술형
+  text        String  @db.Text
+  options     Json?   // 객관식 선택지 배열
+  answer      String
+  explanation String? @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  passage        Passage?        @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  questionAnswers QuestionAnswer[]
+
+  @@map("questions")
+  @@index([passageId])
+}
+
+model Result {
+  id               String   @id @default(cuid())
+  studentId        String
+  passageId        String
+  readingTime      Int      // 독해 시간 (초 단위)
+  score            Int      // 점수 (0-100)
+  paragraphAnswers Json     // 문단별 질문 답변 배열
+  submittedAt      DateTime @default(now())
+
+  student         Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  passage         Passage          @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  questionAnswers QuestionAnswer[]
+
+  @@map("results")
+  @@index([studentId])
+  @@index([passageId])
+}
+
+model QuestionAnswer {
+  id         String  @id @default(cuid())
+  resultId   String
+  questionId String
+  answer     String  @db.Text
+  isCorrect  Boolean
+
+  result   Result   @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("question_answers")
+  @@index([resultId])
+  @@index([questionId])
+}
