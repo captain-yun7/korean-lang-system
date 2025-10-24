@@ -507,7 +507,7 @@
 
 ### 5.3 배포
 - **Platform**: Vercel
-- **Database**: Supabase (PostgreSQL)
+- **Database**: Neon PostgreSQL
 
 ---
 

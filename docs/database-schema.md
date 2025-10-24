@@ -1,1264 +1,357 @@
-# 데이터베이스 스키마 설계
+# 국어 학습 통합 시스템 - 데이터베이스 스키마
 
-## 1. 개요
+## 개요
+
+이 문서는 국어 학습 통합 시스템의 데이터베이스 스키마를 설명합니다.
 
 ### 데이터베이스 정보
-- **DBMS**: PostgreSQL 14+
-- **호스팅**: Supabase
 - **ORM**: Prisma
-- **인증**: NextAuth.js v5 (Prisma Adapter)
-
-### 주요 테이블 그룹
-1. **인증 관련** (NextAuth.js): User, Account, Session, VerificationToken
-2. **강의 관련**: Course, Video, CourseFile
-3. **결제 관련**: Purchase, Payment, BankTransfer, Receipt, TaxInvoice, Refund
-4. **수강 관련**: Enrollment, Progress
-5. **기기 관리**: Device
-6. **커뮤니티**: Notice
-7. **고객센터**: Inquiry, InquiryReply
+- **Database**: Neon PostgreSQL
+- **Schema Version**: v2.0
 
 ---
 
-## 2. Prisma 스키마
+## 전체 ERD 구조
 
-### 2-1. NextAuth.js 관련 테이블
-
-#### User (사용자)
-```prisma
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?   // 일반 로그인용 (bcrypt 해시)
-  phone         String?
-  role          Role      @default(STUDENT)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relations
-  accounts      Account[]
-  sessions      Session[]
-  purchases     Purchase[]
-  enrollments   Enrollment[]
-  progresses    Progress[]
-  devices       Device[]
-  inquiries     Inquiry[]
-
-  @@map("users")
-}
-
-enum Role {
-  STUDENT
-  ADMIN
-}
 ```
+User (사용자 기본 정보)
+├── Teacher (교사 정보)
+└── Student (학생 정보)
+    ├── Result (성적)
+    │   └── QuestionAnswer (문제별 답변)
+    ├── AssignedPassage (교사 지정 지문)
+    ├── AssignedQuestion (교사 지정 문제)
+    └── WrongAnswer (오답 노트)
 
-#### Account (소셜 로그인 계정)
-```prisma
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String  // "oauth", "credentials"
-  provider          String  // "google", "kakao", "naver", "credentials"
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
-}
-```
-
-#### Session (세션 - DB 세션 사용 시)
-```prisma
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-```
-
-#### VerificationToken (이메일 인증 토큰)
-```prisma
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification_tokens")
-}
+Passage (지문)
+├── Question (문제)
+│   ├── QuestionAnswer (문제별 답변)
+│   ├── AssignedQuestion (교사 지정)
+│   └── WrongAnswer (오답 노트)
+├── Result (성적)
+└── AssignedPassage (교사 지정)
 ```
 
 ---
 
-### 2-2. 강의 관련 테이블
+## 주요 모델 설명
 
-#### Course (강의)
-```prisma
-model Course {
-  id              String   @id @default(cuid())
-  title           String
-  description     String   @db.Text
-  price           Int      // 가격 (원 단위)
-  thumbnailUrl    String?
-  instructorName  String
-  instructorIntro String?  @db.Text
-  isPublished     Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relations
-  videos          Video[]
-  courseFiles     CourseFile[]
-  purchases       Purchase[]
-  enrollments     Enrollment[]
-
-  @@map("courses")
-}
-```
-
-#### Video (영상)
-```prisma
-model Video {
-  id          String   @id @default(cuid())
-  courseId    String
-  vimeoUrl    String   // Vimeo 영상 URL
-  vimeoId     String?  // Vimeo 영상 ID (API 호출용)
-  title       String
-  description String?  @db.Text
-  duration    Int?     // 재생 시간 (초 단위)
-  order       Int      // 영상 순서
-  isPreview   Boolean  @default(false) // 미리보기 여부
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  progresses  Progress[]
-
-  @@map("videos")
-  @@index([courseId])
-}
-```
-
-#### CourseFile (강의 자료)
-```prisma
-model CourseFile {
-  id        String   @id @default(cuid())
-  courseId  String
-  fileName  String
-  fileUrl   String   // Supabase Storage URL
-  fileSize  Int      // 파일 크기 (bytes)
-  createdAt DateTime @default(now())
-
-  // Relations
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@map("course_files")
-  @@index([courseId])
-}
-```
-
----
-
-### 2-3. 결제 관련 테이블
-
-#### Purchase (구매)
-```prisma
-model Purchase {
-  id        String         @id @default(cuid())
-  userId    String
-  courseId  String
-  amount    Int            // 결제 금액
-  status    PurchaseStatus @default(PENDING)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-
-  // Relations
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  payment     Payment?
-  receipt     Receipt?
-  taxInvoice  TaxInvoice?
-  refund      Refund?
-
-  @@map("purchases")
-  @@index([userId])
-  @@index([courseId])
-}
-
-enum PurchaseStatus {
-  PENDING      // 입금 대기 (무통장입금)
-  COMPLETED    // 결제 완료
-  CANCELED     // 결제 취소
-  REFUNDED     // 환불 완료
-}
-```
-
-#### Payment (결제 정보)
-```prisma
-model Payment {
-  id          String        @id @default(cuid())
-  purchaseId  String        @unique
-  paymentKey  String?       @unique // 토스페이먼츠 paymentKey
-  orderId     String        @unique // 주문 번호
-  method      PaymentMethod // 결제 수단
-  status      PaymentStatus @default(PENDING)
-  paidAt      DateTime?     // 결제 완료 시각
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  // Relations
-  purchase      Purchase       @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-  bankTransfer  BankTransfer?
-
-  @@map("payments")
-  @@index([paymentKey])
-  @@index([orderId])
-}
-
-enum PaymentMethod {
-  CARD           // 카드 결제
-  BANK_TRANSFER  // 무통장입금
-}
-
-enum PaymentStatus {
-  PENDING    // 대기 (무통장입금)
-  COMPLETED  // 완료
-  FAILED     // 실패
-  CANCELED   // 취소
-}
-```
-
-#### BankTransfer (무통장입금 정보)
-```prisma
-model BankTransfer {
-  id                  String    @id @default(cuid())
-  paymentId           String    @unique
-  depositorName       String    // 입금자명
-  expectedDepositDate DateTime  // 입금 예정일
-  approvedAt          DateTime? // 승인 시각
-  rejectedAt          DateTime? // 거절 시각
-  rejectReason        String?   @db.Text
-  createdAt           DateTime  @default(now())
-
-  // Relations
-  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-
-  @@map("bank_transfers")
-}
-```
-
-#### Receipt (영수증)
-```prisma
-model Receipt {
-  id            String   @id @default(cuid())
-  purchaseId    String   @unique
-  receiptNumber String   @unique // 영수증 번호
-  issuedAt      DateTime @default(now())
-
-  // Relations
-  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-
-  @@map("receipts")
-  @@index([receiptNumber])
-}
-```
-
-#### TaxInvoice (세금계산서)
-```prisma
-model TaxInvoice {
-  id              String           @id @default(cuid())
-  purchaseId      String           @unique
-  businessNumber  String           // 사업자등록번호
-  companyName     String           // 상호명
-  ceoName         String           // 대표자명
-  address         String           // 사업장 주소
-  businessType    String           // 업태
-  businessCategory String          // 종목
-  email           String           // 이메일 (발송용)
-  issuedAt        DateTime?        // 발행 시각
-  status          TaxInvoiceStatus @default(REQUESTED)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-
-  // Relations
-  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-
-  @@map("tax_invoices")
-}
-
-enum TaxInvoiceStatus {
-  REQUESTED // 발행 요청
-  ISSUED    // 발행 완료
-}
-```
-
-#### Refund (환불)
-```prisma
-model Refund {
-  id           String       @id @default(cuid())
-  purchaseId   String       @unique
-  reason       String       @db.Text // 환불 사유
-  refundAmount Int          // 환불 금액
-  accountBank  String?      // 환불 계좌 은행 (무통장입금용)
-  accountNumber String?     // 환불 계좌 번호
-  accountHolder String?     // 예금주
-  status       RefundStatus @default(PENDING)
-  requestedAt  DateTime     @default(now())
-  processedAt  DateTime?    // 처리 완료 시각
-  rejectReason String?      @db.Text
-
-  // Relations
-  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-
-  @@map("refunds")
-}
-
-enum RefundStatus {
-  PENDING   // 환불 대기
-  APPROVED  // 승인
-  REJECTED  // 거절
-  COMPLETED // 완료
-}
-```
-
----
-
-### 2-4. 수강 관련 테이블
-
-#### Enrollment (수강 등록)
-```prisma
-model Enrollment {
-  id         String   @id @default(cuid())
-  userId     String
-  courseId   String
-  enrolledAt DateTime @default(now())
-
-  // Relations
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, courseId]) // 한 사용자가 같은 강의를 중복 수강할 수 없음
-  @@map("enrollments")
-  @@index([userId])
-  @@index([courseId])
-}
-```
-
-#### Progress (진도율)
-```prisma
-model Progress {
-  id           String    @id @default(cuid())
-  userId       String
-  videoId      String
-  lastPosition Int       @default(0) // 마지막 시청 위치 (초 단위)
-  isCompleted  Boolean   @default(false) // 완료 여부
-  completedAt  DateTime? // 완료 시각
-  updatedAt    DateTime  @updatedAt
-
-  // Relations
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, videoId]) // 한 사용자의 영상별 진도율은 하나만
-  @@map("progresses")
-  @@index([userId])
-  @@index([videoId])
-}
-```
-
----
-
-### 2-5. 기기 관리 테이블
-
-#### Device (등록 기기)
-```prisma
-model Device {
-  id             String   @id @default(cuid())
-  userId         String
-  deviceId       String   // FingerprintJS 또는 고유 식별자
-  deviceName     String   // 예: "Chrome on Windows"
-  userAgent      String   @db.Text
-  ipAddress      String?
-  lastAccessedAt DateTime @default(now())
-  createdAt      DateTime @default(now())
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, deviceId]) // 같은 기기는 중복 등록 불가
-  @@map("devices")
-  @@index([userId])
-}
-```
-
----
-
-### 2-6. 커뮤니티 테이블
-
-#### Notice (공지사항)
-```prisma
-model Notice {
-  id            String   @id @default(cuid())
-  title         String
-  content       String   @db.Text
-  isPinned      Boolean  @default(false) // 중요 공지 (상단 고정)
-  views         Int      @default(0)     // 조회수
-  attachmentUrl String?  // 첨부파일 URL (Supabase Storage)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@map("notices")
-}
-```
-
----
-
-### 2-7. 고객센터 테이블
-
-#### Inquiry (1:1 문의)
-```prisma
-model Inquiry {
-  id        String        @id @default(cuid())
-  userId    String
-  title     String
-  content   String        @db.Text // Rich Text (HTML)
-  isPrivate Boolean       @default(true) // 비밀글 여부
-  status    InquiryStatus @default(PENDING)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  // Relations
-  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  replies InquiryReply[]
-
-  @@map("inquiries")
-  @@index([userId])
-}
-
-enum InquiryStatus {
-  PENDING  // 답변 대기
-  ANSWERED // 답변 완료
-}
-```
-
-#### InquiryReply (문의 답변)
-```prisma
-model InquiryReply {
-  id        String   @id @default(cuid())
-  inquiryId String
-  adminId   String   // 답변한 관리자 ID (User)
-  content   String   @db.Text // Rich Text (HTML)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  inquiry Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
-
-  @@map("inquiry_replies")
-  @@index([inquiryId])
-}
-```
-
----
-
-## 3. 전체 Prisma Schema 파일
-
-```prisma
-// prisma/schema.prisma
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// ===========================
-// NextAuth.js 관련
-// ===========================
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  phone         String?
-  role          Role      @default(STUDENT)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts      Account[]
-  sessions      Session[]
-  purchases     Purchase[]
-  enrollments   Enrollment[]
-  progresses    Progress[]
-  devices       Device[]
-  inquiries     Inquiry[]
-
-  @@map("users")
-}
-
-enum Role {
-  STUDENT
-  ADMIN
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification_tokens")
-}
-
-// ===========================
-// 강의 관련
-// ===========================
-
-model Course {
-  id              String   @id @default(cuid())
-  title           String
-  description     String   @db.Text
-  price           Int
-  thumbnailUrl    String?
-  instructorName  String
-  instructorIntro String?  @db.Text
-  isPublished     Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  videos          Video[]
-  courseFiles     CourseFile[]
-  purchases       Purchase[]
-  enrollments     Enrollment[]
-
-  @@map("courses")
-}
-
-model Video {
-  id          String   @id @default(cuid())
-  courseId    String
-  vimeoUrl    String
-  vimeoId     String?
-  title       String
-  description String?  @db.Text
-  duration    Int?
-  order       Int
-  isPreview   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  progresses  Progress[]
-
-  @@map("videos")
-  @@index([courseId])
-}
-
-model CourseFile {
-  id        String   @id @default(cuid())
-  courseId  String
-  fileName  String
-  fileUrl   String
-  fileSize  Int
-  createdAt DateTime @default(now())
-
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@map("course_files")
-  @@index([courseId])
-}
-
-// ===========================
-// 결제 관련
-// ===========================
-
-model Purchase {
-  id        String         @id @default(cuid())
-  userId    String
-  courseId  String
-  amount    Int
-  status    PurchaseStatus @default(PENDING)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  payment     Payment?
-  receipt     Receipt?
-  taxInvoice  TaxInvoice?
-  refund      Refund?
-
-  @@map("purchases")
-  @@index([userId])
-  @@index([courseId])
-}
-
-enum PurchaseStatus {
-  PENDING
-  COMPLETED
-  CANCELED
-  REFUNDED
-}
-
-model Payment {
-  id          String        @id @default(cuid())
-  purchaseId  String        @unique
-  paymentKey  String?       @unique
-  orderId     String        @unique
-  method      PaymentMethod
-  status      PaymentStatus @default(PENDING)
-  paidAt      DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  purchase      Purchase       @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-  bankTransfer  BankTransfer?
-
-  @@map("payments")
-  @@index([paymentKey])
-  @@index([orderId])
-}
-
-enum PaymentMethod {
-  CARD
-  BANK_TRANSFER
-}
-
-enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  CANCELED
-}
-
-model BankTransfer {
-  id                  String    @id @default(cuid())
-  paymentId           String    @unique
-  depositorName       String
-  expectedDepositDate DateTime
-  approvedAt          DateTime?
-  rejectedAt          DateTime?
-  rejectReason        String?   @db.Text
-  createdAt           DateTime  @default(now())
-
-  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-
-  @@map("bank_transfers")
-}
-
-model Receipt {
-  id            String   @id @default(cuid())
-  purchaseId    String   @unique
-  receiptNumber String   @unique
-  issuedAt      DateTime @default(now())
-
-  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-
-  @@map("receipts")
-  @@index([receiptNumber])
-}
-
-model TaxInvoice {
-  id              String           @id @default(cuid())
-  purchaseId      String           @unique
-  businessNumber  String
-  companyName     String
-  ceoName         String
-  address         String
-  businessType    String
-  businessCategory String
-  email           String
-  issuedAt        DateTime?
-  status          TaxInvoiceStatus @default(REQUESTED)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-
-  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-
-  @@map("tax_invoices")
-}
-
-enum TaxInvoiceStatus {
-  REQUESTED
-  ISSUED
-}
-
-model Refund {
-  id           String       @id @default(cuid())
-  purchaseId   String       @unique
-  reason       String       @db.Text
-  refundAmount Int
-  accountBank  String?
-  accountNumber String?
-  accountHolder String?
-  status       RefundStatus @default(PENDING)
-  requestedAt  DateTime     @default(now())
-  processedAt  DateTime?
-  rejectReason String?      @db.Text
-
-  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-
-  @@map("refunds")
-}
-
-enum RefundStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  COMPLETED
-}
-
-// ===========================
-// 수강 관련
-// ===========================
-
-model Enrollment {
-  id         String   @id @default(cuid())
-  userId     String
-  courseId   String
-  enrolledAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, courseId])
-  @@map("enrollments")
-  @@index([userId])
-  @@index([courseId])
-}
-
-model Progress {
-  id           String    @id @default(cuid())
-  userId       String
-  videoId      String
-  lastPosition Int       @default(0)
-  isCompleted  Boolean   @default(false)
-  completedAt  DateTime?
-  updatedAt    DateTime  @updatedAt
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, videoId])
-  @@map("progresses")
-  @@index([userId])
-  @@index([videoId])
-}
-
-// ===========================
-// 기기 관리
-// ===========================
-
-model Device {
-  id             String   @id @default(cuid())
-  userId         String
-  deviceId       String
-  deviceName     String
-  userAgent      String   @db.Text
-  ipAddress      String?
-  lastAccessedAt DateTime @default(now())
-  createdAt      DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, deviceId])
-  @@map("devices")
-  @@index([userId])
-}
-
-// ===========================
-// 커뮤니티
-// ===========================
-
-model Notice {
-  id            String   @id @default(cuid())
-  title         String
-  content       String   @db.Text
-  isPinned      Boolean  @default(false)
-  views         Int      @default(0)
-  attachmentUrl String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@map("notices")
-}
-
-// ===========================
-// 고객센터
-// ===========================
-
-model Inquiry {
-  id        String        @id @default(cuid())
-  userId    String
-  title     String
-  content   String        @db.Text
-  isPrivate Boolean       @default(true)
-  status    InquiryStatus @default(PENDING)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  replies InquiryReply[]
-
-  @@map("inquiries")
-  @@index([userId])
-}
-
-enum InquiryStatus {
-  PENDING
-  ANSWERED
-}
-
-model InquiryReply {
-  id        String   @id @default(cuid())
-  inquiryId String
-  adminId   String
-  content   String   @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  inquiry Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
-
-  @@map("inquiry_replies")
-  @@index([inquiryId])
-}
-```
-
----
-
-## 4. ERD (Entity Relationship Diagram)
-
-### 텍스트 기반 ERD
-
-```
-User (사용자)
-├─ 1:N → Account (소셜 로그인 계정)
-├─ 1:N → Session (세션)
-├─ 1:N → Purchase (구매)
-├─ 1:N → Enrollment (수강 등록)
-├─ 1:N → Progress (진도율)
-├─ 1:N → Device (등록 기기)
-└─ 1:N → Inquiry (1:1 문의)
-
-Course (강의)
-├─ 1:N → Video (영상)
-├─ 1:N → CourseFile (강의 자료)
-├─ 1:N → Purchase (구매)
-└─ 1:N → Enrollment (수강 등록)
-
-Purchase (구매)
-├─ N:1 → User (사용자)
-├─ N:1 → Course (강의)
-├─ 1:1 → Payment (결제 정보)
-├─ 1:1 → Receipt (영수증) - optional
-├─ 1:1 → TaxInvoice (세금계산서) - optional
-└─ 1:1 → Refund (환불) - optional
-
-Payment (결제 정보)
-├─ 1:1 → Purchase (구매)
-└─ 1:1 → BankTransfer (무통장입금 정보) - optional (method = BANK_TRANSFER)
-
-Enrollment (수강 등록)
-├─ N:1 → User (사용자)
-└─ N:1 → Course (강의)
-
-Progress (진도율)
-├─ N:1 → User (사용자)
-└─ N:1 → Video (영상)
-
-Inquiry (1:1 문의)
-├─ N:1 → User (사용자)
-└─ 1:N → InquiryReply (답변)
-```
-
----
-
-## 5. 인덱스 전략
-
-### 주요 인덱스 목록
+### 1. 인증 관련 모델
 
 #### User
-- `email` (unique) - 로그인, 중복 검사
+사용자 기본 정보 (NextAuth.js 표준)
 
-#### Account
-- `[provider, providerAccountId]` (unique) - 소셜 로그인 조회
+**주요 필드**
+- `id`: 사용자 고유 ID (cuid)
+- `email`: 이메일 (로그인용)
+- `password`: bcrypt 해시된 비밀번호
+- `role`: 역할 (STUDENT, TEACHER, ADMIN)
 
-#### Video
-- `courseId` - 강의별 영상 목록 조회
+**관계**
+- Teacher (1:1) - 교사 상세 정보
+- Student (1:1) - 학생 상세 정보
+- Account (1:N) - NextAuth 계정 정보
+- Session (1:N) - NextAuth 세션
 
-#### CourseFile
-- `courseId` - 강의별 자료 조회
+#### Teacher
+교사 정보
 
-#### Purchase
-- `userId` - 사용자별 구매 내역
-- `courseId` - 강의별 구매 내역
+**주요 필드**
+- `teacherId`: 교사 ID (고유 식별자, 예: T001)
+- `name`: 교사 이름
 
-#### Payment
-- `paymentKey` (unique) - 토스페이먼츠 조회
-- `orderId` (unique) - 주문 번호 조회
+#### Student
+학생 정보
 
-#### Receipt
-- `receiptNumber` (unique) - 영수증 번호 조회
+**주요 필드**
+- `studentId`: 학번 (예: 030201 = 3학년 2반 1번)
+- `name`: 학생 이름
+- `grade`: 학년 (1, 2, 3)
+- `class`: 반
+- `number`: 번호
+- `isActive`: 활성화 여부
+- `activationStartDate`: 활성화 시작일 (v2.0 신규)
+- `activationEndDate`: 활성화 종료일 (v2.0 신규)
 
-#### Enrollment
-- `userId` - 사용자별 수강 목록
-- `courseId` - 강의별 수강자 목록
-- `[userId, courseId]` (unique) - 중복 수강 방지
-
-#### Progress
-- `userId` - 사용자별 진도율
-- `videoId` - 영상별 진도율
-- `[userId, videoId]` (unique) - 중복 진도율 방지
-
-#### Device
-- `userId` - 사용자별 기기 목록
-- `[userId, deviceId]` (unique) - 중복 기기 방지
-
-#### Inquiry
-- `userId` - 사용자별 문의 목록
-
-#### InquiryReply
-- `inquiryId` - 문의별 답변 조회
+**특징**
+- 활성화 기간이 지나면 자동으로 로그인 불가
+- 삭제 대신 `isActive`를 false로 설정
 
 ---
 
-## 6. 마이그레이션 전략
+### 2. 학습 컨텐츠 모델
 
-### 초기 마이그레이션
+#### Passage
+지문 정보
+
+**주요 필드**
+- `title`: 지문 제목
+- `category`: 대분류 카테고리 (비문학, 문학, 문법)
+- `subcategory`: 세부 카테고리 (v2.0 신규)
+  - 비문학: 인문예술, 과학기술, 사회문화
+  - 문학: 고전산문, 고전시가, 현대산문, 현대시
+  - 문법: 품사, 단어의 형성, 음운 변동, 문장, 한글맞춤법, 중세 국어
+- `difficulty`: 난이도 (중학교, 고1-2, 고3)
+- `contentBlocks`: 문단별 내용 (JSON)
+  ```json
+  [
+    {
+      "para": "문단 내용",
+      "q": "문단별 질문",
+      "a": "정답",
+      "explanation": "정답 해설"
+    }
+  ]
+  ```
+
+**검색 및 필터링**
+- 제목 검색
+- 대분류/세부 카테고리별 필터
+- 난이도별 필터
+
+#### Question
+문제 정보
+
+**주요 필드**
+- `passageId`: 연결된 지문 ID (null이면 문법/개념 독립 문제)
+- `type`: 문제 유형 (객관식, 단답형, 서술형)
+- `text`: 문제 내용
+- `options`: 선택지 (JSON, 객관식인 경우)
+- `answers`: 정답 배열 (v2.0: 복수 정답 지원)
+- `explanation`: 정답 해설
+- `wrongAnswerExplanations`: 오답 선택지별 해설 (JSON, v2.0 신규)
+
+**복수 정답 지원 (v2.0)**
+- `answers` 필드를 String[]로 변경
+- 여러 정답을 배열로 저장
+- 학생이 제출한 답이 배열 안에 있으면 정답 처리
+
+---
+
+### 3. 학습 기록 모델
+
+#### Result
+학생의 지문 학습 결과
+
+**주요 필드**
+- `studentId`: 학생 ID
+- `passageId`: 지문 ID
+- `readingTime`: 독해 시간 (초)
+- `score`: 총점 (0-100)
+- `paragraphAnswers`: 문단별 질문 답변 (JSON)
+- `isAssigned`: 교사 지정 여부 (v2.0 신규)
+- `submittedAt`: 제출 일시
+
+**인덱스**
+- studentId (학생별 조회 최적화)
+- passageId (지문별 조회 최적화)
+
+#### QuestionAnswer
+문제별 답변 기록
+
+**주요 필드**
+- `resultId`: 성적 ID
+- `questionId`: 문제 ID
+- `answer`: 학생 답변
+- `isCorrect`: 정답 여부
+
+**특징**
+- Result와 Question을 연결하는 조인 테이블
+- 문제별 정답률 통계에 활용
+
+---
+
+### 4. 교사 지정 모델 (v2.0 신규)
+
+#### AssignedPassage
+교사가 학생에게 지정한 지문
+
+**주요 필드**
+- `passageId`: 지정된 지문 ID
+- `assignedBy`: 교사 ID
+- `assignedTo`: 학생 ID (null이면 학년/반 전체)
+- `targetGrade`: 대상 학년
+- `targetClass`: 대상 반
+- `dueDate`: 완료 기한
+- `createdAt`: 지정 일시
+
+**특징**
+- 개별 학생 또는 학년/반 전체에 지정 가능
+- `assignedTo`가 null이면 targetGrade/targetClass 기준으로 지정
+- 학생의 "지정된 학습" 탭에 표시
+
+**인덱스**
+- passageId
+- assignedTo
+- [targetGrade, targetClass] (복합 인덱스)
+
+#### AssignedQuestion
+교사가 학생에게 지정한 문제 (문법/개념)
+
+**주요 필드**
+- `questionId`: 지정된 문제 ID
+- `assignedBy`: 교사 ID
+- `assignedTo`: 학생 ID (null이면 학년/반 전체)
+- `targetGrade`: 대상 학년
+- `targetClass`: 대상 반
+- `dueDate`: 완료 기한
+- `createdAt`: 지정 일시
+
+**특징**
+- AssignedPassage와 동일한 구조
+- 문법/개념 문제 전용
+
+---
+
+### 5. 오답 노트 모델 (v2.0 신규)
+
+#### WrongAnswer
+학생의 오답 기록
+
+**주요 필드**
+- `studentId`: 학생 ID
+- `questionId`: 문제 ID
+- `wrongAnswer`: 학생이 제출한 틀린 답변
+- `correctAnswer`: 정답
+- `explanation`: 해설
+- `isReviewed`: 복습 완료 여부
+- `createdAt`: 오답 저장 일시
+
+**특징**
+- 학생이 문제를 틀리면 자동 저장
+- 복습 완료 후 `isReviewed`를 true로 변경
+- 카테고리별 오답 통계에 활용
+
+**인덱스**
+- studentId
+- questionId
+- [studentId, isReviewed] (복합 인덱스 - 미복습 오답 조회)
+
+---
+
+## 인덱스 전략
+
+### 1. 단일 인덱스
+- `students.studentId`: 학번으로 빠른 검색
+- `teachers.teacherId`: 교사 ID로 빠른 검색
+- `results.studentId`: 학생별 성적 조회
+- `results.passageId`: 지문별 성적 조회
+- `question_answers.resultId`: 성적별 답변 조회
+- `question_answers.questionId`: 문제별 답변 조회
+- `wrong_answers.studentId`: 학생별 오답 조회
+- `wrong_answers.questionId`: 문제별 오답 조회
+
+### 2. 복합 인덱스
+- `assigned_passages[targetGrade, targetClass]`: 학년/반별 지정 지문 조회
+- `assigned_questions[targetGrade, targetClass]`: 학년/반별 지정 문제 조회
+- `wrong_answers[studentId, isReviewed]`: 학생별 미복습 오답 조회
+
+### 3. 인덱스 선정 이유
+- **자주 조회되는 필드**: studentId, passageId, questionId
+- **조인 최적화**: 외래 키에 인덱스 추가
+- **필터링 최적화**: targetGrade, targetClass, isReviewed
+- **성능 향상**: N+1 문제 방지, 빠른 검색 응답
+
+---
+
+## 데이터 무결성
+
+### Cascade 삭제
+- User 삭제 시 → Teacher, Student, Account, Session 자동 삭제
+- Student 삭제 시 → Result, AssignedPassage, AssignedQuestion, WrongAnswer 자동 삭제
+- Passage 삭제 시 → Question, Result, AssignedPassage 자동 삭제
+- Question 삭제 시 → QuestionAnswer, AssignedQuestion, WrongAnswer 자동 삭제
+- Result 삭제 시 → QuestionAnswer 자동 삭제
+
+### Unique 제약
+- `User.email`: 이메일 중복 방지
+- `Teacher.teacherId`: 교사 ID 중복 방지
+- `Student.studentId`: 학번 중복 방지
+- `Session.sessionToken`: 세션 토큰 중복 방지
+
+---
+
+## 마이그레이션 전략
+
+### 개발 환경
 ```bash
-# Prisma 스키마 작성 후
-npx prisma migrate dev --name init
-
-# Prisma Client 생성
-npx prisma generate
+# 스키마 변경 후 즉시 반영
+npx prisma db push
 ```
 
-### 마이그레이션 순서
-1. NextAuth.js 관련 테이블 (User, Account, Session, VerificationToken)
-2. 강의 관련 테이블 (Course, Video, CourseFile)
-3. 결제 관련 테이블 (Purchase, Payment, BankTransfer, Receipt, TaxInvoice, Refund)
-4. 수강 관련 테이블 (Enrollment, Progress)
-5. 기기 관리 테이블 (Device)
-6. 커뮤니티 테이블 (Notice)
-7. 고객센터 테이블 (Inquiry, InquiryReply)
-
-### 프로덕션 마이그레이션
+### 프로덕션 환경
 ```bash
-# 프로덕션 배포 시
+# 마이그레이션 파일 생성
+npx prisma migrate dev --name description
+
+# 프로덕션 마이그레이션 실행
 npx prisma migrate deploy
 ```
 
 ---
 
-## 7. Seed 데이터 (개발/테스트용)
+## 백업 및 복구
 
-### seed.ts 예시
-```typescript
-// prisma/seed.ts
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+### Neon PostgreSQL 백업
+- Neon 대시보드에서 자동 백업 설정
+- 수동 백업: Neon CLI 또는 pg_dump 사용
 
-const prisma = new PrismaClient()
-
-async function main() {
-  // 관리자 계정 생성
-  const hashedPassword = await bcrypt.hash('admin123!', 10)
-
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
-      email: 'admin@example.com',
-      name: 'Admin User',
-      password: hashedPassword,
-      role: 'ADMIN',
-      emailVerified: new Date(),
-    },
-  })
-
-  console.log('Admin created:', admin)
-
-  // 테스트 학생 계정 생성
-  const student = await prisma.user.upsert({
-    where: { email: 'student@example.com' },
-    update: {},
-    create: {
-      email: 'student@example.com',
-      name: 'Test Student',
-      password: hashedPassword,
-      role: 'STUDENT',
-      emailVerified: new Date(),
-    },
-  })
-
-  console.log('Student created:', student)
-
-  // 테스트 강의 생성
-  const course = await prisma.course.create({
-    data: {
-      title: '테스트 강의 - JavaScript 기초',
-      description: 'JavaScript 기초 문법을 배우는 강의입니다.',
-      price: 50000,
-      instructorName: 'John Doe',
-      instructorIntro: '10년 경력의 풀스택 개발자입니다.',
-      isPublished: true,
-    },
-  })
-
-  console.log('Course created:', course)
-
-  // 테스트 영상 생성
-  await prisma.video.createMany({
-    data: [
-      {
-        courseId: course.id,
-        vimeoUrl: 'https://vimeo.com/123456789',
-        vimeoId: '123456789',
-        title: '1강: 변수와 데이터 타입',
-        description: '변수 선언 방법과 데이터 타입을 학습합니다.',
-        duration: 600,
-        order: 1,
-        isPreview: true,
-      },
-      {
-        courseId: course.id,
-        vimeoUrl: 'https://vimeo.com/987654321',
-        vimeoId: '987654321',
-        title: '2강: 조건문과 반복문',
-        description: 'if, for, while 문을 학습합니다.',
-        duration: 720,
-        order: 2,
-        isPreview: false,
-      },
-    ],
-  })
-
-  console.log('Videos created')
-
-  // 공지사항 생성
-  await prisma.notice.create({
-    data: {
-      title: '사이트 오픈 안내',
-      content: '<p>안녕하세요! 사이트가 오픈되었습니다.</p>',
-      isPinned: true,
-    },
-  })
-
-  console.log('Notice created')
-}
-
-main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
-```
-
-### Seed 실행
+### 데이터 내보내기
 ```bash
-# package.json에 추가
-"prisma": {
-  "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+# Prisma Studio 사용
+npx prisma studio
+
+# pg_dump 사용
+pg_dump $DATABASE_URL > backup.sql
+```
+
+---
+
+## 성능 최적화 팁
+
+### 1. 쿼리 최적화
+- Prisma의 `include`와 `select` 활용
+- N+1 문제 해결을 위한 관계 사전 로딩
+```typescript
+// 좋은 예: include로 관계 사전 로딩
+const result = await prisma.result.findMany({
+  include: {
+    student: true,
+    passage: true,
+    questionAnswers: {
+      include: { question: true }
+    }
+  }
+});
+
+// 나쁜 예: 각각 조회 (N+1 문제 발생)
+const results = await prisma.result.findMany();
+for (const result of results) {
+  const student = await prisma.student.findUnique({ where: { id: result.studentId } });
+  // ...
 }
+```
 
-# 실행
-npx prisma db seed
+### 2. 페이지네이션
+```typescript
+const results = await prisma.result.findMany({
+  skip: (page - 1) * pageSize,
+  take: pageSize,
+  orderBy: { submittedAt: 'desc' }
+});
+```
+
+### 3. 집계 쿼리
+```typescript
+// 학생별 평균 점수
+const avgScore = await prisma.result.aggregate({
+  where: { studentId: 'xxx' },
+  _avg: { score: true }
+});
 ```
 
 ---
 
-## 8. 주요 쿼리 예시
-
-### 사용자 구매 내역 조회
-```typescript
-const purchases = await prisma.purchase.findMany({
-  where: { userId: 'user-id' },
-  include: {
-    course: true,
-    payment: true,
-    receipt: true,
-  },
-  orderBy: { createdAt: 'desc' },
-})
-```
-
-### 강의 전체 정보 조회 (영상 포함)
-```typescript
-const course = await prisma.course.findUnique({
-  where: { id: 'course-id' },
-  include: {
-    videos: {
-      orderBy: { order: 'asc' },
-    },
-    courseFiles: true,
-  },
-})
-```
-
-### 사용자 진도율 조회
-```typescript
-const progresses = await prisma.progress.findMany({
-  where: {
-    userId: 'user-id',
-    video: {
-      courseId: 'course-id',
-    },
-  },
-  include: {
-    video: true,
-  },
-})
-```
-
-### 전체 진도율 계산
-```typescript
-// 특정 강의의 전체 영상 수
-const totalVideos = await prisma.video.count({
-  where: { courseId: 'course-id' },
-})
-
-// 완료한 영상 수
-const completedVideos = await prisma.progress.count({
-  where: {
-    userId: 'user-id',
-    isCompleted: true,
-    video: {
-      courseId: 'course-id',
-    },
-  },
-})
-
-const completionRate = (completedVideos / totalVideos) * 100
-```
-
----
-
-## 9. 데이터 정합성 및 제약사항
-
-### Unique 제약
-- `User.email`: 이메일 중복 불가
-- `Account.[provider, providerAccountId]`: 소셜 계정 중복 불가
-- `Enrollment.[userId, courseId]`: 동일 강의 중복 수강 불가
-- `Progress.[userId, videoId]`: 영상별 진도율 중복 불가
-- `Device.[userId, deviceId]`: 동일 기기 중복 등록 불가
-
-### Cascade Delete
-- User 삭제 시 관련 데이터 모두 삭제
-  - Account, Session, Purchase, Enrollment, Progress, Device, Inquiry
-- Course 삭제 시 관련 데이터 모두 삭제
-  - Video, CourseFile, Purchase (주의!), Enrollment
-- Purchase 삭제 시 관련 데이터 모두 삭제
-  - Payment, Receipt, TaxInvoice, Refund
-
-### 비즈니스 로직 제약 (애플리케이션 레벨)
-- 등록 기기는 최대 2개
-- 진도율 80% 이상 시 완료 처리
-- 구매 완료 후 수강 등록 자동 생성
-- 무통장입금 승인 시 수강 등록 생성
-
----
-
-## 10. 성능 최적화 권장사항
-
-### 1. 인덱스 활용
-- 자주 조회하는 필드에 인덱스 추가
-- Composite Index 고려 (예: `[userId, courseId]`)
-
-### 2. Select 최적화
-```typescript
-// 필요한 필드만 선택
-const courses = await prisma.course.findMany({
-  select: {
-    id: true,
-    title: true,
-    price: true,
-    thumbnailUrl: true,
-  },
-})
-```
-
-### 3. Include vs Select
-- `include`: 관계 데이터 전체 가져오기
-- `select`: 필요한 필드만 선택 (더 효율적)
-
-### 4. Pagination
-```typescript
-const courses = await prisma.course.findMany({
-  skip: (page - 1) * limit,
-  take: limit,
-})
-```
-
-### 5. Connection Pooling
-- Supabase에서 기본 제공
-- `DATABASE_URL`에 connection pool 설정
-
----
-
-## 마무리
-
-이 데이터베이스 스키마는 Private LMS 프로젝트의 모든 기능을 지원하도록 설계되었습니다.
-
-다음 단계:
-1. `prisma/schema.prisma` 파일에 위 스키마 복사
-2. Supabase 데이터베이스 연결 설정 (`.env`)
-3. `npx prisma migrate dev --name init` 실행
-4. `prisma/seed.ts` 작성 및 실행
-
-문의사항이나 수정 요청이 있으면 언제든지 피드백 주시기 바랍니다.
+**작성일**: 2025-10-24  
+**버전**: 2.0.0  
+**프로젝트**: 국어 학습 통합 시스템

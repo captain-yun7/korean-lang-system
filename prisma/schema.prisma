@@ -1,5 +1,5 @@
 // 국어 학습 통합 시스템 - Prisma Schema
-// Database: PostgreSQL (Supabase)
+// Database: Neon PostgreSQL
 
 generator client {
   provider = "prisma-client-js"
@@ -99,19 +99,24 @@ model Teacher {
 }
 
 model Student {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  studentId   String   @unique // 학번 (예: 030201 - 3학년 2반 1번)
-  name        String
-  grade       Int      // 학년 (1, 2, 3)
-  class       Int      // 반
-  number      Int      // 번호
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  studentId            String    @unique // 학번 (예: 030201 - 3학년 2반 1번)
+  name                 String
+  grade                Int       // 학년 (1, 2, 3)
+  class                Int       // 반
+  number               Int       // 번호
+  isActive             Boolean   @default(true)
+  activationStartDate  DateTime? // 활성화 시작일
+  activationEndDate    DateTime? // 활성화 종료일
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  results Result[]
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  results         Result[]
+  assignedPassages AssignedPassage[] @relation("StudentAssignedPassages")
+  assignedQuestions AssignedQuestion[] @relation("StudentAssignedQuestions")
+  wrongAnswers    WrongAnswer[]
 
   @@map("students")
 }
@@ -120,30 +125,35 @@ model Passage {
   id            String   @id @default(cuid())
   title         String
   category      String   // 비문학, 문학, 문법
+  subcategory   String   // 세부 카테고리 (인문예술, 과학기술, 사회문화, 고전산문, 고전시가, 현대산문, 현대시, 품사, 단어의 형성, 음운 변동, 문장, 한글맞춤법, 중세 국어)
   difficulty    String   // 중학교, 고1-2, 고3
-  contentBlocks Json     // [{ para: string, q: string, a: string }]
+  contentBlocks Json     // [{ para: string, q: string, a: string, explanation: string }]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  questions Question[]
-  results   Result[]
+  questions        Question[]
+  results          Result[]
+  assignedPassages AssignedPassage[]
 
   @@map("passages")
 }
 
 model Question {
-  id          String  @id @default(cuid())
-  passageId   String? // null인 경우 문법/개념 문제
-  type        String  // 객관식, 단답형, 서술형
-  text        String  @db.Text
-  options     Json?   // 객관식 선택지 배열
-  answer      String
-  explanation String? @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                      String   @id @default(cuid())
+  passageId               String?  // null인 경우 문법/개념 문제
+  type                    String   // 객관식, 단답형, 서술형
+  text                    String   @db.Text
+  options                 Json?    // 객관식 선택지 배열
+  answers                 String[] // 복수 정답 지원
+  explanation             String?  @db.Text
+  wrongAnswerExplanations Json?    // 오답 선택지별 해설
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
-  passage        Passage?        @relation(fields: [passageId], references: [id], onDelete: Cascade)
-  questionAnswers QuestionAnswer[]
+  passage          Passage?           @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  questionAnswers  QuestionAnswer[]
+  assignedQuestions AssignedQuestion[]
+  wrongAnswers     WrongAnswer[]
 
   @@map("questions")
   @@index([passageId])
@@ -156,6 +166,7 @@ model Result {
   readingTime      Int      // 독해 시간 (초 단위)
   score            Int      // 점수 (0-100)
   paragraphAnswers Json     // 문단별 질문 답변 배열
+  isAssigned       Boolean  @default(false) // 교사 지정 여부
   submittedAt      DateTime @default(now())
 
   student         Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -180,4 +191,61 @@ model QuestionAnswer {
   @@map("question_answers")
   @@index([resultId])
   @@index([questionId])
+}
+
+model AssignedPassage {
+  id          String    @id @default(cuid())
+  passageId   String
+  assignedBy  String    // 교사 ID
+  assignedTo  String?   // 학생 ID (null인 경우 학년/반 전체)
+  targetGrade Int?      // 대상 학년
+  targetClass Int?      // 대상 반
+  dueDate     DateTime? // 완료 기한
+  createdAt   DateTime  @default(now())
+
+  passage Passage @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  student Student? @relation("StudentAssignedPassages", fields: [assignedTo], references: [id], onDelete: Cascade)
+
+  @@map("assigned_passages")
+  @@index([passageId])
+  @@index([assignedTo])
+  @@index([targetGrade, targetClass])
+}
+
+model AssignedQuestion {
+  id          String    @id @default(cuid())
+  questionId  String
+  assignedBy  String    // 교사 ID
+  assignedTo  String?   // 학생 ID (null인 경우 학년/반 전체)
+  targetGrade Int?      // 대상 학년
+  targetClass Int?      // 대상 반
+  dueDate     DateTime? // 완료 기한
+  createdAt   DateTime  @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  student  Student?  @relation("StudentAssignedQuestions", fields: [assignedTo], references: [id], onDelete: Cascade)
+
+  @@map("assigned_questions")
+  @@index([questionId])
+  @@index([assignedTo])
+  @@index([targetGrade, targetClass])
+}
+
+model WrongAnswer {
+  id            String   @id @default(cuid())
+  studentId     String
+  questionId    String
+  wrongAnswer   String   @db.Text // 틀린 답변
+  correctAnswer String   @db.Text // 정답
+  explanation   String?  @db.Text // 해설
+  isReviewed    Boolean  @default(false) // 복습 완료 여부
+  createdAt     DateTime @default(now())
+
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("wrong_answers")
+  @@index([studentId])
+  @@index([questionId])
+  @@index([studentId, isReviewed])
 }
