@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/auth/config';
+import { authConfig } from '@/auth/config';
 import { TeacherSidebar } from '@/components/TeacherSidebar';
 import { TeacherHeader } from '@/components/TeacherHeader';
 
@@ -9,7 +9,7 @@ export default async function TeacherLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authConfig);
 
   // 인증되지 않았거나 교사가 아닌 경우 로그인 페이지로 리다이렉트
   if (!session || session.user.role !== 'TEACHER') {
