@@ -93,9 +93,9 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   pages: {
-    signIn: '/login',
-    signOut: '/login',
-    error: '/login',
+    signIn: '/',
+    signOut: '/',
+    error: '/',
   },
   callbacks: {
     async session({ session, token }) {
