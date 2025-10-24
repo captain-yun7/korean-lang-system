@@ -8,7 +8,7 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-primary-dark to-purple-700 text-white py-24 md:py-32 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-700 text-white py-24 md:py-32 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
@@ -18,24 +18,24 @@ export default function Home() {
         <div className="container relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fadeInUp">
-              전문가와 함께하는<br />
-              <span className="text-yellow-300">온라인 강의</span>
+              독해력을 키우는<br />
+              <span className="text-yellow-300">국어 학습 시스템</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-100 mb-8 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-              언제 어디서나 최고의 강의를 들을 수 있습니다
+              문단별 분석으로 깊이 있는 독해 능력을 향상시키세요
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
               <Link
-                href="/courses"
-                className="btn-primary text-lg px-8 py-4"
+                href="/login"
+                className="btn-primary text-lg px-8 py-4 bg-white text-blue-600 hover:bg-gray-100"
               >
-                강의 둘러보기
+                로그인하기
               </Link>
               <Link
-                href="/about"
+                href="#features"
                 className="btn-secondary text-lg px-8 py-4 bg-white/20 hover:bg-white/30 text-white border-white/40"
               >
-                자세히 알아보기
+                기능 알아보기
               </Link>
             </div>
           </div>
@@ -55,225 +55,180 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-bg-light">
-        <div className="container">
+      <section id="features" className="py-20 bg-gray-50">
+        <div className="container max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-              Private LMS의 특징
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              국어 학습 시스템의 특징
             </h2>
-            <p className="text-lg text-text-secondary">
-              학습을 더욱 효율적으로 만드는 다양한 기능
+            <p className="text-lg text-gray-600">
+              체계적인 독해 훈련으로 국어 실력을 향상시킵니다
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="card-hover text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-text-primary mb-3">언제 어디서나</h3>
-              <p className="text-text-secondary">
-                PC, 태블릿, 모바일 등<br />모든 기기에서 학습 가능
+              <h3 className="text-xl font-bold text-gray-900 mb-3">문단별 분석</h3>
+              <p className="text-gray-600">
+                지문을 문단별로 나누어<br />깊이 있는 독해 능력 향상
               </p>
             </div>
 
             {/* Feature 2 */}
-            <div className="card-hover text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-secondary to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-text-primary mb-3">진도율 관리</h3>
-              <p className="text-text-secondary">
-                학습 진행 상황을<br />한눈에 파악하고 관리
+              <h3 className="text-xl font-bold text-gray-900 mb-3">실시간 성적 분석</h3>
+              <p className="text-gray-600">
+                학습 결과를 즉시 확인하고<br />약점을 파악하여 개선
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="card-hover text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-accent to-orange-400 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-text-primary mb-3">1:1 문의</h3>
-              <p className="text-text-secondary">
-                강의에 대한 질문은<br />빠르고 친절한 답변 제공
+              <h3 className="text-xl font-bold text-gray-900 mb-3">다양한 지문</h3>
+              <p className="text-gray-600">
+                비문학, 문학, 문법까지<br />체계적인 카테고리별 학습
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Courses Preview Section */}
-      <section className="py-20">
-        <div className="container">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-                인기 강의
-              </h2>
-              <p className="text-lg text-text-secondary">
-                지금 가장 많은 수강생이 선택한 강의
-              </p>
-            </div>
-            <Link
-              href="/courses"
-              className="btn-text text-primary hover:text-primary-dark hidden md:flex items-center gap-2"
-            >
-              전체 강의 보기
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
+      {/* User Type Features Section */}
+      <section className="py-20 bg-white">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              사용자별 맞춤 기능
+            </h2>
+            <p className="text-lg text-gray-600">
+              교사와 학생 모두를 위한 체계적인 학습 관리 시스템
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            {/* Course Card 1 */}
-            <div className="card-hover group">
-              <div className="relative aspect-video bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg mb-4 overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {/* Teacher Features */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-2xl">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
                 </div>
+                <h3 className="text-2xl font-bold text-gray-900">교사용 기능</h3>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-text-secondary">
-                  <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium">개발</span>
-                  <span>12시간</span>
-                </div>
-                <h3 className="text-xl font-bold text-text-primary group-hover:text-primary transition-colors">
-                  웹 개발 완벽 가이드
-                </h3>
-                <p className="text-text-secondary text-sm line-clamp-2">
-                  HTML, CSS, JavaScript부터 React까지 모던 웹 개발의 모든 것
-                </p>
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-2xl font-bold text-primary">₩99,000</span>
-                  <div className="flex items-center gap-1 text-sm text-text-secondary">
-                    <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    <span>4.8 (234)</span>
-                  </div>
-                </div>
-              </div>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">학생 관리 및 활성화 기간 설정</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">지문 및 문제 등록/관리</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">학생별 지문/문제 지정</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">성적 조회 및 통계 분석</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">문제별 정답률 분석</span>
+                </li>
+              </ul>
             </div>
 
-            {/* Course Card 2 */}
-            <div className="card-hover group">
-              <div className="relative aspect-video bg-gradient-to-br from-pink-500 to-red-600 rounded-lg mb-4 overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
+            {/* Student Features */}
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-8 rounded-2xl">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
                 </div>
+                <h3 className="text-2xl font-bold text-gray-900">학생용 기능</h3>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-text-secondary">
-                  <span className="px-2 py-1 bg-secondary/10 text-secondary rounded text-xs font-medium">디자인</span>
-                  <span>8시간</span>
-                </div>
-                <h3 className="text-xl font-bold text-text-primary group-hover:text-primary transition-colors">
-                  UI/UX 디자인 기초
-                </h3>
-                <p className="text-text-secondary text-sm line-clamp-2">
-                  사용자 중심의 인터페이스 디자인 원칙과 실전 프로젝트
-                </p>
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-2xl font-bold text-primary">₩79,000</span>
-                  <div className="flex items-center gap-1 text-sm text-text-secondary">
-                    <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    <span>4.9 (189)</span>
-                  </div>
-                </div>
-              </div>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">자율 선택 및 교사 지정 학습</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">문단별 질문 및 즉시 채점</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">오답 노트 및 복습 기능</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">성적 그래프 및 추이 분석</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700">반별/학년별 순위 확인</span>
+                </li>
+              </ul>
             </div>
-
-            {/* Course Card 3 */}
-            <div className="card-hover group">
-              <div className="relative aspect-video bg-gradient-to-br from-green-500 to-teal-600 rounded-lg mb-4 overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-text-secondary">
-                  <span className="px-2 py-1 bg-accent/10 text-accent rounded text-xs font-medium">마케팅</span>
-                  <span>10시간</span>
-                </div>
-                <h3 className="text-xl font-bold text-text-primary group-hover:text-primary transition-colors">
-                  디지털 마케팅 전략
-                </h3>
-                <p className="text-text-secondary text-sm line-clamp-2">
-                  SNS, 콘텐츠, SEO까지 효과적인 온라인 마케팅 기법
-                </p>
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-2xl font-bold text-primary">₩89,000</span>
-                  <div className="flex items-center gap-1 text-sm text-text-secondary">
-                    <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    <span>4.7 (156)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center md:hidden">
-            <Link
-              href="/courses"
-              className="btn-secondary inline-flex items-center gap-2"
-            >
-              전체 강의 보기
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-primary to-primary-dark text-white">
-        <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
+      <section className="py-20 bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
+        <div className="container max-w-4xl mx-auto px-4">
+          <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
               지금 바로 시작하세요
             </h2>
-            <p className="text-lg text-gray-100 mb-8">
-              전문가와 함께 성장하는 학습 경험을 만나보세요
+            <p className="text-lg text-blue-100 mb-8">
+              체계적인 독해 훈련으로 국어 실력을 향상시키세요
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/signup"
-                className="btn-primary bg-white text-primary hover:bg-gray-100 text-lg px-8 py-4"
-              >
-                무료로 시작하기
-              </Link>
-              <Link
-                href="/courses"
-                className="btn-secondary text-lg px-8 py-4 bg-white/20 hover:bg-white/30 text-white border-white/40"
-              >
-                강의 둘러보기
-              </Link>
-            </div>
+            <Link
+              href="/login"
+              className="inline-block bg-white text-blue-600 hover:bg-gray-100 text-lg px-10 py-4 rounded-lg font-semibold transition-colors shadow-lg"
+            >
+              로그인하여 시작하기
+            </Link>
           </div>
         </div>
       </section>
