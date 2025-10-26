@@ -52,6 +52,7 @@ export const authConfig: NextAuthConfig = {
             email: teacher.user.email,
             name: teacher.name,
             role: 'TEACHER',
+            teacherId: teacher.teacherId,
           };
         } else {
           // 학생 로그인
@@ -87,6 +88,9 @@ export const authConfig: NextAuthConfig = {
             name: student.name,
             role: 'STUDENT',
             studentId: student.studentId,
+            grade: student.grade,
+            class: student.class,
+            number: student.number,
           };
         }
       },
@@ -99,53 +103,29 @@ export const authConfig: NextAuthConfig = {
   },
   callbacks: {
     async session({ session, token }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
-      }
-
-      if (session.user && token.sub) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: {
-            role: true,
-            student: {
-              select: {
-                studentId: true,
-                grade: true,
-                class: true,
-                number: true,
-              }
-            },
-            teacher: {
-              select: {
-                teacherId: true,
-              }
-            }
-          },
-        });
-
-        if (dbUser) {
-          session.user.role = dbUser.role;
-
-          if (dbUser.student) {
-            session.user.studentId = dbUser.student.studentId;
-            session.user.grade = dbUser.student.grade;
-            session.user.class = dbUser.student.class;
-            session.user.number = dbUser.student.number;
-          }
-
-          if (dbUser.teacher) {
-            session.user.teacherId = dbUser.teacher.teacherId;
-          }
-        }
+      // JWT 토큰에서 정보 가져오기 (Prisma 사용 안 함)
+      if (token && session.user) {
+        session.user.id = token.sub as string;
+        session.user.role = token.role as any;
+        session.user.studentId = token.studentId as string | undefined;
+        session.user.teacherId = token.teacherId as string | undefined;
+        session.user.grade = token.grade as number | undefined;
+        session.user.class = token.class as number | undefined;
+        session.user.number = token.number as number | undefined;
       }
 
       return session;
     },
     async jwt({ token, user }) {
+      // 최초 로그인 시 user 정보를 JWT 토큰에 저장
       if (user) {
         token.sub = user.id;
         token.role = user.role;
+        token.studentId = (user as any).studentId;
+        token.teacherId = (user as any).teacherId;
+        token.grade = (user as any).grade;
+        token.class = (user as any).class;
+        token.number = (user as any).number;
       }
       return token;
     },

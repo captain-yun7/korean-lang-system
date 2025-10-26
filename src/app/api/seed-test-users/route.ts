@@ -59,8 +59,8 @@ export async function POST() {
               class: 2,
               number: 1,
               isActive: true,
-              activationStart: new Date(),
-              activationEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1년 후
+              activationStartDate: new Date(),
+              activationEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1년 후
             },
           },
         },

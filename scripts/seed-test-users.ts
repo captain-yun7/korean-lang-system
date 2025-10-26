@@ -1,5 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { config } from 'dotenv';
+
+// .env 파일 로드
+config();
 
 const prisma = new PrismaClient();
 
@@ -46,8 +50,8 @@ async function main() {
           class: 2,
           number: 1,
           isActive: true,
-          activationStart: new Date(),
-          activationEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1년 후
+          activationStartDate: new Date(),
+          activationEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1년 후
         },
       },
     },
