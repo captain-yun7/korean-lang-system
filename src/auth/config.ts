@@ -22,31 +22,44 @@ export const authConfig: NextAuthConfig = {
         userType: { label: 'User Type', type: 'text' },
       },
       async authorize(credentials) {
+        console.log('[Auth] Authorize called with:', {
+          ...credentials,
+          password: credentials?.password ? '***' : undefined
+        });
+
         const validatedFields = loginSchema.safeParse(credentials);
 
         if (!validatedFields.success) {
+          console.log('[Auth] Validation failed:', validatedFields.error);
           return null;
         }
 
         const { userId, password, studentId, userType } = validatedFields.data;
+        console.log('[Auth] Validated:', { userId, userType, studentId });
 
         if (userType === 'teacher') {
           // 교사 로그인
+          console.log('[Auth] Teacher login attempt:', userId);
           const teacher = await prisma.teacher.findFirst({
             where: { teacherId: userId },
             include: { user: true },
           });
 
+          console.log('[Auth] Teacher found:', !!teacher);
+
           if (!teacher || !teacher.user.password) {
+            console.log('[Auth] Teacher not found or no password');
             return null;
           }
 
           const passwordsMatch = await bcrypt.compare(password, teacher.user.password);
+          console.log('[Auth] Password match:', passwordsMatch);
 
           if (!passwordsMatch) {
             return null;
           }
 
+          console.log('[Auth] Teacher login success');
           return {
             id: teacher.user.id,
             email: teacher.user.email,

@@ -1,50 +1,133 @@
 import { Card } from '@/components/ui';
 import Link from 'next/link';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
 
-// 임시 데이터 - 추후 API에서 가져올 예정
-const stats = {
-  totalStudents: 45,
-  activeStudents: 42,
-  totalPassages: 28,
-  totalQuestions: 156,
-  averageScore: 78.5,
-  recentActivities: [
-    {
-      id: 1,
-      studentName: '김철수',
-      action: '지문 학습 완료',
-      passageTitle: '현대시의 이해',
-      score: 85,
-      time: '10분 전',
-    },
-    {
-      id: 2,
-      studentName: '이영희',
-      action: '지문 학습 완료',
-      passageTitle: '과학기술과 사회',
-      score: 92,
-      time: '25분 전',
-    },
-    {
-      id: 3,
-      studentName: '박민수',
-      action: '지문 학습 완료',
-      passageTitle: '고전산문의 특징',
-      score: 76,
-      time: '1시간 전',
-    },
-    {
-      id: 4,
-      studentName: '정수진',
-      action: '지문 학습 완료',
-      passageTitle: '음운 변동의 이해',
-      score: 88,
-      time: '2시간 전',
-    },
-  ],
-};
+// 타입 정의
+interface Stats {
+  totalStudents: number;
+  activeStudents: number;
+  totalPassages: number;
+  totalQuestions: number;
+  averageScore: number;
+}
 
-export default function TeacherDashboardPage() {
+interface Activity {
+  id: string;
+  studentName: string;
+  action: string;
+  passageTitle: string;
+  score: number;
+  time: string;
+  createdAt: Date;
+}
+
+// 시간 차이를 "~분 전", "~시간 전" 형태로 변환
+function getTimeAgo(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return '방금 전';
+  if (diffMins < 60) return `${diffMins}분 전`;
+  if (diffHours < 24) return `${diffHours}시간 전`;
+  if (diffDays < 7) return `${diffDays}일 전`;
+
+  return date.toLocaleDateString('ko-KR', {
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+// 통계 데이터 가져오기
+async function getStats(): Promise<Stats> {
+  try {
+    const [
+      totalStudents,
+      activeStudents,
+      totalPassages,
+      totalQuestions,
+      averageScoreData,
+    ] = await Promise.all([
+      prisma.student.count(),
+      prisma.student.count({ where: { isActive: true } }),
+      prisma.passage.count(),
+      prisma.question.count(),
+      prisma.result.aggregate({ _avg: { score: true } }),
+    ]);
+
+    return {
+      totalStudents,
+      activeStudents,
+      totalPassages,
+      totalQuestions,
+      averageScore: averageScoreData._avg.score
+        ? Math.round(averageScoreData._avg.score * 10) / 10
+        : 0,
+    };
+  } catch (error) {
+    console.error('Failed to fetch stats:', error);
+    return {
+      totalStudents: 0,
+      activeStudents: 0,
+      totalPassages: 0,
+      totalQuestions: 0,
+      averageScore: 0,
+    };
+  }
+}
+
+// 최근 활동 데이터 가져오기
+async function getRecentActivities(): Promise<Activity[]> {
+  try {
+    const recentResults = await prisma.result.findMany({
+      take: 4,
+      orderBy: { submittedAt: 'desc' },
+      include: {
+        student: {
+          include: {
+            user: {
+              select: { name: true },
+            },
+          },
+        },
+        passage: {
+          select: { title: true },
+        },
+      },
+    });
+
+    return recentResults.map((result) => ({
+      id: result.id,
+      studentName: result.student.user.name,
+      action: '지문 학습 완료',
+      passageTitle: result.passage.title,
+      score: result.score,
+      time: getTimeAgo(result.submittedAt),
+      createdAt: result.submittedAt,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch recent activities:', error);
+    return [];
+  }
+}
+
+export default async function TeacherDashboardPage() {
+  // 인증 확인
+  const session = await auth();
+  if (!session?.user || session.user.role !== 'TEACHER') {
+    redirect('/');
+  }
+
+  // 데이터 병렬로 가져오기
+  const [stats, recentActivities] = await Promise.all([
+    getStats(),
+    getRecentActivities(),
+  ]);
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -121,7 +204,7 @@ export default function TeacherDashboardPage() {
             <div>
               <p className="text-sm font-medium text-gray-600">평균 성적</p>
               <p className="text-3xl font-bold text-gray-900 mt-2">
-                {stats.averageScore}점
+                {stats.averageScore > 0 ? `${stats.averageScore}점` : '-'}
               </p>
               <Link href="/teacher/stats" className="text-sm text-indigo-600 hover:text-indigo-700 mt-1 inline-block">
                 통계 보기 →
@@ -153,51 +236,57 @@ export default function TeacherDashboardPage() {
           </div>
         </Card.Header>
         <Card.Body className="px-6 pb-6">
-          <div className="space-y-4">
-            {stats.recentActivities.map((activity) => (
-              <div
-                key={activity.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-medium">
-                    {activity.studentName[0]}
+          {recentActivities.length > 0 ? (
+            <div className="space-y-4">
+              {recentActivities.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-medium">
+                      {activity.studentName[0]}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{activity.studentName}</p>
+                      <p className="text-sm text-gray-600">
+                        {activity.action}: <span className="font-medium">{activity.passageTitle}</span>
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{activity.studentName}</p>
-                    <p className="text-sm text-gray-600">
-                      {activity.action}: <span className="font-medium">{activity.passageTitle}</span>
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-gray-900">{activity.score}점</p>
-                    <p className="text-xs text-gray-500">{activity.time}</p>
-                  </div>
-                  <div
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      activity.score >= 90
-                        ? 'bg-green-100 text-green-700'
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-gray-900">{activity.score}점</p>
+                      <p className="text-xs text-gray-500">{activity.time}</p>
+                    </div>
+                    <div
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        activity.score >= 90
+                          ? 'bg-green-100 text-green-700'
+                          : activity.score >= 80
+                          ? 'bg-blue-100 text-blue-700'
+                          : activity.score >= 70
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-red-100 text-red-700'
+                      }`}
+                    >
+                      {activity.score >= 90
+                        ? '우수'
                         : activity.score >= 80
-                        ? 'bg-blue-100 text-blue-700'
+                        ? '양호'
                         : activity.score >= 70
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-red-100 text-red-700'
-                    }`}
-                  >
-                    {activity.score >= 90
-                      ? '우수'
-                      : activity.score >= 80
-                      ? '양호'
-                      : activity.score >= 70
-                      ? '보통'
-                      : '미흡'}
+                        ? '보통'
+                        : '미흡'}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              아직 학습 기록이 없습니다.
+            </div>
+          )}
         </Card.Body>
       </Card>
 
