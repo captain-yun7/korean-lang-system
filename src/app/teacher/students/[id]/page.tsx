@@ -62,15 +62,17 @@ async function getStudentDetail(id: string) {
 export default async function StudentDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
+
   // 인증 확인
   const session = await auth();
   if (!session?.user || session.user.role !== 'TEACHER') {
     redirect('/');
   }
 
-  const data = await getStudentDetail(params.id);
+  const data = await getStudentDetail(id);
 
   if (!data) {
     notFound();

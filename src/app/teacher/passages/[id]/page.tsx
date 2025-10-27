@@ -55,15 +55,17 @@ async function getPassageDetail(id: string) {
 export default async function PassageDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
+
   // 인증 확인
   const session = await auth();
   if (!session?.user || session.user.role !== 'TEACHER') {
     redirect('/');
   }
 
-  const passage = await getPassageDetail(params.id);
+  const passage = await getPassageDetail(id);
 
   if (!passage) {
     notFound();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
@@ -60,20 +60,21 @@ interface Result {
 export default function ResultDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchResult();
-  }, [params.id]);
+  }, [id]);
 
   const fetchResult = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/teacher/results/${params.id}`);
+      const res = await fetch(`/api/teacher/results/${id}`);
       if (!res.ok) throw new Error('Failed to fetch result');
 
       const data = await res.json();

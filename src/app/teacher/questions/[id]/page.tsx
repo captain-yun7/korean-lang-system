@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
@@ -61,8 +61,9 @@ interface Passage {
 export default function QuestionDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
   const [question, setQuestion] = useState<Question | null>(null);
   const [recentAnswers, setRecentAnswers] = useState<QuestionAnswer[]>([]);
@@ -85,12 +86,12 @@ export default function QuestionDetailPage({
   useEffect(() => {
     fetchQuestion();
     fetchPassages();
-  }, [params.id]);
+  }, [id]);
 
   const fetchQuestion = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/teacher/questions/${params.id}`);
+      const res = await fetch(`/api/teacher/questions/${id}`);
       if (!res.ok) throw new Error('Failed to fetch question');
 
       const data = await res.json();
@@ -133,7 +134,7 @@ export default function QuestionDetailPage({
     e.preventDefault();
 
     try {
-      const res = await fetch(`/api/teacher/questions/${params.id}`, {
+      const res = await fetch(`/api/teacher/questions/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -171,7 +172,7 @@ export default function QuestionDetailPage({
     if (!confirm('정말 이 문제를 삭제하시겠습니까?')) return;
 
     try {
-      const res = await fetch(`/api/teacher/questions/${params.id}`, {
+      const res = await fetch(`/api/teacher/questions/${id}`, {
         method: 'DELETE',
       });
 
