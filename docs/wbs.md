@@ -106,51 +106,51 @@
 
 #### 작업 목록
 
-**2.1 교사 대시보드 (2-3일)**
-- [ ] 대시보드 레이아웃 (`/teacher/dashboard`)
-- [ ] 통계 카드
-  - [ ] 전체 학생 수 조회 API
-  - [ ] 등록된 지문 수 조회 API
-  - [ ] 등록된 문제 수 조회 API
-  - [ ] 평균 성적 조회 API
-- [ ] 최근 활동 로그 (선택적)
-- [ ] 대시보드 권한 확인 Middleware
+**2.1 교사 대시보드 (2-3일)** ✅
+- [x] 대시보드 레이아웃 (`/teacher/dashboard`)
+- [x] 통계 카드
+  - [x] 전체 학생 수 조회 API
+  - [x] 등록된 지문 수 조회 API
+  - [x] 등록된 문제 수 조회 API
+  - [x] 평균 성적 조회 API
+- [x] 최근 활동 로그 (선택적)
+- [x] 대시보드 권한 확인 Middleware
 
-**2.2 학생 관리 (4-5일)**
-- [ ] 학생 목록 페이지 (`/teacher/students`)
-  - [ ] 학생 목록 조회 API (`GET /api/students`)
-  - [ ] 검색 및 필터링 (학년, 반, 활성화 상태)
-  - [ ] 페이지네이션
-- [ ] 학생 등록 페이지 (`/teacher/students/new`)
-  - [ ] 학생 정보 입력 폼
-  - [ ] 학번 자동 생성 또는 수동 입력
-  - [ ] 활성화 기간 설정 (시작일, 종료일)
-  - [ ] 학생 등록 API (`POST /api/students`)
-- [ ] 학생 수정 페이지 (`/teacher/students/[id]/edit`)
-  - [ ] 학생 정보 수정 API (`PATCH /api/students/[id]`)
-- [ ] 학생 삭제/비활성화
-  - [ ] 학생 비활성화 API (`DELETE /api/students/[id]`)
+**2.2 학생 관리 (4-5일)** ✅
+- [x] 학생 목록 페이지 (`/teacher/students`)
+  - [x] 학생 목록 조회 API (`GET /api/teacher/students`)
+  - [x] 검색 및 필터링 (학년, 반, 활성화 상태)
+  - [x] 페이지네이션
+- [x] 학생 등록 페이지 (`/teacher/students/new`)
+  - [x] 학생 정보 입력 폼
+  - [x] 학번 자동 생성 또는 수동 입력
+  - [x] 활성화 기간 설정 (시작일, 종료일)
+  - [x] 학생 등록 API (`POST /api/teacher/students`)
+- [x] 학생 수정 페이지 (`/teacher/students/[id]/edit`)
+  - [x] 학생 정보 수정 API (`PATCH /api/teacher/students/[id]`)
+- [x] 학생 삭제/비활성화
+  - [x] 학생 비활성화 API (`DELETE /api/teacher/students/[id]`)
 - [ ] CSV 일괄 등록 (선택적)
 
-**2.3 지문 관리 (5-6일)**
-- [ ] 지문 목록 페이지 (`/teacher/passages`)
-  - [ ] 지문 목록 조회 API (`GET /api/passages`)
-  - [ ] 검색 기능 (제목)
-  - [ ] 필터링 (대분류 카테고리, 세부 카테고리, 난이도)
-  - [ ] 페이지네이션
-- [ ] 지문 등록 페이지 (`/teacher/passages/new`)
-  - [ ] 제목, 카테고리, 세부 카테고리, 난이도 입력
-  - [ ] 문단별 입력 UI
-    - [ ] 문단 내용
-    - [ ] 문단별 질문
-    - [ ] 정답
-    - [ ] 정답 해설
-  - [ ] 문단 추가/삭제 버튼
-  - [ ] 지문 등록 API (`POST /api/passages`)
-- [ ] 지문 수정 페이지 (`/teacher/passages/[id]/edit`)
-  - [ ] 지문 수정 API (`PATCH /api/passages/[id]`)
-- [ ] 지문 삭제 API (`DELETE /api/passages/[id]`)
-- [ ] 지문 지정 기능
+**2.3 지문 관리 (5-6일)** ✅
+- [x] 지문 목록 페이지 (`/teacher/passages`)
+  - [x] 지문 목록 조회 API (`GET /api/teacher/passages`)
+  - [x] 검색 기능 (제목)
+  - [x] 필터링 (대분류 카테고리, 세부 카테고리, 난이도)
+  - [x] 페이지네이션
+- [x] 지문 등록 페이지 (`/teacher/passages/new`)
+  - [x] 제목, 카테고리, 세부 카테고리, 난이도 입력
+  - [x] 문단별 입력 UI
+    - [x] 문단 내용
+    - [x] 문단별 질문
+    - [x] 정답
+    - [x] 정답 해설
+  - [x] 문단 추가/삭제 버튼
+  - [x] 지문 등록 API (`POST /api/teacher/passages`)
+- [x] 지문 상세 페이지 (`/teacher/passages/[id]`)
+- [x] 지문 수정 API (`PUT /api/teacher/passages/[id]`)
+- [x] 지문 삭제 API (`DELETE /api/teacher/passages/[id]`)
+- [ ] 지문 지정 기능 (선택적)
   - [ ] 특정 학생/학년/반에 지문 지정
   - [ ] 완료 기한 설정
   - [ ] 지정 API (`POST /api/assignments/passages`)
@@ -467,7 +467,7 @@
 ## 6. 현재 진행 상황
 
 ### 완료된 작업 ✅
-- [x] Phase 1: 기본 인프라 (95% 완료)
+- [x] **Phase 1: 기본 인프라** (100% 완료)
   - [x] 프로젝트 초기 설정
   - [x] 데이터베이스 설정 (Neon)
   - [x] Prisma 스키마 작성
@@ -482,20 +482,39 @@
     - [x] 교사/학생 대시보드 구조 완성
   - [x] 테스트 계정 생성 API 구현
 
+- [x] **Phase 2.1: 교사 대시보드** (100% 완료)
+  - [x] 실시간 통계 카드 구현
+  - [x] 최근 활동 로그
+  - [x] API: `/api/teacher/stats`, `/api/teacher/recent-activities`
+
+- [x] **Phase 2.2: 학생 관리 CRUD** (100% 완료)
+  - [x] 학생 목록 페이지 (검색, 필터링, 페이지네이션)
+  - [x] 학생 등록/상세/수정 페이지
+  - [x] API: `/api/teacher/students`
+  - [x] 활성화 기간 설정, 학번 자동 생성
+
+- [x] **Phase 2.3: 지문 관리 CRUD** (100% 완료)
+  - [x] 지문 목록 페이지 (카테고리/난이도 필터링, 검색)
+  - [x] 지문 등록 페이지 (문단별 입력 UI)
+  - [x] 지문 상세 페이지
+  - [x] API: `/api/teacher/passages`
+  - [x] 동적 문단 추가/삭제 기능
+
 ### 진행 중 🔄
-- [ ] **Phase 1 최종 테스트** (5% 남음)
-  - 테스트 계정으로 로그인 검증
-  - 교사/학생 리다이렉트 확인
+- [ ] **Phase 2.4: 문제 관리 CRUD** (진행 예정)
+  - 문제 목록/등록/수정/삭제 페이지
+  - 복수 정답 처리
+  - 지문 연결 기능
 
 ### 다음 단계
-1. **Phase 1 완료** (5% 남음)
-   - 환경 변수 설정 확인 (DATABASE_URL)
-   - 테스트 계정 생성 및 로그인 테스트
-   - 최종 검증
+1. **Phase 2.4: 문제 관리** (5-6일)
+   - 문제 등록 API 및 페이지 구현
+   - 복수 정답 처리 로직
+   - 문제 유형별 동적 폼 (객관식, 단답형, 서술형)
 
-2. **Phase 2 시작**
-   - 교사 대시보드 API 구현
-   - 학생 관리 CRUD
+2. **Phase 2.5: 성적 조회** (4-5일)
+   - 성적 목록 및 상세 페이지
+   - 성적 다운로드 (Excel, CSV)
 
 ---
 
