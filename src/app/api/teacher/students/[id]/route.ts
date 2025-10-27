@@ -62,19 +62,25 @@ export async function PUT(
     const body = await request.json();
     const {
       name,
-      grade,
-      class: classNum,
-      number,
+      userId, // 로그인 아이디
+      grade: gradeStr,
+      class: classStr,
+      number: numberStr,
       password,
       isActive,
       activationStartDate,
       activationEndDate,
     } = body;
 
+    // 숫자 변환
+    const grade = parseInt(gradeStr);
+    const classNum = parseInt(classStr);
+    const number = parseInt(numberStr);
+
     // 필수 필드 확인
-    if (!name || !grade || !classNum || !number) {
+    if (!name || !userId || isNaN(grade) || isNaN(classNum) || isNaN(number)) {
       return NextResponse.json(
-        { error: '필수 필드가 누락되었습니다.' },
+        { error: '필수 필드가 누락되었거나 올바르지 않습니다.' },
         { status: 400 }
       );
     }
@@ -90,6 +96,23 @@ export async function PUT(
         { error: '학생을 찾을 수 없습니다.' },
         { status: 404 }
       );
+    }
+
+    // userId가 변경되었는지 확인하고 중복 체크
+    if (userId !== existingStudent.user.email) {
+      const duplicateUser = await prisma.user.findFirst({
+        where: {
+          email: userId,
+          id: { not: existingStudent.userId },
+        },
+      });
+
+      if (duplicateUser) {
+        return NextResponse.json(
+          { error: `이미 사용 중인 아이디입니다: ${userId}` },
+          { status: 400 }
+        );
+      }
     }
 
     // 학년/반/번호가 변경되었는지 확인
@@ -136,6 +159,7 @@ export async function PUT(
         where: { id: existingStudent.userId },
         data: {
           name,
+          email: userId, // userId를 email 필드에 저장
           ...(hashedPassword && { password: hashedPassword }),
         },
       });

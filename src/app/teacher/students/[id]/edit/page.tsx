@@ -20,6 +20,7 @@ interface StudentData {
 
 interface StudentFormData {
   name: string;
+  userId: string; // 로그인 아이디
   grade: number;
   class: number;
   number: number;
@@ -39,6 +40,7 @@ export default function EditStudentPage() {
   const [student, setStudent] = useState<StudentData | null>(null);
   const [formData, setFormData] = useState<StudentFormData>({
     name: '',
+    userId: '',
     grade: 1,
     class: 1,
     number: 1,
@@ -57,6 +59,7 @@ export default function EditStudentPage() {
         setStudent(data.student);
         setFormData({
           name: data.student.name,
+          userId: data.student.user.email, // user.email에 userId가 저장되어 있음
           grade: data.student.grade,
           class: data.student.class,
           number: data.student.number,
@@ -112,6 +115,11 @@ export default function EditStudentPage() {
     // 필수 필드 확인
     if (!formData.name.trim()) {
       setError('이름을 입력해주세요.');
+      return;
+    }
+
+    if (!formData.userId.trim()) {
+      setError('로그인 아이디를 입력해주세요.');
       return;
     }
 
@@ -208,6 +216,26 @@ export default function EditStudentPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="홍길동"
                 />
+              </div>
+
+              {/* 로그인 아이디 */}
+              <div>
+                <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
+                  로그인 아이디 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="userId"
+                  name="userId"
+                  value={formData.userId}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="student01"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  학생이 로그인 시 사용할 아이디입니다
+                </p>
               </div>
 
               {/* 학년/반/번호 */}

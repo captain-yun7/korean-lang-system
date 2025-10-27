@@ -18,19 +18,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       name,
-      grade,
-      class: classNum,
-      number,
+      userId, // 학생 로그인 아이디
+      grade: gradeStr,
+      class: classStr,
+      number: numberStr,
       password,
       isActive,
       activationStartDate,
       activationEndDate,
     } = body;
 
+    // 숫자 변환
+    const grade = parseInt(gradeStr);
+    const classNum = parseInt(classStr);
+    const number = parseInt(numberStr);
+
     // 필수 필드 확인
-    if (!name || !grade || !classNum || !number || !password) {
+    if (!name || !userId || isNaN(grade) || isNaN(classNum) || isNaN(number) || !password) {
       return NextResponse.json(
-        { error: '필수 필드가 누락되었습니다.' },
+        { error: '필수 필드가 누락되었거나 올바르지 않습니다.' },
         { status: 400 }
       );
     }
@@ -53,6 +59,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 중복 userId 확인
+    const existingUser = await prisma.user.findUnique({
+      where: { email: userId },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: `이미 사용 중인 아이디입니다: ${userId}` },
+        { status: 400 }
+      );
+    }
+
     // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -62,6 +80,7 @@ export async function POST(request: NextRequest) {
       const user = await tx.user.create({
         data: {
           name,
+          email: userId, // userId를 email 필드에 저장 (로그인용)
           password: hashedPassword,
           role: 'STUDENT',
         },
