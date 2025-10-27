@@ -175,6 +175,7 @@ export async function POST(request: NextRequest) {
 
       questionResults.push({
         questionId: question.id,
+        question: question,
         answer: studentAnswer,
         isCorrect,
       });
@@ -211,8 +212,9 @@ export async function POST(request: NextRequest) {
         data: wrongAnswers.map((wa) => ({
           studentId: student.id,
           questionId: wa.questionId,
-          resultId: result.id,
-          studentAnswer: wa.answer,
+          wrongAnswer: wa.answer,
+          correctAnswer: wa.question.answers.join(' / '),
+          explanation: wa.question.explanation || null,
         })),
       });
     }
