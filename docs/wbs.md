@@ -155,45 +155,45 @@
   - [ ] 완료 기한 설정
   - [ ] 지정 API (`POST /api/assignments/passages`)
 
-**2.4 문제 관리 (5-6일)**
-- [ ] 문제 목록 페이지 (`/teacher/questions`)
-  - [ ] 문제 목록 조회 API (`GET /api/questions`)
-  - [ ] 지문별 필터링
-  - [ ] 문제 유형별 필터링
-  - [ ] 검색 기능
-- [ ] 문제 등록 페이지 (`/teacher/questions/new`)
-  - [ ] 연결된 지문 선택 (또는 독립 문제)
-  - [ ] 문제 유형 선택 (객관식, 단답형, 서술형)
-  - [ ] 문제 내용 입력
-  - [ ] 선택지 입력 (객관식)
-  - [ ] 복수 정답 입력 (배열)
-  - [ ] 정답 해설 입력
-  - [ ] 오답 해설 입력 (선택지별)
-  - [ ] 문제 등록 API (`POST /api/questions`)
-- [ ] 문제 수정 페이지 (`/teacher/questions/[id]/edit`)
-  - [ ] 문제 수정 API (`PATCH /api/questions/[id]`)
-- [ ] 문제 삭제 API (`DELETE /api/questions/[id]`)
-- [ ] 문제 지정 기능
+**2.4 문제 관리 (5-6일)** ✅
+- [x] 문제 목록 페이지 (`/teacher/questions`)
+  - [x] 문제 목록 조회 API (`GET /api/teacher/questions`)
+  - [x] 지문별 필터링
+  - [x] 문제 유형별 필터링
+  - [x] 검색 기능
+- [x] 문제 등록 페이지 (`/teacher/questions/new`)
+  - [x] 연결된 지문 선택 (또는 독립 문제)
+  - [x] 문제 유형 선택 (객관식, 단답형, 서술형)
+  - [x] 문제 내용 입력
+  - [x] 선택지 입력 (객관식)
+  - [x] 복수 정답 입력 (배열)
+  - [x] 정답 해설 입력
+  - [x] 오답 해설 입력 (선택지별)
+  - [x] 문제 등록 API (`POST /api/teacher/questions`)
+- [x] 문제 상세/수정 페이지 (`/teacher/questions/[id]`)
+  - [x] 문제 수정 API (`PUT /api/teacher/questions/[id]`)
+- [x] 문제 삭제 API (`DELETE /api/teacher/questions/[id]`)
+- [ ] 문제 지정 기능 (선택적)
   - [ ] 특정 학생/학년/반에 문제 지정
   - [ ] 문법/개념 문제 지정
   - [ ] 지정 API (`POST /api/assignments/questions`)
 
-**2.5 성적 조회 (4-5일)**
-- [ ] 성적 목록 페이지 (`/teacher/results`)
-  - [ ] 성적 목록 조회 API (`GET /api/results`)
-  - [ ] 필터링 (학생별, 지문별, 기간별)
-  - [ ] 정렬 (제출일, 점수)
-  - [ ] 페이지네이션
-- [ ] 성적 상세 페이지 (`/teacher/results/[id]`)
-  - [ ] 성적 상세 조회 API (`GET /api/results/[id]`)
-  - [ ] 학생 정보 표시
-  - [ ] 지문 정보 표시
-  - [ ] 독해 시간, 총점 표시
-  - [ ] 문단별 질문 답변 및 채점 결과
-  - [ ] 문제별 답변 및 채점 결과
-- [ ] 성적 다운로드
-  - [ ] Excel 다운로드 API (`GET /api/results/export/excel`)
-  - [ ] CSV 다운로드 API (`GET /api/results/export/csv`)
+**2.5 성적 조회 (4-5일)** ✅
+- [x] 성적 목록 페이지 (`/teacher/results`)
+  - [x] 성적 목록 조회 API (`GET /api/teacher/results`)
+  - [x] 필터링 (학생별, 지문별, 기간별)
+  - [x] 정렬 (제출일, 점수)
+  - [x] 페이지네이션
+- [x] 성적 상세 페이지 (`/teacher/results/[id]`)
+  - [x] 성적 상세 조회 API (`GET /api/teacher/results/[id]`)
+  - [x] 학생 정보 표시
+  - [x] 지문 정보 표시
+  - [x] 독해 시간, 총점 표시
+  - [x] 문단별 질문 답변 및 채점 결과
+  - [x] 문제별 답변 및 채점 결과
+- [x] 성적 다운로드
+  - [x] Excel 다운로드 API (`GET /api/teacher/results/export`)
+  - [ ] CSV 다운로드 (Excel로 통합)
   - [ ] PDF 다운로드 (선택적)
 
 **2.6 통계 분석 (4-5일)**
@@ -500,21 +500,36 @@
   - [x] API: `/api/teacher/passages`
   - [x] 동적 문단 추가/삭제 기능
 
+- [x] **Phase 2.4: 문제 관리 CRUD** (100% 완료)
+  - [x] 문제 목록 페이지 (검색, 필터링, 페이지네이션)
+  - [x] 문제 등록 페이지 (객관식/단답형/서술형)
+  - [x] 문제 상세/수정 페이지
+  - [x] API: `/api/teacher/questions`
+  - [x] 복수 정답 처리
+  - [x] 지문 연결 기능
+
+- [x] **Phase 2.5: 성적 조회** (100% 완료)
+  - [x] 성적 목록 페이지 (필터링, 정렬, 페이지네이션)
+  - [x] 성적 상세 페이지 (문단별/문제별 답변 표시)
+  - [x] API: `/api/teacher/results`
+  - [x] Excel 다운로드 기능
+
 ### 진행 중 🔄
-- [ ] **Phase 2.4: 문제 관리 CRUD** (진행 예정)
-  - 문제 목록/등록/수정/삭제 페이지
-  - 복수 정답 처리
-  - 지문 연결 기능
+- [ ] **Phase 2.6: 통계 분석** (진행 예정)
+  - 학년별/반별 평균 점수
+  - 카테고리별 평균 점수
+  - 학생별 성적 그래프
+  - 문제별 정답률
 
 ### 다음 단계
-1. **Phase 2.4: 문제 관리** (5-6일)
-   - 문제 등록 API 및 페이지 구현
-   - 복수 정답 처리 로직
-   - 문제 유형별 동적 폼 (객관식, 단답형, 서술형)
+1. **Phase 2.6: 통계 분석** (4-5일)
+   - 통계 페이지 및 API 구현
+   - 차트 라이브러리 연동 (recharts)
+   - 학년별/반별/카테고리별 통계
 
-2. **Phase 2.5: 성적 조회** (4-5일)
-   - 성적 목록 및 상세 페이지
-   - 성적 다운로드 (Excel, CSV)
+2. **Phase 2.7: 테스트** (2일)
+   - 학생/지문/문제/성적 관리 CRUD 테스트
+   - 통계 조회 테스트
 
 ---
 
