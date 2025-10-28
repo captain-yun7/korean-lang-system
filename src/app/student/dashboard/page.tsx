@@ -187,14 +187,14 @@ export default async function StudentDashboardPage() {
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">빠른 시작</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          <Link href="/student/study/self">
+          <Link href="/student/study">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
               <Card.Body className="p-6">
                 <div className="text-center">
                   <div className="text-4xl mb-3">📚</div>
-                  <h3 className="text-lg font-semibold text-gray-900">스스로 학습</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">학습하기</h3>
                   <p className="text-sm text-gray-600 mt-2">
-                    원하는 지문을 선택하여 학습하세요
+                    스스로, 문법 학습 선택
                   </p>
                 </div>
               </Card.Body>
