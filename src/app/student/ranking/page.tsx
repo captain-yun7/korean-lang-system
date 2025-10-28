@@ -95,90 +95,95 @@ export default function RankingPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">순위</h1>
-        <p className="text-gray-600 mt-1">반, 학년, 전체 순위를 확인하세요</p>
+      <div className="relative rounded-2xl bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 p-8 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-black opacity-10"></div>
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold">순위 🏆</h1>
+          <p className="text-white/90 mt-2 text-lg">반, 학년, 전체 순위를 확인하세요</p>
+        </div>
       </div>
 
       {/* 탭 선택 */}
-      <Card>
-        <Card.Body className="p-4">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setRankingType('class')}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                rankingType === 'class'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              반별 순위
-            </button>
-            <button
-              onClick={() => setRankingType('grade')}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                rankingType === 'grade'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              학년별 순위
-            </button>
-            <button
-              onClick={() => setRankingType('all')}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                rankingType === 'all'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              전체 순위
-            </button>
-          </div>
-        </Card.Body>
-      </Card>
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => setRankingType('class')}
+            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+              rankingType === 'class'
+                ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            🏫 반별 순위
+          </button>
+          <button
+            onClick={() => setRankingType('grade')}
+            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+              rankingType === 'grade'
+                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            🎓 학년별 순위
+          </button>
+          <button
+            onClick={() => setRankingType('all')}
+            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+              rankingType === 'all'
+                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            🌟 전체 순위
+          </button>
+        </div>
+      </div>
 
       {/* 내 순위 */}
       {rankingData?.myRank ? (
-        <Card>
-          <Card.Header className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
-            <h2 className="text-lg font-semibold text-gray-900">내 순위</h2>
-          </Card.Header>
-          <Card.Body className="p-6">
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+          <div className="relative bg-white rounded-2xl p-8 m-1">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <span className="text-3xl">👤</span>
+              내 순위
+            </h2>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
-                <div className="text-center">
-                  <div className="text-5xl mb-2">{getMedalEmoji(rankingData.myRank.rank)}</div>
-                  <p className="text-3xl font-bold text-indigo-600">
+                <div className="text-center bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border-2 border-yellow-200">
+                  <div className="text-6xl mb-2">{getMedalEmoji(rankingData.myRank.rank)}</div>
+                  <p className="text-4xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
                     {rankingData.myRank.rank}위
                   </p>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-600 mt-2 font-medium">
                     / {rankingData.totalStudents}명
                   </p>
                 </div>
-                <div className="h-16 w-px bg-gray-300" />
+                <div className="h-24 w-px bg-gray-300" />
                 <div>
-                  <p className="text-lg font-semibold text-gray-900">
+                  <p className="text-2xl font-bold text-gray-900">
                     {rankingData.myRank.name}
                   </p>
-                  <p className="text-gray-600">
+                  <p className="text-lg text-gray-600 mt-1">
                     {rankingData.myRank.grade}학년 {rankingData.myRank.class}반{' '}
                     {rankingData.myRank.number}번
                   </p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-600 mb-1">평균 점수</p>
-                <p className="text-4xl font-bold text-green-600">
+              <div className="text-right bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200">
+                <p className="text-sm font-bold text-gray-600 mb-2">평균 점수</p>
+                <p className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                   {rankingData.myRank.averageScore}점
                 </p>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-gray-600 mt-3 font-medium">
                   총 {rankingData.myRank.totalResults}회 학습
                 </p>
               </div>
             </div>
-          </Card.Body>
-        </Card>
+          </div>
+        </div>
       ) : (
         <Card>
           <Card.Body className="p-12 text-center">

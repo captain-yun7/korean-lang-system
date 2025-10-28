@@ -100,114 +100,123 @@ export default function AssignedStudyPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">교사 지정 학습</h1>
-        <p className="text-gray-600 mt-1">선생님이 배정한 과제를 완료하세요</p>
+      <div className="relative rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-8 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-black opacity-10"></div>
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold">교사 지정 학습 👨‍🏫</h1>
+          <p className="text-white/90 mt-2 text-lg">선생님이 배정한 과제를 완료하세요</p>
+        </div>
       </div>
 
       {/* 통계 */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <Card>
-            <Card.Body className="p-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {/* 전체 과제 */}
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-2xl p-6 m-1">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">전체 과제</p>
                 <p className="text-3xl font-bold text-indigo-600 mt-2">{stats.total}개</p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          {/* 완료 */}
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-2xl p-6 m-1">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">완료</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">
-                  {stats.completed}개
-                </p>
+                <p className="text-3xl font-bold text-green-600 mt-2">{stats.completed}개</p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          {/* 미완료 */}
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-2xl p-6 m-1">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">미완료</p>
-                <p className="text-3xl font-bold text-orange-600 mt-2">
-                  {stats.pending}개
-                </p>
+                <p className="text-3xl font-bold text-orange-600 mt-2">{stats.pending}개</p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          {/* 마감 초과 */}
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-2xl p-6 m-1">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">마감 초과</p>
                 <p className="text-3xl font-bold text-red-600 mt-2">{stats.overdue}개</p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          {/* 완료율 */}
+          <div className="relative group col-span-2 md:col-span-1">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-2xl p-6 m-1">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">완료율</p>
-                <p className="text-3xl font-bold text-blue-600 mt-2">
+                <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mt-2">
                   {stats.completionRate}%
                 </p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
 
       {/* 필터 */}
-      <Card>
-        <Card.Body className="p-4">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                filter === 'all'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              전체 ({stats?.total || 0})
-            </button>
-            <button
-              onClick={() => setFilter('pending')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                filter === 'pending'
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              미완료 ({stats?.pending || 0})
-            </button>
-            <button
-              onClick={() => setFilter('completed')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                filter === 'completed'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              완료 ({stats?.completed || 0})
-            </button>
-            <button
-              onClick={() => setFilter('overdue')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                filter === 'overdue'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              마감 초과 ({stats?.overdue || 0})
-            </button>
-          </div>
-        </Card.Body>
-      </Card>
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => setFilter('all')}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              filter === 'all'
+                ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            전체 <span className="ml-1 font-bold">{stats?.total || 0}</span>
+          </button>
+          <button
+            onClick={() => setFilter('pending')}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              filter === 'pending'
+                ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            미완료 <span className="ml-1 font-bold">{stats?.pending || 0}</span>
+          </button>
+          <button
+            onClick={() => setFilter('completed')}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              filter === 'completed'
+                ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            완료 <span className="ml-1 font-bold">{stats?.completed || 0}</span>
+          </button>
+          <button
+            onClick={() => setFilter('overdue')}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              filter === 'overdue'
+                ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            마감 초과 <span className="ml-1 font-bold">{stats?.overdue || 0}</span>
+          </button>
+        </div>
+      </div>
 
       {/* 과제 목록 */}
       {filteredAssignments.length === 0 ? (
@@ -229,34 +238,38 @@ export default function AssignedStudyPage() {
           {filteredAssignments.map((assignment) => {
             const dueDateStatus = getDueDateStatus(assignment);
 
+            let borderColor = 'border-blue-200 hover:border-blue-400';
+            if (assignment.isCompleted) borderColor = 'border-green-300 hover:border-green-500';
+            else if (dueDateStatus === 'overdue') borderColor = 'border-red-300 hover:border-red-500';
+            else if (dueDateStatus === 'urgent') borderColor = 'border-orange-300 hover:border-orange-500';
+
             return (
-              <Card key={assignment.id}>
-                <Card.Body className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      {/* 제목 및 상태 */}
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl font-semibold text-gray-900">
-                          {assignment.passage.title}
-                        </h3>
-                        {assignment.isCompleted ? (
-                          <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
-                            완료
-                          </span>
-                        ) : dueDateStatus === 'overdue' ? (
-                          <span className="px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-full">
-                            마감 초과
-                          </span>
-                        ) : dueDateStatus === 'urgent' ? (
-                          <span className="px-3 py-1 bg-orange-100 text-orange-700 text-sm font-medium rounded-full">
-                            마감 임박
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
-                            진행중
-                          </span>
-                        )}
-                      </div>
+              <div key={assignment.id} className={`bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all border-2 ${borderColor}`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    {/* 제목 및 상태 */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {assignment.passage.title}
+                      </h3>
+                      {assignment.isCompleted ? (
+                        <span className="px-4 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-bold rounded-full shadow-sm">
+                          ✓ 완료
+                        </span>
+                      ) : dueDateStatus === 'overdue' ? (
+                        <span className="px-4 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-bold rounded-full shadow-sm">
+                          ⚠ 마감 초과
+                        </span>
+                      ) : dueDateStatus === 'urgent' ? (
+                        <span className="px-4 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-bold rounded-full shadow-sm animate-pulse">
+                          ⏰ 마감 임박
+                        </span>
+                      ) : (
+                        <span className="px-4 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-full shadow-sm">
+                          📝 진행중
+                        </span>
+                      )}
+                    </div>
 
                       {/* 지문 정보 */}
                       <div className="flex items-center gap-2 mb-4">
@@ -335,33 +348,32 @@ export default function AssignedStudyPage() {
                       )}
                     </div>
 
-                    {/* 액션 버튼 */}
-                    <div className="ml-4">
-                      {assignment.isCompleted ? (
-                        <Link
-                          href={`/student/study/reading/${assignment.passageId}`}
-                          className="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors inline-block"
-                        >
-                          다시 풀기
-                        </Link>
-                      ) : (
-                        <Link
-                          href={`/student/study/reading/${assignment.passageId}`}
-                          className={`px-4 py-2 text-white text-sm rounded-lg transition-colors inline-block ${
-                            dueDateStatus === 'overdue'
-                              ? 'bg-red-600 hover:bg-red-700'
-                              : dueDateStatus === 'urgent'
-                              ? 'bg-orange-600 hover:bg-orange-700'
-                              : 'bg-indigo-600 hover:bg-indigo-700'
-                          }`}
-                        >
-                          학습 시작
-                        </Link>
-                      )}
-                    </div>
+                  {/* 액션 버튼 */}
+                  <div className="ml-4">
+                    {assignment.isCompleted ? (
+                      <Link
+                        href={`/student/study/reading/${assignment.passageId}`}
+                        className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold rounded-xl hover:shadow-lg transition-all inline-block"
+                      >
+                        다시 풀기 🔄
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/student/study/reading/${assignment.passageId}`}
+                        className={`px-6 py-3 text-white font-bold rounded-xl hover:shadow-lg transition-all inline-block ${
+                          dueDateStatus === 'overdue'
+                            ? 'bg-gradient-to-r from-red-500 to-red-600'
+                            : dueDateStatus === 'urgent'
+                            ? 'bg-gradient-to-r from-orange-500 to-orange-600'
+                            : 'bg-gradient-to-r from-indigo-500 to-indigo-600'
+                        }`}
+                      >
+                        학습 시작 →
+                      </Link>
+                    )}
                   </div>
-                </Card.Body>
-              </Card>
+                </div>
+              </div>
             );
           })}
         </div>

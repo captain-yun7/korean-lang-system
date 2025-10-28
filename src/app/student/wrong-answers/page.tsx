@@ -76,117 +76,139 @@ export default function WrongAnswersPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">오답 노트</h1>
-        <p className="text-gray-600 mt-1">틀린 문제를 다시 풀어보고 복습하세요</p>
+      <div className="relative rounded-2xl bg-gradient-to-br from-red-500 via-rose-500 to-pink-500 p-8 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-black opacity-10"></div>
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold">오답 노트 ❌</h1>
+          <p className="text-white/90 mt-2 text-lg">틀린 문제를 다시 풀어보고 복습하세요</p>
+        </div>
       </div>
 
       {/* 통계 */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <Card.Body className="p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* 전체 오답 */}
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-2xl p-6 m-1">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">전체 오답</p>
-                <p className="text-3xl font-bold text-red-600 mt-2">
-                  {stats.totalWrong}개
-                </p>
+                <p className="text-3xl font-bold text-red-600 mt-2">{stats.totalWrong}개</p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          {/* 복습 완료 */}
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-2xl p-6 m-1">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">복습 완료</p>
                 <p className="text-3xl font-bold text-green-600 mt-2">
                   {stats.reviewedCount}개
                 </p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          {/* 복습 필요 */}
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-2xl p-6 m-1">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">복습 필요</p>
-                <p className="text-3xl font-bold text-orange-600 mt-2">
-                  {stats.unreviewedCount}개
-                </p>
+                <p className="text-3xl font-bold text-orange-600 mt-2">{stats.unreviewedCount}개</p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          {/* 복습률 */}
+          <div className="relative group col-span-2 md:col-span-1">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-2xl p-6 m-1">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">복습률</p>
-                <p className="text-3xl font-bold text-indigo-600 mt-2">
+                <p className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mt-2">
                   {stats.totalWrong > 0
                     ? Math.round((stats.reviewedCount / stats.totalWrong) * 100)
                     : 0}
                   %
                 </p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
 
       {/* 자주 틀리는 카테고리 */}
       {stats && stats.frequentCategories.length > 0 && (
-        <Card>
-          <Card.Header className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">
-              자주 틀리는 카테고리
-            </h2>
-          </Card.Header>
-          <Card.Body className="p-6">
-            <div className="flex gap-4">
-              {stats.frequentCategories.map((cat, index) => (
+        <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-6 border-2 border-red-200">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-2xl">📊</span>
+            자주 틀리는 카테고리
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {stats.frequentCategories.map((cat, index) => {
+              const medals = ['🥇', '🥈', '🥉'];
+              const colors = [
+                'from-yellow-400 to-orange-500',
+                'from-gray-300 to-gray-500',
+                'from-orange-300 to-orange-600',
+              ];
+              return (
                 <div
                   key={index}
-                  className="flex-1 p-4 bg-red-50 rounded-lg border border-red-200"
+                  className={`relative group`}
                 >
-                  <p className="text-sm text-gray-600 mb-1">{index + 1}위</p>
-                  <p className="text-xl font-bold text-red-700">{cat.category}</p>
-                  <p className="text-sm text-gray-600 mt-1">{cat.count}개 문제</p>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${colors[index]} rounded-xl transform group-hover:scale-105 transition-transform`}></div>
+                  <div className="relative bg-white rounded-xl p-4 m-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-3xl">{medals[index]}</span>
+                      <span className="text-sm font-bold text-gray-500">{index + 1}위</span>
+                    </div>
+                    <p className="text-lg font-bold text-gray-900">{cat.category}</p>
+                    <p className="text-sm text-gray-600 mt-1">{cat.count}개 문제</p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </Card.Body>
-        </Card>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* 필터 */}
-      <Card>
-        <Card.Body className="p-4">
-          <div className="flex items-center gap-4">
-            <label className="text-sm font-medium text-gray-700">카테고리:</label>
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-bold text-gray-700">카테고리:</label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="px-4 py-2 border-2 border-gray-300 rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
             >
               <option value="">전체</option>
-              <option value="비문학">비문학</option>
-              <option value="문학">문학</option>
-              <option value="문법">문법</option>
+              <option value="비문학">📘 비문학</option>
+              <option value="문학">📕 문학</option>
+              <option value="문법">📗 문법</option>
             </select>
+          </div>
 
-            <label className="text-sm font-medium text-gray-700">복습 상태:</label>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-bold text-gray-700">복습 상태:</label>
             <select
               value={selectedReviewStatus}
               onChange={(e) => setSelectedReviewStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="px-4 py-2 border-2 border-gray-300 rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
             >
               <option value="">전체</option>
-              <option value="false">복습 필요</option>
-              <option value="true">복습 완료</option>
+              <option value="false">❌ 복습 필요</option>
+              <option value="true">✅ 복습 완료</option>
             </select>
           </div>
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
 
       {/* 오답 목록 */}
       {wrongAnswers.length === 0 ? (
