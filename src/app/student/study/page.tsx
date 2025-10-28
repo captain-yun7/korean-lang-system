@@ -80,37 +80,39 @@ export default function StudentStudyPage() {
           </Card>
         </Link>
 
-        {/* 문법 학습 (준비 중) */}
-        <Card className="h-full border-2 border-gray-300 opacity-60">
-          <Card.Body className="p-8">
-            <div className="text-center">
-              <div className="text-6xl mb-4">📖</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">문법 학습</h2>
-              <p className="text-gray-600 mb-4">
-                문법/개념 문제를 풀어볼 수 있습니다.
-              </p>
-              <div className="space-y-2 text-sm text-left">
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-400">•</span>
-                  <span className="text-gray-500">품사, 단어의 형성 등</span>
+        {/* 문법 학습 */}
+        <Link href="/student/study/grammar">
+          <Card className="h-full hover:shadow-xl transition-shadow cursor-pointer border-2 hover:border-purple-500">
+            <Card.Body className="p-8">
+              <div className="text-center">
+                <div className="text-6xl mb-4">📖</div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">문법 학습</h2>
+                <p className="text-gray-600 mb-4">
+                  문법/개념 문제를 풀어볼 수 있습니다.
+                </p>
+                <div className="space-y-2 text-sm text-left">
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span className="text-gray-700">지문 없이 문제만 풀기</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span className="text-gray-700">즉시 채점 및 해설</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span className="text-gray-700">오답 자동 저장</span>
+                  </div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-400">•</span>
-                  <span className="text-gray-500">즉시 채점 및 해설</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-400">•</span>
-                  <span className="text-gray-500">오답 자동 저장</span>
+                <div className="mt-6">
+                  <span className="inline-block px-4 py-2 bg-purple-600 text-white rounded-lg font-medium">
+                    시작하기
+                  </span>
                 </div>
               </div>
-              <div className="mt-6">
-                <span className="inline-block px-4 py-2 bg-gray-400 text-white rounded-lg font-medium cursor-not-allowed">
-                  준비 중
-                </span>
-              </div>
-            </div>
-          </Card.Body>
-        </Card>
+            </Card.Body>
+          </Card>
+        </Link>
       </div>
 
       {/* 카테고리 안내 */}
