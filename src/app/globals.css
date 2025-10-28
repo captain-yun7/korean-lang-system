@@ -49,7 +49,10 @@
   --color-border: var(--border);
 
   /* Fonts */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+
+  /* Pretendard Font Family */
+  --font-pretendard: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
 
   /* Shadows */
   --shadow-sm: var(--shadow-sm);
@@ -74,10 +77,15 @@ html {
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-sans);
+  font-family: var(--font-pretendard);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Pretendard Font Classes */
+.font-pretendard {
+  font-family: var(--font-pretendard);
 }
 
 /* Utility Classes */

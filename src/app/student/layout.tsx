@@ -63,11 +63,11 @@ export default async function StudentLayout({
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Left: Logo */}
-            <Link href="/student/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">국</span>
-              </div>
-              <span className="font-bold text-gray-900">국어 학습 시스템</span>
+            <Link href="/student/dashboard" className="flex items-center">
+              <span className="text-xl font-bold">
+                <span className="text-purple-500">국어 학습</span>
+                <span className="text-gray-900"> 시스템</span>
+              </span>
             </Link>
 
             {/* Right: Navigation + User Info */}

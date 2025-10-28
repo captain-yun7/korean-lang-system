@@ -130,7 +130,7 @@ export default async function StudentDashboardPage() {
       {/* Page Header */}
       <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
         <h1 className="text-4xl font-bold text-gray-900">
-          안녕하세요, {session.user.name}님!
+          안녕하세요, <span className="text-purple-500">{session.user.name}</span>님!
         </h1>
         <p className="text-gray-600 text-lg mt-2">
           {stats.student.grade}학년 {stats.student.class}반 {stats.student.number}번 · 오늘도 열심히 공부해봐요!
@@ -150,16 +150,13 @@ export default async function StudentDashboardPage() {
               </div>
             </div>
             <p className="text-sm font-semibold text-gray-900 mb-1">평균 점수</p>
-            <p className="text-5xl font-black text-gray-900 mb-2">
+            <p className="text-5xl font-black text-gray-900">
               {stats.averageScore}
               <span className="text-2xl ml-1 text-gray-700">점</span>
             </p>
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-purple-400 to-purple-500 rounded-full transition-all"
-                style={{ width: `${stats.averageScore}%` }}
-              ></div>
-            </div>
+            <p className="text-xs text-gray-600 mt-2">
+              {stats.totalResults > 0 ? `총 ${stats.totalResults}회 학습` : '학습을 시작해보세요'}
+            </p>
           </div>
         </div>
 
@@ -306,7 +303,7 @@ export default async function StudentDashboardPage() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <div className="flex-shrink-0 w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center text-white font-bold text-sm">
                       {index + 1}
                     </div>
                     <div className="flex-1">
