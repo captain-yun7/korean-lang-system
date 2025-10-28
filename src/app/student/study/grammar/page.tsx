@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+  DocumentTextIcon,
+  SparklesIcon,
+  ArrowLeftIcon
+} from '@heroicons/react/24/solid';
 
 interface Question {
   id: string;
@@ -55,15 +60,18 @@ export default function GrammarStudyPage() {
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
         <div className="relative z-10 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold">문법 학습 📖</h1>
-            <p className="text-white/90 mt-2 text-lg">문법/개념 문제를 풀어보세요</p>
+          <div className="flex items-center gap-4">
+            <DocumentTextIcon className="w-12 h-12" />
+            <div>
+              <h1 className="text-4xl font-bold">문법 학습</h1>
+              <p className="text-white/90 mt-2 text-lg">문법/개념 문제를 풀어보세요</p>
+            </div>
           </div>
           <Link
             href="/student/study"
-            className="px-6 py-3 bg-white text-purple-600 font-bold rounded-xl hover:shadow-lg transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 font-bold rounded-xl hover:shadow-lg transition-all"
           >
-            ← 뒤로가기
+            <ArrowLeftIcon className="w-5 h-5" /> 뒤로가기
           </Link>
         </div>
       </div>
@@ -73,21 +81,23 @@ export default function GrammarStudyPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl"></div>
         <div className="relative bg-white rounded-2xl p-6 m-1">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <span className="text-2xl">🎲</span>
-                랜덤 문제 풀기
-              </h2>
-              <p className="text-sm text-gray-600 mt-2">
-                랜덤으로 선택된 문법 문제를 풀어보세요
-              </p>
+            <div className="flex items-center gap-3">
+              <SparklesIcon className="w-10 h-10 text-green-500" />
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  랜덤 문제 풀기
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  랜덤으로 선택된 문법 문제를 풀어보세요
+                </p>
+              </div>
             </div>
             <button
               onClick={handleRandomSelect}
               disabled={questions.length === 0}
-              className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl hover:shadow-lg transition-all disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl hover:shadow-lg transition-all disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed"
             >
-              🎲 랜덤 선택
+              <SparklesIcon className="w-5 h-5" /> 랜덤 선택
             </button>
           </div>
         </div>
@@ -113,8 +123,7 @@ export default function GrammarStudyPage() {
       ) : (
         <>
           <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border-2 border-indigo-200">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <span className="text-3xl">📝</span>
+            <h2 className="text-2xl font-bold text-gray-900">
               전체 문제 <span className="text-indigo-600">({questions.length}개)</span>
             </h2>
           </div>

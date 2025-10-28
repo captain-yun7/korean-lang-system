@@ -3,6 +3,19 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import {
+  FireIcon,
+  StarIcon,
+  ChartBarIcon,
+  LightBulbIcon,
+  BookOpenIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  AcademicCapIcon,
+  XCircleIcon,
+  TrophyIcon,
+  DocumentTextIcon
+} from '@heroicons/react/24/solid';
 
 // 학생 통계 가져오기
 async function getStudentStats(studentId: string) {
@@ -100,16 +113,17 @@ export default async function StudentDashboardPage() {
     );
   }
 
-  // 점수에 따른 메시지와 이모지
+  // 점수에 따른 메시지와 아이콘
   const getScoreMessage = (score: number) => {
-    if (score >= 90) return { emoji: '🔥', message: '정말 대단해요!', color: 'text-red-500' };
-    if (score >= 80) return { emoji: '🌟', message: '훌륭해요!', color: 'text-yellow-500' };
-    if (score >= 70) return { emoji: '💪', message: '잘하고 있어요!', color: 'text-blue-500' };
-    if (score >= 60) return { emoji: '📈', message: '계속 노력해요!', color: 'text-green-500' };
-    return { emoji: '💡', message: '화이팅!', color: 'text-purple-500' };
+    if (score >= 90) return { Icon: FireIcon, message: '정말 대단해요!', color: 'text-red-500' };
+    if (score >= 80) return { Icon: StarIcon, message: '훌륭해요!', color: 'text-yellow-500' };
+    if (score >= 70) return { Icon: ChartBarIcon, message: '잘하고 있어요!', color: 'text-blue-500' };
+    if (score >= 60) return { Icon: ChartBarIcon, message: '계속 노력해요!', color: 'text-green-500' };
+    return { Icon: LightBulbIcon, message: '화이팅!', color: 'text-purple-500' };
   };
 
   const scoreInfo = getScoreMessage(stats.averageScore);
+  const ScoreIcon = scoreInfo.Icon;
 
   return (
     <div className="space-y-8">
@@ -117,12 +131,10 @@ export default async function StudentDashboardPage() {
       <div className="relative rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-10"></div>
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold">
-              안녕하세요, {session.user.name}님! 👋
-            </h1>
-          </div>
-          <p className="text-white/90 text-lg">
+          <h1 className="text-4xl font-bold">
+            안녕하세요, {session.user.name}님!
+          </h1>
+          <p className="text-white/90 text-lg mt-2">
             {stats.student.grade}학년 {stats.student.class}반 {stats.student.number}번 · 오늘도 열심히 공부해봐요!
           </p>
         </div>
@@ -131,39 +143,14 @@ export default async function StudentDashboardPage() {
         <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
       </div>
 
-      {/* 지정된 학습 알림 */}
-      {stats.assignedCount > 0 && (
-        <div className="relative rounded-xl bg-gradient-to-r from-orange-400 to-red-500 p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="text-5xl">⚡</div>
-              <div>
-                <h3 className="text-xl font-bold">
-                  완료해야 할 학습이 {stats.assignedCount}개 있습니다
-                </h3>
-                <p className="text-white/90 mt-1">
-                  교사가 지정한 학습을 완료하세요
-                </p>
-              </div>
-            </div>
-            <Link
-              href="/student/study/assigned"
-              className="px-6 py-3 bg-white text-orange-600 rounded-lg hover:bg-gray-100 transition-all font-bold shadow-md hover:shadow-xl transform hover:scale-105"
-            >
-              바로가기 →
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* 학습 현황 통계 - 더 화려하게 */}
+      {/* 학습 현황 통계 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* 평균 점수 */}
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
           <div className="relative bg-white rounded-2xl p-6 m-1">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-4xl">{scoreInfo.emoji}</div>
+              <ScoreIcon className={`w-10 h-10 ${scoreInfo.color}`} />
               <div className="text-xs font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
                 {scoreInfo.message}
               </div>
@@ -187,7 +174,7 @@ export default async function StudentDashboardPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
           <div className="relative bg-white rounded-2xl p-6 m-1">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-4xl">✅</div>
+              <CheckCircleIcon className="w-10 h-10 text-green-500" />
               <div className="text-xs font-semibold text-green-600 bg-green-100 px-3 py-1 rounded-full">
                 누적 학습
               </div>
@@ -198,7 +185,7 @@ export default async function StudentDashboardPage() {
               <span className="text-2xl ml-1">회</span>
             </p>
             <p className="text-xs text-gray-500 mt-2">
-              {stats.totalResults > 0 ? '꾸준히 하고 있어요! 👍' : '첫 학습을 시작해보세요!'}
+              {stats.totalResults > 0 ? '꾸준히 하고 있어요' : '첫 학습을 시작해보세요'}
             </p>
           </div>
         </div>
@@ -208,7 +195,7 @@ export default async function StudentDashboardPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
           <div className="relative bg-white rounded-2xl p-6 m-1">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-4xl">⏱️</div>
+              <ClockIcon className="w-10 h-10 text-purple-500" />
               <div className="text-xs font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">
                 집중 시간
               </div>
@@ -219,7 +206,7 @@ export default async function StudentDashboardPage() {
               <span className="text-2xl ml-1">분</span>
             </p>
             <p className="text-xs text-gray-500 mt-2">
-              {stats.totalReadingTime > 0 ? `${Math.floor(stats.totalReadingTime / 3600)}시간 ${Math.floor((stats.totalReadingTime % 3600) / 60)}분` : '시작이 반이에요!'}
+              {stats.totalReadingTime > 0 ? `${Math.floor(stats.totalReadingTime / 3600)}시간 ${Math.floor((stats.totalReadingTime % 3600) / 60)}분` : '시작이 반이에요'}
             </p>
           </div>
         </div>
@@ -229,7 +216,7 @@ export default async function StudentDashboardPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
           <div className="relative bg-white rounded-2xl p-6 m-1">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-4xl">📌</div>
+              <DocumentTextIcon className="w-10 h-10 text-orange-500" />
               <div className="text-xs font-semibold text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
                 미완료
               </div>
@@ -240,21 +227,19 @@ export default async function StudentDashboardPage() {
               <span className="text-2xl ml-1">개</span>
             </p>
             <p className="text-xs text-gray-500 mt-2">
-              {stats.assignedCount > 0 ? '얼른 완료하세요!' : '과제가 없어요 😎'}
+              {stats.assignedCount > 0 ? '얼른 완료하세요' : '과제가 없어요'}
             </p>
           </div>
         </div>
       </div>
 
-      {/* 빠른 시작 - 더 화려하게 */}
+      {/* 빠른 시작 */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-          <span>🚀</span> 빠른 시작
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">빠른 시작</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <Link href="/student/study" className="group">
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-              <div className="text-5xl mb-3">📚</div>
+              <BookOpenIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">학습하기</h3>
               <p className="text-sm text-white/80">
                 스스로, 문법 학습 선택
@@ -265,7 +250,7 @@ export default async function StudentDashboardPage() {
 
           <Link href="/student/study/assigned" className="group">
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-              <div className="text-5xl mb-3">👨‍🏫</div>
+              <AcademicCapIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">교사 지정</h3>
               <p className="text-sm text-white/80">
                 선생님 배정 과제
@@ -276,7 +261,7 @@ export default async function StudentDashboardPage() {
 
           <Link href="/student/results" className="group">
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-              <div className="text-5xl mb-3">📊</div>
+              <ChartBarIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">내 성적</h3>
               <p className="text-sm text-white/80">
                 학습 기록 확인
@@ -287,7 +272,7 @@ export default async function StudentDashboardPage() {
 
           <Link href="/student/wrong-answers" className="group">
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-red-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-              <div className="text-5xl mb-3">📝</div>
+              <XCircleIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">오답 노트</h3>
               <p className="text-sm text-white/80">
                 틀린 문제 복습
@@ -298,7 +283,7 @@ export default async function StudentDashboardPage() {
 
           <Link href="/student/ranking" className="group">
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-              <div className="text-5xl mb-3">🏆</div>
+              <TrophyIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">순위</h3>
               <p className="text-sm text-white/80">
                 반, 학년 순위
@@ -314,14 +299,12 @@ export default async function StudentDashboardPage() {
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <span>📖</span> 최근 학습 기록
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900">최근 학습 기록</h2>
               <Link
                 href="/student/results"
                 className="text-sm text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1 hover:gap-2 transition-all"
               >
-                전체 보기 →
+                전체 보기
               </Link>
             </div>
           </div>
@@ -335,7 +318,7 @@ export default async function StudentDashboardPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
                     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
-                      #{index + 1}
+                      {index + 1}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors">
@@ -366,8 +349,9 @@ export default async function StudentDashboardPage() {
                       </div>
                       <span className="text-lg text-gray-500">점</span>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      ⏱️ {Math.floor(result.readingTime / 60)}분 {result.readingTime % 60}초
+                    <p className="text-xs text-gray-500 flex items-center gap-1 justify-end">
+                      <ClockIcon className="w-3 h-3" />
+                      {Math.floor(result.readingTime / 60)}분 {result.readingTime % 60}초
                     </p>
                   </div>
                 </div>
@@ -380,18 +364,18 @@ export default async function StudentDashboardPage() {
       {/* 학습이 없는 경우 */}
       {stats.recentResults.length === 0 && (
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-12 text-center">
-          <div className="text-8xl mb-6">📚</div>
+          <BookOpenIcon className="w-24 h-24 mx-auto mb-6 text-indigo-300" />
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             아직 학습 기록이 없습니다
           </h3>
           <p className="text-gray-600 mb-8 text-lg">
-            첫 학습을 시작하고 실력을 향상시켜보세요!
+            첫 학습을 시작하고 실력을 향상시켜보세요
           </p>
           <Link
             href="/student/study"
             className="inline-block px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            학습 시작하기 🚀
+            학습 시작하기
           </Link>
           <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-200 rounded-full blur-3xl opacity-50"></div>
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-200 rounded-full blur-3xl opacity-50"></div>

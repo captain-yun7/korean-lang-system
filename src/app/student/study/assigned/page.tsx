@@ -3,6 +3,15 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui';
 import Link from 'next/link';
+import {
+  AcademicCapIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  ClockIcon,
+  DocumentTextIcon,
+  ArrowPathIcon,
+  ArrowRightIcon
+} from '@heroicons/react/24/solid';
 
 interface Assignment {
   id: string;
@@ -104,9 +113,12 @@ export default function AssignedStudyPage() {
         <div className="absolute inset-0 bg-black opacity-10"></div>
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold">교사 지정 학습 👨‍🏫</h1>
-          <p className="text-white/90 mt-2 text-lg">선생님이 배정한 과제를 완료하세요</p>
+        <div className="relative z-10 flex items-center gap-4">
+          <AcademicCapIcon className="w-12 h-12" />
+          <div>
+            <h1 className="text-4xl font-bold">교사 지정 학습</h1>
+            <p className="text-white/90 mt-2 text-lg">선생님이 배정한 과제를 완료하세요</p>
+          </div>
         </div>
       </div>
 
@@ -253,20 +265,20 @@ export default function AssignedStudyPage() {
                         {assignment.passage.title}
                       </h3>
                       {assignment.isCompleted ? (
-                        <span className="px-4 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-bold rounded-full shadow-sm">
-                          ✓ 완료
+                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-bold rounded-full shadow-sm">
+                          <CheckCircleIcon className="w-4 h-4" /> 완료
                         </span>
                       ) : dueDateStatus === 'overdue' ? (
-                        <span className="px-4 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-bold rounded-full shadow-sm">
-                          ⚠ 마감 초과
+                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-bold rounded-full shadow-sm">
+                          <ExclamationTriangleIcon className="w-4 h-4" /> 마감 초과
                         </span>
                       ) : dueDateStatus === 'urgent' ? (
-                        <span className="px-4 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-bold rounded-full shadow-sm animate-pulse">
-                          ⏰ 마감 임박
+                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-bold rounded-full shadow-sm animate-pulse">
+                          <ClockIcon className="w-4 h-4" /> 마감 임박
                         </span>
                       ) : (
-                        <span className="px-4 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-full shadow-sm">
-                          📝 진행중
+                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-full shadow-sm">
+                          <DocumentTextIcon className="w-4 h-4" /> 진행중
                         </span>
                       )}
                     </div>
@@ -353,14 +365,14 @@ export default function AssignedStudyPage() {
                     {assignment.isCompleted ? (
                       <Link
                         href={`/student/study/reading/${assignment.passageId}`}
-                        className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold rounded-xl hover:shadow-lg transition-all inline-block"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold rounded-xl hover:shadow-lg transition-all"
                       >
-                        다시 풀기 🔄
+                        <ArrowPathIcon className="w-5 h-5" /> 다시 풀기
                       </Link>
                     ) : (
                       <Link
                         href={`/student/study/reading/${assignment.passageId}`}
-                        className={`px-6 py-3 text-white font-bold rounded-xl hover:shadow-lg transition-all inline-block ${
+                        className={`inline-flex items-center gap-2 px-6 py-3 text-white font-bold rounded-xl hover:shadow-lg transition-all ${
                           dueDateStatus === 'overdue'
                             ? 'bg-gradient-to-r from-red-500 to-red-600'
                             : dueDateStatus === 'urgent'
@@ -368,7 +380,7 @@ export default function AssignedStudyPage() {
                             : 'bg-gradient-to-r from-indigo-500 to-indigo-600'
                         }`}
                       >
-                        학습 시작 →
+                        학습 시작 <ArrowRightIcon className="w-5 h-5" />
                       </Link>
                     )}
                   </div>
