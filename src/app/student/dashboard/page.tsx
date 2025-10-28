@@ -115,11 +115,11 @@ export default async function StudentDashboardPage() {
 
   // 점수에 따른 메시지와 아이콘
   const getScoreMessage = (score: number) => {
-    if (score >= 90) return { Icon: FireIcon, message: '정말 대단해요!', color: 'text-red-500' };
-    if (score >= 80) return { Icon: StarIcon, message: '훌륭해요!', color: 'text-yellow-500' };
-    if (score >= 70) return { Icon: ChartBarIcon, message: '잘하고 있어요!', color: 'text-blue-500' };
-    if (score >= 60) return { Icon: ChartBarIcon, message: '계속 노력해요!', color: 'text-green-500' };
-    return { Icon: LightBulbIcon, message: '화이팅!', color: 'text-purple-500' };
+    if (score >= 90) return { Icon: FireIcon, message: '정말 대단해요!', color: 'text-purple-600' };
+    if (score >= 80) return { Icon: StarIcon, message: '훌륭해요!', color: 'text-purple-500' };
+    if (score >= 70) return { Icon: ChartBarIcon, message: '잘하고 있어요!', color: 'text-purple-600' };
+    if (score >= 60) return { Icon: ChartBarIcon, message: '계속 노력해요!', color: 'text-purple-500' };
+    return { Icon: LightBulbIcon, message: '화이팅!', color: 'text-purple-600' };
   };
 
   const scoreInfo = getScoreMessage(stats.averageScore);
@@ -127,42 +127,36 @@ export default async function StudentDashboardPage() {
 
   return (
     <div className="space-y-20 pb-16 mt-8">
-      {/* Page Header with Gradient */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold">
-            안녕하세요, {session.user.name}님!
-          </h1>
-          <p className="text-white/90 text-lg mt-2">
-            {stats.student.grade}학년 {stats.student.class}반 {stats.student.number}번 · 오늘도 열심히 공부해봐요!
-          </p>
-        </div>
-        {/* Decorative circles */}
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+      {/* Page Header */}
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
+        <h1 className="text-4xl font-bold text-gray-900">
+          안녕하세요, {session.user.name}님!
+        </h1>
+        <p className="text-gray-600 text-lg mt-2">
+          {stats.student.grade}학년 {stats.student.class}반 {stats.student.number}번 · 오늘도 열심히 공부해봐요!
+        </p>
       </div>
 
       {/* 학습 현황 통계 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-20">
         {/* 평균 점수 */}
         <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-          <div className="relative bg-white rounded-2xl p-6 m-1">
+          <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+          <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <ScoreIcon className={`w-10 h-10 ${scoreInfo.color}`} />
-              <div className="text-xs font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+              <div className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
                 {scoreInfo.message}
               </div>
             </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">평균 점수</p>
-            <p className="text-5xl font-black text-blue-600 mb-2">
+            <p className="text-sm font-semibold text-gray-900 mb-1">평균 점수</p>
+            <p className="text-5xl font-black text-gray-900 mb-2">
               {stats.averageScore}
-              <span className="text-2xl ml-1">점</span>
+              <span className="text-2xl ml-1 text-gray-700">점</span>
             </p>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-purple-400 to-purple-500 rounded-full transition-all"
                 style={{ width: `${stats.averageScore}%` }}
               ></div>
             </div>
@@ -171,20 +165,20 @@ export default async function StudentDashboardPage() {
 
         {/* 학습 횟수 */}
         <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-          <div className="relative bg-white rounded-2xl p-6 m-1">
+          <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+          <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <CheckCircleIcon className="w-10 h-10 text-green-500" />
-              <div className="text-xs font-semibold text-green-600 bg-green-100 px-3 py-1 rounded-full">
+              <CheckCircleIcon className="w-10 h-10 text-purple-500" />
+              <div className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
                 누적 학습
               </div>
             </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">학습 횟수</p>
-            <p className="text-5xl font-black text-green-600">
+            <p className="text-sm font-semibold text-gray-900 mb-1">학습 횟수</p>
+            <p className="text-5xl font-black text-gray-900">
               {stats.totalResults}
-              <span className="text-2xl ml-1">회</span>
+              <span className="text-2xl ml-1 text-gray-700">회</span>
             </p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-600 mt-2">
               {stats.totalResults > 0 ? '꾸준히 하고 있어요' : '첫 학습을 시작해보세요'}
             </p>
           </div>
@@ -192,20 +186,20 @@ export default async function StudentDashboardPage() {
 
         {/* 총 독해 시간 */}
         <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-          <div className="relative bg-white rounded-2xl p-6 m-1">
+          <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+          <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <ClockIcon className="w-10 h-10 text-purple-500" />
-              <div className="text-xs font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">
+              <div className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
                 집중 시간
               </div>
             </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">총 독해 시간</p>
-            <p className="text-5xl font-black text-purple-600">
+            <p className="text-sm font-semibold text-gray-900 mb-1">총 독해 시간</p>
+            <p className="text-5xl font-black text-gray-900">
               {Math.floor(stats.totalReadingTime / 60)}
-              <span className="text-2xl ml-1">분</span>
+              <span className="text-2xl ml-1 text-gray-700">분</span>
             </p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-600 mt-2">
               {stats.totalReadingTime > 0 ? `${Math.floor(stats.totalReadingTime / 3600)}시간 ${Math.floor((stats.totalReadingTime % 3600) / 60)}분` : '시작이 반이에요'}
             </p>
           </div>
@@ -213,20 +207,20 @@ export default async function StudentDashboardPage() {
 
         {/* 과제 */}
         <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-          <div className="relative bg-white rounded-2xl p-6 m-1">
+          <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+          <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <DocumentTextIcon className="w-10 h-10 text-orange-500" />
-              <div className="text-xs font-semibold text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
+              <DocumentTextIcon className="w-10 h-10 text-purple-500" />
+              <div className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
                 미완료
               </div>
             </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">과제</p>
-            <p className="text-5xl font-black text-orange-600">
+            <p className="text-sm font-semibold text-gray-900 mb-1">과제</p>
+            <p className="text-5xl font-black text-gray-900">
               {stats.assignedCount}
-              <span className="text-2xl ml-1">개</span>
+              <span className="text-2xl ml-1 text-gray-700">개</span>
             </p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-600 mt-2">
               {stats.assignedCount > 0 ? '얼른 완료하세요' : '과제가 없어요'}
             </p>
           </div>
@@ -238,57 +232,52 @@ export default async function StudentDashboardPage() {
         <h2 className="text-2xl font-bold text-gray-900 mb-10">빠른 시작</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <Link href="/student/study" className="group">
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <BookOpenIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">학습하기</h3>
-              <p className="text-sm text-white/80">
+              <p className="text-sm text-white/90">
                 스스로, 문법 학습 선택
               </p>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
             </div>
           </Link>
 
           <Link href="/student/study/assigned" className="group">
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <AcademicCapIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">교사 지정</h3>
-              <p className="text-sm text-white/80">
+              <p className="text-sm text-white/90">
                 선생님 배정 과제
               </p>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
             </div>
           </Link>
 
           <Link href="/student/results" className="group">
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <ChartBarIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">내 성적</h3>
-              <p className="text-sm text-white/80">
+              <p className="text-sm text-white/90">
                 학습 기록 확인
               </p>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
             </div>
           </Link>
 
           <Link href="/student/wrong-answers" className="group">
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-red-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <XCircleIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">오답 노트</h3>
-              <p className="text-sm text-white/80">
+              <p className="text-sm text-white/90">
                 틀린 문제 복습
               </p>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
             </div>
           </Link>
 
           <Link href="/student/ranking" className="group">
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <TrophyIcon className="w-12 h-12 mb-3" />
               <h3 className="text-xl font-bold mb-2">순위</h3>
-              <p className="text-sm text-white/80">
+              <p className="text-sm text-white/90">
                 반, 학년 순위
               </p>
-              <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
             </div>
           </Link>
         </div>

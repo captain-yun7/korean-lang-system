@@ -62,45 +62,47 @@ export default async function StudentLayout({
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-8">
-              <Link href="/student/dashboard" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">국</span>
-                </div>
-                <span className="font-bold text-gray-900">국어 학습 시스템</span>
-              </Link>
+            {/* Left: Logo */}
+            <Link href="/student/dashboard" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">국</span>
+              </div>
+              <span className="font-bold text-gray-900">국어 학습 시스템</span>
+            </Link>
 
+            {/* Right: Navigation + User Info */}
+            <div className="flex items-center gap-6">
               <nav className="hidden md:flex items-center gap-1">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                   >
                     {item.icon}
                     <span className="font-medium">{item.label}</span>
                   </Link>
                 ))}
               </nav>
-            </div>
 
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">
-                  {session.user.name}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {session.user.grade}학년 {session.user.class}반 {session.user.number}번
-                </p>
+              <div className="flex items-center gap-4 border-l border-gray-200 pl-6">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">
+                    {session.user.name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {session.user.grade}학년 {session.user.class}반 {session.user.number}번
+                  </p>
+                </div>
+                <form action="/api/auth/signout" method="POST">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    로그아웃
+                  </button>
+                </form>
               </div>
-              <form action="/api/auth/signout" method="POST">
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  로그아웃
-                </button>
-              </form>
             </div>
           </div>
         </div>

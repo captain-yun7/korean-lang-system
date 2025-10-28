@@ -12,7 +12,7 @@ export default function StudentStudyPage() {
   return (
     <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 p-8 text-white overflow-hidden">
+      <div className="relative rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-8 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-10"></div>
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
@@ -27,7 +27,7 @@ export default function StudentStudyPage() {
         {/* 스스로 학습 */}
         <Link href="/student/study/self">
           <div className="relative group h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl transform group-hover:scale-105 transition-transform shadow-lg"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl transform group-hover:scale-105 transition-transform shadow-lg"></div>
             <div className="relative p-8 text-white">
               <div className="text-center">
                 <BookOpenIcon className="w-16 h-16 mx-auto mb-4" />
@@ -50,7 +50,7 @@ export default function StudentStudyPage() {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 rounded-lg font-bold group-hover:shadow-xl transition-shadow">
+                  <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-lg font-bold group-hover:shadow-xl transition-shadow">
                     시작하기 <ArrowRightIcon className="w-4 h-4" />
                   </span>
                 </div>
@@ -62,7 +62,7 @@ export default function StudentStudyPage() {
         {/* 교사 지정 학습 */}
         <Link href="/student/study/assigned">
           <div className="relative group h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl transform group-hover:scale-105 transition-transform shadow-lg"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl transform group-hover:scale-105 transition-transform shadow-lg"></div>
             <div className="relative p-8 text-white">
               <div className="text-center">
                 <AcademicCapIcon className="w-16 h-16 mx-auto mb-4" />
@@ -85,7 +85,7 @@ export default function StudentStudyPage() {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-lg font-bold group-hover:shadow-xl transition-shadow">
+                  <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-lg font-bold group-hover:shadow-xl transition-shadow">
                     과제 확인하기 <ArrowRightIcon className="w-4 h-4" />
                   </span>
                 </div>
@@ -97,7 +97,7 @@ export default function StudentStudyPage() {
         {/* 문법 학습 */}
         <Link href="/student/study/grammar">
           <div className="relative group h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl transform group-hover:scale-105 transition-transform shadow-lg"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl transform group-hover:scale-105 transition-transform shadow-lg"></div>
             <div className="relative p-8 text-white">
               <div className="text-center">
                 <DocumentTextIcon className="w-16 h-16 mx-auto mb-4" />
