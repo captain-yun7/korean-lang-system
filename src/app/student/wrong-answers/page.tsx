@@ -74,7 +74,7 @@ export default function WrongAnswersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
       <div className="relative rounded-2xl bg-gradient-to-br from-red-500 via-rose-500 to-pink-500 p-8 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-10"></div>
@@ -88,7 +88,7 @@ export default function WrongAnswersPage() {
 
       {/* 통계 */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-20">
           {/* 전체 오답 */}
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>

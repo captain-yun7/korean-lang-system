@@ -10,7 +10,7 @@ import {
 
 export default function StudentStudyPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
       <div className="relative rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 p-8 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-10"></div>
@@ -23,7 +23,7 @@ export default function StudentStudyPage() {
       </div>
 
       {/* 학습 방법 선택 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-20">
         {/* 스스로 학습 */}
         <Link href="/student/study/self">
           <div className="relative group h-full">

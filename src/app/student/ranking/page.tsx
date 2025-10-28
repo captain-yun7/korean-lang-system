@@ -93,7 +93,7 @@ export default function RankingPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
       <div className="relative rounded-2xl bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 p-8 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-10"></div>
@@ -106,7 +106,7 @@ export default function RankingPage() {
       </div>
 
       {/* 탭 선택 */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mt-20">
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setRankingType('class')}

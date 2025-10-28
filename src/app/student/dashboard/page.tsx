@@ -126,7 +126,7 @@ export default async function StudentDashboardPage() {
   const ScoreIcon = scoreInfo.Icon;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-20 pb-16 mt-8">
       {/* Page Header with Gradient */}
       <div className="relative rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-10"></div>
@@ -144,7 +144,7 @@ export default async function StudentDashboardPage() {
       </div>
 
       {/* 학습 현황 통계 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-20">
         {/* 평균 점수 */}
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
@@ -234,8 +234,8 @@ export default async function StudentDashboardPage() {
       </div>
 
       {/* 빠른 시작 */}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">빠른 시작</h2>
+      <div className="mt-20">
+        <h2 className="text-2xl font-bold text-gray-900 mb-10">빠른 시작</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <Link href="/student/study" className="group">
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">

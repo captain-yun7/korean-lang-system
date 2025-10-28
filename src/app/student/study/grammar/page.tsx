@@ -53,7 +53,7 @@ export default function GrammarStudyPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
       <div className="relative rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 p-8 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-10"></div>
@@ -77,7 +77,7 @@ export default function GrammarStudyPage() {
       </div>
 
       {/* 랜덤 선택 */}
-      <div className="relative group">
+      <div className="relative group mt-20">
         <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl"></div>
         <div className="relative bg-white rounded-2xl p-6 m-1">
           <div className="flex items-center justify-between">
