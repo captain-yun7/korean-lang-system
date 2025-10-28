@@ -186,7 +186,7 @@ export default async function StudentDashboardPage() {
       {/* 빠른 시작 */}
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">빠른 시작</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <Link href="/student/study/self">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
               <Card.Body className="p-6">
@@ -237,6 +237,20 @@ export default async function StudentDashboardPage() {
                   <h3 className="text-lg font-semibold text-gray-900">오답 노트</h3>
                   <p className="text-sm text-gray-600 mt-2">
                     틀린 문제를 다시 풀어보세요
+                  </p>
+                </div>
+              </Card.Body>
+            </Card>
+          </Link>
+
+          <Link href="/student/ranking">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card.Body className="p-6">
+                <div className="text-center">
+                  <div className="text-4xl mb-3">🏆</div>
+                  <h3 className="text-lg font-semibold text-gray-900">순위</h3>
+                  <p className="text-sm text-gray-600 mt-2">
+                    반, 학년, 전체 순위를 확인하세요
                   </p>
                 </div>
               </Card.Body>
