@@ -74,11 +74,11 @@ export default function RankingPage() {
   const getMedalEmoji = (rank: number) => {
     switch (rank) {
       case 1:
-        return '🥇';
+        return null;
       case 2:
-        return '🥈';
+        return null;
       case 3:
-        return '🥉';
+        return null;
       default:
         return '🏅';
     }
@@ -116,7 +116,7 @@ export default function RankingPage() {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            🏫 반별 순위
+            반별 순위
           </button>
           <button
             onClick={() => setRankingType('grade')}
@@ -126,7 +126,7 @@ export default function RankingPage() {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            🎓 학년별 순위
+            학년별 순위
           </button>
           <button
             onClick={() => setRankingType('all')}
@@ -136,7 +136,7 @@ export default function RankingPage() {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            🌟 전체 순위
+            전체 순위
           </button>
         </div>
       </div>

@@ -81,7 +81,7 @@ export default function WrongAnswersPage() {
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
         <div className="relative z-10">
-          <h1 className="text-4xl font-bold">오답 노트 ❌</h1>
+          <h1 className="text-4xl font-bold">오답 노트</h1>
           <p className="text-white/90 mt-2 text-lg">틀린 문제를 다시 풀어보고 복습하세요</p>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function WrongAnswersPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {stats.frequentCategories.map((cat, index) => {
-              const medals = ['🥇', '🥈', '🥉'];
+              const medals = ['1st', '2nd', '3rd'];
               const colors = [
                 'from-yellow-400 to-orange-500',
                 'from-gray-300 to-gray-500',
@@ -189,9 +189,9 @@ export default function WrongAnswersPage() {
               className="px-4 py-2 border-2 border-gray-300 rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
             >
               <option value="">전체</option>
-              <option value="비문학">📘 비문학</option>
-              <option value="문학">📕 문학</option>
-              <option value="문법">📗 문법</option>
+              <option value="비문학">비문학</option>
+              <option value="문학">문학</option>
+              <option value="문법">문법</option>
             </select>
           </div>
 
@@ -203,8 +203,8 @@ export default function WrongAnswersPage() {
               className="px-4 py-2 border-2 border-gray-300 rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
             >
               <option value="">전체</option>
-              <option value="false">❌ 복습 필요</option>
-              <option value="true">✅ 복습 완료</option>
+              <option value="false">복습 필요</option>
+              <option value="true">복습 완료</option>
             </select>
           </div>
         </div>
