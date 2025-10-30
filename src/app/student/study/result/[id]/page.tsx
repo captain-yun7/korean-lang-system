@@ -94,14 +94,11 @@ export default function ResultPage({
   const questionTotal = result.questionAnswers.length;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 pb-16 mt-8">
       {/* 헤더 */}
-      <div className="text-center">
-        <div className="text-6xl mb-4">
-          {result.score >= 80 ? '🎉' : result.score >= 60 ? '😊' : '😢'}
-        </div>
-        <h1 className="text-3xl font-bold text-gray-900">학습 완료!</h1>
-        <p className="text-gray-600 mt-2">{result.passage.title}</p>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200 text-center">
+        <h1 className="text-4xl font-bold text-gray-900">학습 완료!</h1>
+        <p className="text-gray-600 text-lg mt-2">{result.passage.title}</p>
       </div>
 
       {/* 점수 카드 */}
@@ -109,15 +106,15 @@ export default function ResultPage({
         <Card.Body className="p-8">
           <div className="text-center">
             <p className="text-gray-600 mb-2">총점</p>
-            <p className="text-6xl font-bold text-indigo-600 mb-4">{result.score}점</p>
+            <p className="text-6xl font-bold text-purple-500 mb-4">{result.score}점</p>
             <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-              <div className="p-4 bg-blue-50 rounded-lg">
+              <div className="p-4 bg-white border-2 border-gray-200 rounded-lg">
                 <p className="text-sm text-gray-600">문단별 질문</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">
                   {paragraphCorrect} / {paragraphTotal}
                 </p>
               </div>
-              <div className="p-4 bg-purple-50 rounded-lg">
+              <div className="p-4 bg-white border-2 border-gray-200 rounded-lg">
                 <p className="text-sm text-gray-600">문제 풀이</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">
                   {questionCorrect} / {questionTotal}
@@ -143,17 +140,13 @@ export default function ResultPage({
             {result.paragraphAnswers.map((pa, index) => (
               <div
                 key={index}
-                className={`p-4 rounded-lg border-2 ${
-                  pa.isCorrect
-                    ? 'bg-green-50 border-green-200'
-                    : 'bg-red-50 border-red-200'
-                }`}
+                className="p-4 rounded-lg border-2 border-gray-200 bg-white"
               >
                 <div className="flex items-start gap-3 mb-3">
                   <span
                     className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
                       pa.isCorrect
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-purple-500 text-white'
                         : 'bg-red-500 text-white'
                     }`}
                   >
@@ -200,17 +193,13 @@ export default function ResultPage({
               {result.questionAnswers.map((qa, index) => (
                 <div
                   key={qa.id}
-                  className={`p-4 rounded-lg border-2 ${
-                    qa.isCorrect
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-red-50 border-red-200'
-                  }`}
+                  className="p-4 rounded-lg border-2 border-gray-200 bg-white"
                 >
                   <div className="flex items-start gap-3 mb-3">
                     <span
                       className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
                         qa.isCorrect
-                          ? 'bg-green-500 text-white'
+                          ? 'bg-purple-500 text-white'
                           : 'bg-red-500 text-white'
                       }`}
                     >
@@ -218,7 +207,7 @@ export default function ResultPage({
                     </span>
                     <div className="flex-1">
                       <div className="mb-2">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                        <span className="px-2 py-1 text-xs font-medium rounded bg-blue-50 text-blue-600">
                           {qa.question.type}
                         </span>
                       </div>
@@ -235,12 +224,12 @@ export default function ResultPage({
                             return (
                               <div
                                 key={idx}
-                                className={`p-2 rounded ${
+                                className={`p-2 rounded border ${
                                   isCorrectAnswer
-                                    ? 'bg-green-100 font-medium'
+                                    ? 'border-purple-500 font-medium bg-white'
                                     : isStudentAnswer
-                                    ? 'bg-red-100'
-                                    : 'bg-white'
+                                    ? 'border-gray-400 bg-gray-50'
+                                    : 'border-gray-200 bg-white'
                                 }`}
                               >
                                 {option}
@@ -301,13 +290,13 @@ export default function ResultPage({
         </Link>
         <Link
           href="/student/study/self"
-          className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-center"
+          className="px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-medium text-center border-2 border-gray-900"
         >
           다른 지문 학습하기
         </Link>
         <Link
           href="/student/results"
-          className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium text-center"
+          className="px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-medium text-center border-2 border-gray-900"
         >
           내 성적 보기
         </Link>

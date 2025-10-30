@@ -87,11 +87,11 @@ export default function SelfStudyPage() {
     : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">스스로 학습</h1>
-        <p className="text-gray-600 mt-1">원하는 지문을 선택하여 학습하세요</p>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
+        <h1 className="text-4xl font-bold text-gray-900">스스로 학습</h1>
+        <p className="text-gray-600 text-lg mt-2">원하는 지문을 선택하여 학습하세요</p>
       </div>
 
       {/* 필터 */}
@@ -109,11 +109,11 @@ export default function SelfStudyPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="지문 제목을 검색..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
                 >
                   검색
                 </button>
@@ -129,7 +129,7 @@ export default function SelfStudyPage() {
                 <select
                   value={selectedCategory}
                   onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 >
                   <option value="">전체</option>
                   {Object.keys(CATEGORIES).map((cat) => (
@@ -148,7 +148,7 @@ export default function SelfStudyPage() {
                   value={selectedSubcategory}
                   onChange={(e) => setSelectedSubcategory(e.target.value)}
                   disabled={!selectedCategory}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-100"
                 >
                   <option value="">전체</option>
                   {subcategories.map((subcat) => (
@@ -166,7 +166,7 @@ export default function SelfStudyPage() {
                 <select
                   value={selectedDifficulty}
                   onChange={(e) => setSelectedDifficulty(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 >
                   <option value="">전체</option>
                   {DIFFICULTIES.map((diff) => (
@@ -181,7 +181,7 @@ export default function SelfStudyPage() {
                 <button
                   onClick={handleRandomSelect}
                   disabled={passages.length === 0}
-                  className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   랜덤 선택
                 </button>
@@ -222,15 +222,15 @@ export default function SelfStudyPage() {
                   </h3>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                      <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded font-medium">
                         {passage.category}
                       </span>
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">
+                      <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded font-medium">
                         {passage.subcategory}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm text-gray-600">
-                      <span className="px-2 py-1 bg-gray-100 rounded">
+                      <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded font-medium">
                         {passage.difficulty}
                       </span>
                       <span className="text-gray-500">
