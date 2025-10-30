@@ -55,34 +55,26 @@ export default function GrammarStudyPage() {
   return (
     <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 p-8 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="relative z-10 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <DocumentTextIcon className="w-12 h-12" />
-            <div>
-              <h1 className="text-4xl font-bold">문법 학습</h1>
-              <p className="text-white/90 mt-2 text-lg">문법/개념 문제를 풀어보세요</p>
-            </div>
-          </div>
-          <Link
-            href="/student/study"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 font-bold rounded-xl hover:shadow-lg transition-all"
-          >
-            <ArrowLeftIcon className="w-5 h-5" /> 뒤로가기
-          </Link>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200 flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900">문법 학습</h1>
+          <p className="text-gray-600 text-lg mt-2">문법/개념 문제를 풀어보세요</p>
         </div>
+        <Link
+          href="/student/study"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-purple-500 text-white font-bold rounded-lg hover:bg-purple-600 transition-all border-2 border-gray-900"
+        >
+          <ArrowLeftIcon className="w-5 h-5" /> 뒤로가기
+        </Link>
       </div>
 
       {/* 랜덤 선택 */}
       <div className="relative group mt-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl"></div>
-        <div className="relative bg-white rounded-2xl p-6 m-1">
+        <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+        <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <SparklesIcon className="w-10 h-10 text-green-500" />
+              <SparklesIcon className="w-10 h-10 text-purple-500" />
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
                   랜덤 문제 풀기
@@ -95,7 +87,7 @@ export default function GrammarStudyPage() {
             <button
               onClick={handleRandomSelect}
               disabled={questions.length === 0}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl hover:shadow-lg transition-all disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-purple-500 text-white font-bold rounded-lg hover:bg-purple-600 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed border-2 border-gray-900"
             >
               <SparklesIcon className="w-5 h-5" /> 랜덤 선택
             </button>
@@ -122,34 +114,23 @@ export default function GrammarStudyPage() {
         </Card>
       ) : (
         <>
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border-2 border-indigo-200">
+          <div className="bg-white rounded-lg p-6 border-2 border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900">
-              전체 문제 <span className="text-indigo-600">({questions.length}개)</span>
+              전체 문제 <span className="text-purple-500">({questions.length}개)</span>
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {questions.map((question, index) => {
-              const gradients = [
-                'from-blue-500 to-indigo-600',
-                'from-purple-500 to-pink-600',
-                'from-green-500 to-emerald-600',
-                'from-orange-500 to-red-600',
-                'from-cyan-500 to-blue-600',
-                'from-violet-500 to-purple-600',
-              ];
-              const gradient = gradients[index % gradients.length];
-
-              return (
+            {questions.map((question, index) => (
                 <Link key={question.id} href={`/student/study/grammar/${question.id}`}>
                   <div className="relative group h-full">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} rounded-2xl transform group-hover:scale-105 transition-transform`}></div>
-                    <div className="relative bg-white rounded-2xl p-6 m-1 h-full flex flex-col">
+                    <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+                    <div className="relative bg-white rounded-lg p-6 m-1 h-full flex flex-col border border-gray-200">
                       <div className="flex items-start justify-between mb-3">
-                        <span className={`text-3xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
+                        <span className="text-3xl font-bold text-purple-500">
                           #{index + 1}
                         </span>
-                        <span className={`px-3 py-1 text-xs font-bold bg-gradient-to-r ${gradient} text-white rounded-full`}>
+                        <span className="px-3 py-1 text-xs font-bold bg-purple-500 text-white rounded-full">
                           {question.type}
                         </span>
                       </div>
@@ -162,8 +143,7 @@ export default function GrammarStudyPage() {
                     </div>
                   </div>
                 </Link>
-              );
-            })}
+              ))}
           </div>
         </>
       )}

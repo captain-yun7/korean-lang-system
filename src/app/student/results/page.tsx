@@ -65,91 +65,94 @@ export default function StudentResultsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">내 성적</h1>
-        <p className="text-gray-600 mt-1">학습 기록과 성적을 확인하세요</p>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
+        <h1 className="text-4xl font-bold text-gray-900">내 성적</h1>
+        <p className="text-gray-600 text-lg mt-2">학습 기록과 성적을 확인하세요</p>
       </div>
 
       {/* 통계 */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <Card>
-            <Card.Body className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-20">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">총 학습</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
                   {stats.totalResults}회
                 </p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">평균 점수</p>
-                <p className="text-3xl font-bold text-indigo-600 mt-2">
+                <p className="text-3xl font-bold text-gray-900 mt-2">
                   {stats.averageScore}점
                 </p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">최고 점수</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">
+                <p className="text-3xl font-bold text-gray-900 mt-2">
                   {stats.highestScore}점
                 </p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">최저 점수</p>
-                <p className="text-3xl font-bold text-red-600 mt-2">
+                <p className="text-3xl font-bold text-gray-900 mt-2">
                   {stats.lowestScore}점
                 </p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <Card.Body className="p-6">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">총 학습 시간</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
                   {Math.floor(stats.totalReadingTime / 60)}분
                 </p>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
 
       {/* 필터 */}
-      <Card>
-        <Card.Body className="p-4">
-          <div className="flex items-center gap-4">
-            <label className="text-sm font-medium text-gray-700">카테고리:</label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="">전체</option>
-              <option value="비문학">비문학</option>
-              <option value="문학">문학</option>
-              <option value="문법">문법</option>
-            </select>
-          </div>
-        </Card.Body>
-      </Card>
+      <div className="bg-white rounded-lg p-6 border-2 border-gray-200">
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-bold text-gray-700">카테고리:</label>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-4 py-2 border-2 border-gray-300 rounded-lg font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+          >
+            <option value="">전체</option>
+            <option value="비문학">비문학</option>
+            <option value="문학">문학</option>
+            <option value="문법">문법</option>
+          </select>
+        </div>
+      </div>
 
       {/* 성적 목록 */}
       {results.length === 0 ? (
@@ -164,7 +167,7 @@ export default function StudentResultsPage() {
             </p>
             <Link
               href="/student/study/self"
-              className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+              className="inline-block px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-medium border-2 border-gray-900"
             >
               학습 시작하기
             </Link>
@@ -217,7 +220,7 @@ export default function StudentResultsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+                        <span className="px-2 py-1 text-xs font-medium rounded bg-blue-50 text-blue-600">
                           {result.passage.category}
                         </span>
                       </td>
@@ -228,15 +231,7 @@ export default function StudentResultsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <span
-                            className={`text-lg font-bold ${
-                              result.score >= 80
-                                ? 'text-green-600'
-                                : result.score >= 60
-                                ? 'text-indigo-600'
-                                : 'text-red-600'
-                            }`}
-                          >
+                          <span className="text-lg font-bold text-purple-500">
                             {result.score}점
                           </span>
                         </div>
@@ -261,7 +256,7 @@ export default function StudentResultsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <Link
                           href={`/student/study/result/${result.id}`}
-                          className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                          className="text-purple-600 hover:text-purple-800 text-sm font-medium"
                         >
                           상세 보기
                         </Link>

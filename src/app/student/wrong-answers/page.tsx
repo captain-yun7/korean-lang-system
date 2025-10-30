@@ -76,14 +76,9 @@ export default function WrongAnswersPage() {
   return (
     <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-red-500 via-rose-500 to-pink-500 p-8 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold">오답 노트</h1>
-          <p className="text-white/90 mt-2 text-lg">틀린 문제를 다시 풀어보고 복습하세요</p>
-        </div>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
+        <h1 className="text-4xl font-bold text-gray-900">오답 노트</h1>
+        <p className="text-gray-600 text-lg mt-2">틀린 문제를 다시 풀어보고 복습하세요</p>
       </div>
 
       {/* 통계 */}
@@ -91,22 +86,22 @@ export default function WrongAnswersPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-20">
           {/* 전체 오답 */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-            <div className="relative bg-white rounded-2xl p-6 m-1">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">전체 오답</p>
-                <p className="text-3xl font-bold text-red-600 mt-2">{stats.totalWrong}개</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalWrong}개</p>
               </div>
             </div>
           </div>
 
           {/* 복습 완료 */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-            <div className="relative bg-white rounded-2xl p-6 m-1">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">복습 완료</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">
+                <p className="text-3xl font-bold text-gray-900 mt-2">
                   {stats.reviewedCount}개
                 </p>
               </div>
@@ -115,22 +110,22 @@ export default function WrongAnswersPage() {
 
           {/* 복습 필요 */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-            <div className="relative bg-white rounded-2xl p-6 m-1">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">복습 필요</p>
-                <p className="text-3xl font-bold text-orange-600 mt-2">{stats.unreviewedCount}개</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.unreviewedCount}개</p>
               </div>
             </div>
           </div>
 
           {/* 복습률 */}
           <div className="relative group col-span-2 md:col-span-1">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-            <div className="relative bg-white rounded-2xl p-6 m-1">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">복습률</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mt-2">
+                <p className="text-3xl font-bold text-gray-900 mt-2">
                   {stats.totalWrong > 0
                     ? Math.round((stats.reviewedCount / stats.totalWrong) * 100)
                     : 0}
@@ -144,29 +139,22 @@ export default function WrongAnswersPage() {
 
       {/* 자주 틀리는 카테고리 */}
       {stats && stats.frequentCategories.length > 0 && (
-        <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-6 border-2 border-red-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="text-2xl">📊</span>
+        <div className="bg-white rounded-lg p-6 border-2 border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
             자주 틀리는 카테고리
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {stats.frequentCategories.map((cat, index) => {
-              const medals = ['1st', '2nd', '3rd'];
-              const colors = [
-                'from-yellow-400 to-orange-500',
-                'from-gray-300 to-gray-500',
-                'from-orange-300 to-orange-600',
-              ];
+              const ranks = ['1위', '2위', '3위'];
               return (
                 <div
                   key={index}
-                  className={`relative group`}
+                  className="relative group"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${colors[index]} rounded-xl transform group-hover:scale-105 transition-transform`}></div>
-                  <div className="relative bg-white rounded-xl p-4 m-1">
+                  <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+                  <div className="relative bg-white rounded-lg p-4 m-1 border border-gray-200">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-3xl">{medals[index]}</span>
-                      <span className="text-sm font-bold text-gray-500">{index + 1}위</span>
+                      <span className="text-sm font-bold text-purple-500">{ranks[index]}</span>
                     </div>
                     <p className="text-lg font-bold text-gray-900">{cat.category}</p>
                     <p className="text-sm text-gray-600 mt-1">{cat.count}개 문제</p>
@@ -179,14 +167,14 @@ export default function WrongAnswersPage() {
       )}
 
       {/* 필터 */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg p-6 border-2 border-gray-200">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-3">
             <label className="text-sm font-bold text-gray-700">카테고리:</label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border-2 border-gray-300 rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+              className="px-4 py-2 border-2 border-gray-300 rounded-lg font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
             >
               <option value="">전체</option>
               <option value="비문학">비문학</option>
@@ -200,7 +188,7 @@ export default function WrongAnswersPage() {
             <select
               value={selectedReviewStatus}
               onChange={(e) => setSelectedReviewStatus(e.target.value)}
-              className="px-4 py-2 border-2 border-gray-300 rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+              className="px-4 py-2 border-2 border-gray-300 rounded-lg font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
             >
               <option value="">전체</option>
               <option value="false">복습 필요</option>
@@ -235,21 +223,21 @@ export default function WrongAnswersPage() {
                       <div className="mb-3">
                         <Link
                           href={`/student/study/reading/${wrongAnswer.question.passage.id}`}
-                          className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                          className="text-sm font-medium text-purple-600 hover:text-purple-800"
                         >
                           {wrongAnswer.question.passage.title}
                         </Link>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
+                          <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
                             {wrongAnswer.question.passage.category}
                           </span>
-                          <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">
+                          <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
                             {wrongAnswer.question.passage.subcategory}
                           </span>
-                          <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
+                          <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
                             {wrongAnswer.question.passage.difficulty}
                           </span>
-                          <span className="px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded">
+                          <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
                             {wrongAnswer.question.type}
                           </span>
                         </div>
@@ -263,24 +251,24 @@ export default function WrongAnswersPage() {
                     </div>
 
                     {/* 내 답변 (틀린 답) */}
-                    <div className="mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
-                      <p className="text-sm font-medium text-red-700 mb-1">
+                    <div className="mb-4 p-3 bg-white rounded-lg border-2 border-gray-300">
+                      <p className="text-sm font-bold text-gray-900 mb-1">
                         내 답변 (틀림)
                       </p>
-                      <p className="text-gray-900">{wrongAnswer.wrongAnswer}</p>
+                      <p className="text-gray-700">{wrongAnswer.wrongAnswer}</p>
                     </div>
 
                     {/* 정답 */}
-                    <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-sm font-medium text-green-700 mb-1">정답</p>
-                      <p className="text-gray-900">{wrongAnswer.correctAnswer}</p>
+                    <div className="mb-4 p-3 bg-white rounded-lg border-2 border-gray-900">
+                      <p className="text-sm font-bold text-gray-900 mb-1">정답</p>
+                      <p className="text-gray-700">{wrongAnswer.correctAnswer}</p>
                     </div>
 
                     {/* 해설 */}
                     {wrongAnswer.explanation && (
-                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-sm font-medium text-blue-700 mb-1">해설</p>
-                        <p className="text-gray-900">{wrongAnswer.explanation}</p>
+                      <div className="p-3 bg-white rounded-lg border-2 border-gray-200">
+                        <p className="text-sm font-bold text-gray-900 mb-1">해설</p>
+                        <p className="text-gray-700">{wrongAnswer.explanation}</p>
                       </div>
                     )}
 
@@ -294,17 +282,17 @@ export default function WrongAnswersPage() {
                   {/* 복습 상태 */}
                   <div className="ml-4 flex flex-col items-end gap-2">
                     {wrongAnswer.isReviewed ? (
-                      <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+                      <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
                         복습 완료
                       </span>
                     ) : (
-                      <span className="px-3 py-1 bg-orange-100 text-orange-700 text-sm font-medium rounded-full">
+                      <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
                         복습 필요
                       </span>
                     )}
                     <Link
                       href={`/student/wrong-answers/${wrongAnswer.id}`}
-                      className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+                      className="px-4 py-2 bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-600 transition-colors border-2 border-gray-900"
                     >
                       다시 풀기
                     </Link>

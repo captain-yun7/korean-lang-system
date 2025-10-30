@@ -12,23 +12,17 @@ export default function StudentStudyPage() {
   return (
     <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-8 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold">학습하기</h1>
-          <p className="text-white/90 mt-2 text-lg">원하는 학습 방법을 선택하세요</p>
-        </div>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
+        <h1 className="text-4xl font-bold text-gray-900">학습하기</h1>
+        <p className="text-gray-600 text-lg mt-2">원하는 학습 방법을 선택하세요</p>
       </div>
 
       {/* 학습 방법 선택 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-20">
         {/* 스스로 학습 */}
         <Link href="/student/study/self">
-          <div className="relative group h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl transform group-hover:scale-105 transition-transform shadow-lg"></div>
-            <div className="relative p-8 text-white">
+          <div className="h-full">
+            <div className="rounded-lg bg-purple-500 p-8 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <div className="text-center">
                 <BookOpenIcon className="w-16 h-16 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold mb-3">스스로 학습</h2>
@@ -61,14 +55,13 @@ export default function StudentStudyPage() {
 
         {/* 교사 지정 학습 */}
         <Link href="/student/study/assigned">
-          <div className="relative group h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl transform group-hover:scale-105 transition-transform shadow-lg"></div>
-            <div className="relative p-8 text-white">
+          <div className="h-full">
+            <div className="rounded-lg bg-purple-500 p-8 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <div className="text-center">
                 <AcademicCapIcon className="w-16 h-16 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold mb-3">교사 지정 학습</h2>
                 <p className="text-white/90 mb-4">
-                  선생님이 배정한 과제를 확인하고 학습할 수 있습니다.
+                  선생님이 배정한 과제를 풀어볼 수 있습니다.
                 </p>
                 <div className="space-y-2 text-sm text-left">
                   <div className="flex items-start gap-2">
@@ -85,7 +78,7 @@ export default function StudentStudyPage() {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-lg font-bold group-hover:shadow-xl transition-shadow">
+                  <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-lg font-bold">
                     과제 확인하기 <ArrowRightIcon className="w-4 h-4" />
                   </span>
                 </div>
@@ -96,9 +89,8 @@ export default function StudentStudyPage() {
 
         {/* 문법 학습 */}
         <Link href="/student/study/grammar">
-          <div className="relative group h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl transform group-hover:scale-105 transition-transform shadow-lg"></div>
-            <div className="relative p-8 text-white">
+          <div className="h-full">
+            <div className="rounded-lg bg-purple-500 p-8 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <div className="text-center">
                 <DocumentTextIcon className="w-16 h-16 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold mb-3">문법 학습</h2>
@@ -120,7 +112,7 @@ export default function StudentStudyPage() {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-lg font-bold group-hover:shadow-xl transition-shadow">
+                  <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-lg font-bold">
                     시작하기 <ArrowRightIcon className="w-4 h-4" />
                   </span>
                 </div>

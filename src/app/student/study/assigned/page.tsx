@@ -109,17 +109,9 @@ export default function AssignedStudyPage() {
   return (
     <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-8 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="relative z-10 flex items-center gap-4">
-          <AcademicCapIcon className="w-12 h-12" />
-          <div>
-            <h1 className="text-4xl font-bold">교사 지정 학습</h1>
-            <p className="text-white/90 mt-2 text-lg">선생님이 배정한 과제를 완료하세요</p>
-          </div>
-        </div>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
+        <h1 className="text-4xl font-bold text-gray-900">교사 지정 학습</h1>
+        <p className="text-gray-600 text-lg mt-2">선생님이 배정한 과제를 완료하세요</p>
       </div>
 
       {/* 통계 */}
@@ -127,8 +119,8 @@ export default function AssignedStudyPage() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-20">
           {/* 전체 과제 */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-            <div className="relative bg-white rounded-2xl p-6 m-1">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">전체 과제</p>
                 <p className="text-3xl font-bold text-indigo-600 mt-2">{stats.total}개</p>
@@ -138,8 +130,8 @@ export default function AssignedStudyPage() {
 
           {/* 완료 */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-            <div className="relative bg-white rounded-2xl p-6 m-1">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">완료</p>
                 <p className="text-3xl font-bold text-green-600 mt-2">{stats.completed}개</p>
@@ -149,8 +141,8 @@ export default function AssignedStudyPage() {
 
           {/* 미완료 */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-            <div className="relative bg-white rounded-2xl p-6 m-1">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">미완료</p>
                 <p className="text-3xl font-bold text-orange-600 mt-2">{stats.pending}개</p>
@@ -160,8 +152,8 @@ export default function AssignedStudyPage() {
 
           {/* 마감 초과 */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-            <div className="relative bg-white rounded-2xl p-6 m-1">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">마감 초과</p>
                 <p className="text-3xl font-bold text-red-600 mt-2">{stats.overdue}개</p>
@@ -171,8 +163,8 @@ export default function AssignedStudyPage() {
 
           {/* 완료율 */}
           <div className="relative group col-span-2 md:col-span-1">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-            <div className="relative bg-white rounded-2xl p-6 m-1">
+            <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+            <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600">완료율</p>
                 <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mt-2">

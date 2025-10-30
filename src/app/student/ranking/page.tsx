@@ -95,24 +95,19 @@ export default function RankingPage() {
   return (
     <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 p-8 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold">순위 🏆</h1>
-          <p className="text-white/90 mt-2 text-lg">반, 학년, 전체 순위를 확인하세요</p>
-        </div>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
+        <h1 className="text-4xl font-bold text-gray-900">순위</h1>
+        <p className="text-gray-600 text-lg mt-2">반, 학년, 전체 순위를 확인하세요</p>
       </div>
 
       {/* 탭 선택 */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mt-20">
+      <div className="bg-white rounded-lg p-4 border-2 border-gray-200 mt-20">
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setRankingType('class')}
-            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+            className={`px-8 py-3 rounded-lg font-bold transition-all ${
               rankingType === 'class'
-                ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg scale-105'
+                ? 'bg-purple-500 text-white border-2 border-gray-900 scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -120,9 +115,9 @@ export default function RankingPage() {
           </button>
           <button
             onClick={() => setRankingType('grade')}
-            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+            className={`px-8 py-3 rounded-lg font-bold transition-all ${
               rankingType === 'grade'
-                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg scale-105'
+                ? 'bg-purple-500 text-white border-2 border-gray-900 scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -130,9 +125,9 @@ export default function RankingPage() {
           </button>
           <button
             onClick={() => setRankingType('all')}
-            className={`px-8 py-3 rounded-xl font-bold transition-all ${
+            className={`px-8 py-3 rounded-lg font-bold transition-all ${
               rankingType === 'all'
-                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg scale-105'
+                ? 'bg-purple-500 text-white border-2 border-gray-900 scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -144,17 +139,15 @@ export default function RankingPage() {
       {/* 내 순위 */}
       {rankingData?.myRank ? (
         <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl transform group-hover:scale-105 transition-transform"></div>
-          <div className="relative bg-white rounded-2xl p-8 m-1">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span className="text-3xl">👤</span>
+          <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
+          <div className="relative bg-white rounded-lg p-8 m-1 border border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
               내 순위
             </h2>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
-                <div className="text-center bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border-2 border-yellow-200">
-                  <div className="text-6xl mb-2">{getMedalEmoji(rankingData.myRank.rank)}</div>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                <div className="text-center bg-white rounded-lg p-6 border-2 border-gray-200">
+                  <p className="text-4xl font-bold text-purple-500">
                     {rankingData.myRank.rank}위
                   </p>
                   <p className="text-sm text-gray-600 mt-2 font-medium">
@@ -172,9 +165,9 @@ export default function RankingPage() {
                   </p>
                 </div>
               </div>
-              <div className="text-right bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200">
+              <div className="text-right bg-white rounded-lg p-6 border-2 border-gray-200">
                 <p className="text-sm font-bold text-gray-600 mb-2">평균 점수</p>
-                <p className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                <p className="text-5xl font-bold text-gray-900">
                   {rankingData.myRank.averageScore}점
                 </p>
                 <p className="text-sm text-gray-600 mt-3 font-medium">
@@ -208,19 +201,18 @@ export default function RankingPage() {
                 <div
                   key={index}
                   className={`p-6 transition-colors ${
-                    student.isMe ? 'bg-indigo-50 border-l-4 border-indigo-600' : 'hover:bg-gray-50'
+                    student.isMe ? 'bg-purple-50 border-l-4 border-purple-600' : 'hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
                       <div className="text-center w-20">
-                        <div className="text-4xl mb-1">{getMedalEmoji(student.rank)}</div>
                         <p className="text-2xl font-bold text-gray-900">{student.rank}위</p>
                       </div>
                       <div className="h-12 w-px bg-gray-300" />
                       <div>
                         {student.isMe ? (
-                          <p className="text-lg font-semibold text-indigo-600 mb-1">
+                          <p className="text-lg font-semibold text-purple-600 mb-1">
                             나 ({rankingData.myRank?.name})
                           </p>
                         ) : (
@@ -233,17 +225,7 @@ export default function RankingPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-gray-600 mb-1">평균 점수</p>
-                      <p
-                        className={`text-3xl font-bold ${
-                          student.rank === 1
-                            ? 'text-yellow-600'
-                            : student.rank === 2
-                            ? 'text-gray-500'
-                            : student.rank === 3
-                            ? 'text-orange-600'
-                            : 'text-green-600'
-                        }`}
-                      >
+                      <p className="text-3xl font-bold text-purple-500">
                         {student.averageScore}점
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
@@ -268,12 +250,11 @@ export default function RankingPage() {
 
       {/* 안내 메시지 */}
       <Card>
-        <Card.Body className="p-4 bg-blue-50 border-l-4 border-blue-600">
+        <Card.Body className="p-4 bg-purple-50 border-l-4 border-purple-600">
           <div className="flex items-start gap-3">
-            <div className="text-2xl">ℹ️</div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-blue-900 mb-1">순위 안내</p>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <p className="text-sm font-medium text-gray-900 mb-1">순위 안내</p>
+              <ul className="text-sm text-gray-700 space-y-1">
                 <li>• 순위는 평균 점수를 기준으로 산정됩니다.</li>
                 <li>
                   • 상위 5등까지는 익명으로 표시되며, 본인 순위만 이름이 표시됩니다.

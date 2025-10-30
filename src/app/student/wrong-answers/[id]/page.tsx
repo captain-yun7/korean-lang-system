@@ -147,16 +147,16 @@ export default function WrongAnswerReviewPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-20 pb-16 mt-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">오답 복습</h1>
-          <p className="text-gray-600 mt-1">다시 한 번 도전해보세요!</p>
+          <h1 className="text-4xl font-bold text-gray-900">오답 복습</h1>
+          <p className="text-gray-600 text-lg mt-2">다시 한 번 도전해보세요!</p>
         </div>
         <Link
           href="/student/wrong-answers"
-          className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          className="px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-bold border-2 border-gray-900"
         >
           목록으로
         </Link>
@@ -170,18 +170,18 @@ export default function WrongAnswerReviewPage({
               <div>
                 <Link
                   href={`/student/study/reading/${wrongAnswer.question.passage.id}`}
-                  className="text-lg font-semibold text-indigo-600 hover:text-indigo-800"
+                  className="text-lg font-semibold text-purple-600 hover:text-purple-800"
                 >
                   {wrongAnswer.question.passage.title}
                 </Link>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
+                  <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
                     {wrongAnswer.question.passage.category}
                   </span>
-                  <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">
+                  <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
                     {wrongAnswer.question.passage.subcategory}
                   </span>
-                  <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
+                  <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
                     {wrongAnswer.question.passage.difficulty}
                   </span>
                 </div>
@@ -199,7 +199,7 @@ export default function WrongAnswerReviewPage({
               문제 ({wrongAnswer.question.type})
             </h2>
             {wrongAnswer.isReviewed && (
-              <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+              <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
                 복습 완료
               </span>
             )}
@@ -227,7 +227,7 @@ export default function WrongAnswerReviewPage({
                           value={option}
                           checked={studentAnswer === option}
                           onChange={(e) => setStudentAnswer(e.target.value)}
-                          className="w-4 h-4 text-indigo-600"
+                          className="w-4 h-4 text-purple-600"
                         />
                         <span className="ml-3 text-gray-900">{option}</span>
                       </label>
@@ -241,7 +241,7 @@ export default function WrongAnswerReviewPage({
                   value={studentAnswer}
                   onChange={(e) => setStudentAnswer(e.target.value)}
                   placeholder="답을 입력하세요..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
               )}
 
@@ -251,13 +251,13 @@ export default function WrongAnswerReviewPage({
                   onChange={(e) => setStudentAnswer(e.target.value)}
                   rows={6}
                   placeholder="답을 작성하세요..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
               )}
 
               <button
                 onClick={handleSubmit}
-                className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                className="w-full px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-medium border-2 border-gray-900"
               >
                 제출하기
               </button>
@@ -268,21 +268,11 @@ export default function WrongAnswerReviewPage({
           {submitted && (
             <div className="space-y-6">
               {/* 결과 표시 */}
-              <div
-                className={`p-6 rounded-lg border-2 ${
-                  isCorrect
-                    ? 'bg-green-50 border-green-200'
-                    : 'bg-red-50 border-red-200'
-                }`}
-              >
+              <div className="p-6 rounded-lg border-2 border-gray-900 bg-white">
                 <div className="flex items-center justify-center mb-4">
                   <div className="text-6xl">{isCorrect ? '🎉' : '😔'}</div>
                 </div>
-                <p
-                  className={`text-center text-xl font-bold ${
-                    isCorrect ? 'text-green-700' : 'text-red-700'
-                  }`}
-                >
+                <p className="text-center text-xl font-bold text-gray-900">
                   {isCorrect ? '정답입니다!' : '오답입니다.'}
                 </p>
                 <p className="text-center text-gray-600 mt-2">
@@ -293,30 +283,30 @@ export default function WrongAnswerReviewPage({
               </div>
 
               {/* 내 답변 */}
-              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm font-medium text-gray-700 mb-2">내 답변</p>
-                <p className="text-gray-900">{studentAnswer}</p>
+              <div className="p-4 bg-white rounded-lg border-2 border-gray-200">
+                <p className="text-sm font-bold text-gray-900 mb-2">내 답변</p>
+                <p className="text-gray-700">{studentAnswer}</p>
               </div>
 
               {/* 이전 오답 */}
-              <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                <p className="text-sm font-medium text-red-700 mb-2">
-                  이전 오답 ({new Date(wrongAnswer.createdAt).toLocaleDateString('ko-KR')})
+              <div className="p-4 bg-white rounded-lg border-2 border-gray-300">
+                <p className="text-sm font-bold text-gray-900 mb-2">
+                  내 답변 (틀림)
                 </p>
-                <p className="text-gray-900">{wrongAnswer.wrongAnswer}</p>
+                <p className="text-gray-700">{wrongAnswer.wrongAnswer}</p>
               </div>
 
               {/* 정답 */}
-              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-sm font-medium text-green-700 mb-2">정답</p>
-                <p className="text-gray-900">{wrongAnswer.correctAnswer}</p>
+              <div className="p-4 bg-white rounded-lg border-2 border-gray-900">
+                <p className="text-sm font-bold text-gray-900 mb-2">정답</p>
+                <p className="text-gray-700">{wrongAnswer.correctAnswer}</p>
               </div>
 
               {/* 해설 */}
               {wrongAnswer.explanation && (
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm font-medium text-blue-700 mb-2">해설</p>
-                  <p className="text-gray-900">{wrongAnswer.explanation}</p>
+                <div className="p-4 bg-white rounded-lg border-2 border-gray-200">
+                  <p className="text-sm font-bold text-gray-900 mb-2">해설</p>
+                  <p className="text-gray-700">{wrongAnswer.explanation}</p>
                 </div>
               )}
 
@@ -325,7 +315,7 @@ export default function WrongAnswerReviewPage({
                 {!isCorrect && (
                   <button
                     onClick={handleRetry}
-                    className="flex-1 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+                    className="flex-1 px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-medium border-2 border-gray-900"
                   >
                     다시 풀기
                   </button>
