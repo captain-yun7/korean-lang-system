@@ -90,18 +90,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            국어 학습 시스템
+          <h1 className="text-4xl font-bold text-gray-900">
+            <span className="text-purple-500">국어 학습</span> 시스템
           </h1>
-          <p className="mt-2 text-gray-600">로그인하여 시작하세요</p>
+          <p className="mt-2 text-gray-600 text-lg">로그인하여 시작하세요</p>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white rounded-lg border-2 border-gray-200 p-8">
           {/* User Type Tabs */}
           <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-lg">
             <button
@@ -109,9 +109,9 @@ export default function LoginPage() {
                 setUserType('student');
                 setError('');
               }}
-              className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
                 userType === 'student'
-                  ? 'bg-white text-blue-600 shadow-sm'
+                  ? 'bg-white text-purple-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -122,9 +122,9 @@ export default function LoginPage() {
                 setUserType('teacher');
                 setError('');
               }}
-              className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
                 userType === 'teacher'
-                  ? 'bg-white text-blue-600 shadow-sm'
+                  ? 'bg-white text-purple-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -150,7 +150,7 @@ export default function LoginPage() {
                   {...studentForm.register('studentId')}
                   type="text"
                   id="studentId"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="예: 030201 (3학년 2반 1번)"
                 />
                 {studentForm.formState.errors.studentId && (
@@ -168,7 +168,7 @@ export default function LoginPage() {
                   {...studentForm.register('userId')}
                   type="text"
                   id="student-userId"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="아이디를 입력하세요"
                 />
                 {studentForm.formState.errors.userId && (
@@ -186,7 +186,7 @@ export default function LoginPage() {
                   {...studentForm.register('password')}
                   type="password"
                   id="student-password"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
                 {studentForm.formState.errors.password && (
@@ -199,7 +199,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                className="w-full bg-purple-500 text-white py-3 px-4 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium border-2 border-gray-900"
               >
                 {loading ? '로그인 중...' : '학생 로그인'}
               </button>
@@ -217,7 +217,7 @@ export default function LoginPage() {
                   {...teacherForm.register('teacherId')}
                   type="text"
                   id="teacherId"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="교사 ID를 입력하세요"
                 />
                 {teacherForm.formState.errors.teacherId && (
@@ -235,7 +235,7 @@ export default function LoginPage() {
                   {...teacherForm.register('password')}
                   type="password"
                   id="teacher-password"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
                 {teacherForm.formState.errors.password && (
@@ -248,7 +248,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                className="w-full bg-purple-500 text-white py-3 px-4 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium border-2 border-gray-900"
               >
                 {loading ? '로그인 중...' : '교사 로그인'}
               </button>
