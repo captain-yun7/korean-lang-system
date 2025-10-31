@@ -1,7 +1,8 @@
+'use client';
+
 import { Card } from '@/components/ui';
-import { auth } from '@/auth';
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 // 타입 정의
@@ -18,13 +19,6 @@ interface PassageListItem {
   };
 }
 
-interface SearchParams {
-  category?: string;
-  subcategory?: string;
-  difficulty?: string;
-  search?: string;
-}
-
 // 카테고리 및 서브카테고리 정의
 const CATEGORIES = {
   비문학: ['인문예술', '과학기술', '사회문화'],
@@ -34,74 +28,71 @@ const CATEGORIES = {
 
 const DIFFICULTIES = ['중학교', '고1-2', '고3'];
 
-// 지문 목록 가져오기
-async function getPassages(params: SearchParams): Promise<PassageListItem[]> {
-  try {
-    const where: any = {};
-
-    // 카테고리 필터
-    if (params.category) {
-      where.category = params.category;
-    }
-
-    // 서브카테고리 필터
-    if (params.subcategory) {
-      where.subcategory = params.subcategory;
-    }
-
-    // 난이도 필터
-    if (params.difficulty) {
-      where.difficulty = params.difficulty;
-    }
-
-    // 검색어 필터 (제목)
-    if (params.search) {
-      where.title = { contains: params.search };
-    }
-
-    const passages = await prisma.passage.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        category: true,
-        subcategory: true,
-        difficulty: true,
-        createdAt: true,
-        _count: {
-          select: {
-            questions: true,
-            results: true,
-          },
-        },
-      },
-    });
-
-    return passages;
-  } catch (error) {
-    console.error('Failed to fetch passages:', error);
-    return [];
-  }
-}
-
-export default async function PassagesPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  // 인증 확인
-  const session = await auth();
-  if (!session?.user || session.user.role !== 'TEACHER') {
-    redirect('/');
-  }
-
-  const passages = await getPassages(searchParams);
+export default function PassagesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [passages, setPassages] = useState<PassageListItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // 선택된 카테고리에 따른 서브카테고리 목록
-  const subcategories = searchParams.category
-    ? CATEGORIES[searchParams.category as keyof typeof CATEGORIES] || []
+  const category = searchParams.get('category') || '';
+  const subcategories = category
+    ? CATEGORIES[category as keyof typeof CATEGORIES] || []
     : [];
+
+  // 지문 목록 가져오기
+  useEffect(() => {
+    const fetchPassages = async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (searchParams.get('category')) params.append('category', searchParams.get('category')!);
+        if (searchParams.get('subcategory')) params.append('subcategory', searchParams.get('subcategory')!);
+        if (searchParams.get('difficulty')) params.append('difficulty', searchParams.get('difficulty')!);
+        if (searchParams.get('search')) params.append('search', searchParams.get('search')!);
+
+        const response = await fetch(`/api/teacher/passages?${params.toString()}`);
+        if (response.ok) {
+          const data = await response.json();
+          setPassages(data.passages || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch passages:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPassages();
+  }, [searchParams]);
+
+  // 지문 삭제 핸들러
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`"${title}" 지문을 삭제하시겠습니까?\n\n연결된 문제와 학습 결과도 함께 삭제됩니다.`)) {
+      return;
+    }
+
+    setDeletingId(id);
+    try {
+      const response = await fetch(`/api/teacher/passages/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || '지문 삭제에 실패했습니다.');
+      }
+
+      // 목록에서 제거
+      setPassages(passages.filter((p) => p.id !== id));
+      alert('지문이 삭제되었습니다.');
+    } catch (error: any) {
+      alert(error.message || '지문 삭제에 실패했습니다.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -131,7 +122,7 @@ export default async function PassagesPage({
               <select
                 id="category"
                 name="category"
-                defaultValue={searchParams.category || ''}
+                defaultValue={searchParams.get('category') || ''}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">전체</option>
@@ -154,8 +145,8 @@ export default async function PassagesPage({
               <select
                 id="subcategory"
                 name="subcategory"
-                defaultValue={searchParams.subcategory || ''}
-                disabled={!searchParams.category}
+                defaultValue={searchParams.get('subcategory') || ''}
+                disabled={!category}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-50 disabled:text-gray-400"
               >
                 <option value="">전체</option>
@@ -178,7 +169,7 @@ export default async function PassagesPage({
               <select
                 id="difficulty"
                 name="difficulty"
-                defaultValue={searchParams.difficulty || ''}
+                defaultValue={searchParams.get('difficulty') || ''}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">전체</option>
@@ -199,7 +190,7 @@ export default async function PassagesPage({
                 type="text"
                 id="search"
                 name="search"
-                defaultValue={searchParams.search || ''}
+                defaultValue={searchParams.get('search') || ''}
                 placeholder="제목 검색"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
@@ -234,7 +225,11 @@ export default async function PassagesPage({
           </div>
         </Card.Header>
         <Card.Body className="p-0">
-          {passages.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12 text-gray-500">
+              <p>로딩 중...</p>
+            </div>
+          ) : passages.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
@@ -306,10 +301,17 @@ export default async function PassagesPage({
                         </Link>
                         <Link
                           href={`/teacher/passages/${passage.id}/edit`}
-                          className="text-gray-600 hover:text-gray-900"
+                          className="text-gray-600 hover:text-gray-900 mr-4"
                         >
                           수정
                         </Link>
+                        <button
+                          onClick={() => handleDelete(passage.id, passage.title)}
+                          disabled={deletingId === passage.id}
+                          className="text-red-600 hover:text-red-900 disabled:text-red-300"
+                        >
+                          {deletingId === passage.id ? '삭제 중...' : '삭제'}
+                        </button>
                       </td>
                     </tr>
                   ))}

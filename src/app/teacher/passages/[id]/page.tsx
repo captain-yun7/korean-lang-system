@@ -1,7 +1,8 @@
+'use client';
+
 import { Card } from '@/components/ui';
-import { auth } from '@/auth';
-import { redirect, notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface ContentBlock {
@@ -11,64 +12,117 @@ interface ContentBlock {
   explanation: string;
 }
 
-// 지문 상세 정보 가져오기
-async function getPassageDetail(id: string) {
-  try {
-    const passage = await prisma.passage.findUnique({
-      where: { id },
-      include: {
-        questions: {
-          orderBy: { createdAt: 'desc' },
-        },
-        results: {
-          orderBy: { submittedAt: 'desc' },
-          take: 10,
-          include: {
-            student: {
-              select: {
-                name: true,
-                studentId: true,
-              },
-            },
-          },
-        },
-        _count: {
-          select: {
-            questions: true,
-            results: true,
-          },
-        },
-      },
-    });
-
-    if (!passage) {
-      return null;
-    }
-
-    return passage;
-  } catch (error) {
-    console.error('Failed to fetch passage detail:', error);
-    return null;
-  }
+interface Question {
+  id: string;
+  text: string;
+  type: string;
+  createdAt: Date;
 }
 
-export default async function PassageDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+interface Result {
+  id: string;
+  score: number;
+  readingTime: number;
+  submittedAt: Date;
+  student: {
+    name: string;
+    studentId: string;
+  };
+}
 
-  // 인증 확인
-  const session = await auth();
-  if (!session?.user || session.user.role !== 'TEACHER') {
-    redirect('/');
+interface PassageDetail {
+  id: string;
+  title: string;
+  category: string;
+  subcategory: string;
+  difficulty: string;
+  contentBlocks: ContentBlock[];
+  questions: Question[];
+  results: Result[];
+  createdAt: Date;
+  updatedAt: Date;
+  _count: {
+    questions: number;
+    results: number;
+  };
+}
+
+export default function PassageDetailPage() {
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [passage, setPassage] = useState<PassageDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // 지문 데이터 가져오기
+  useEffect(() => {
+    const fetchPassage = async () => {
+      try {
+        const response = await fetch(`/api/teacher/passages/${id}/detail`);
+        if (response.ok) {
+          const data = await response.json();
+          setPassage(data.passage);
+        } else if (response.status === 404) {
+          router.push('/teacher/passages');
+        }
+      } catch (error) {
+        console.error('Failed to fetch passage:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPassage();
+  }, [id, router]);
+
+  // 삭제 핸들러
+  const handleDelete = async () => {
+    if (!passage) return;
+
+    if (
+      !confirm(
+        `"${passage.title}" 지문을 삭제하시겠습니까?\n\n연결된 문제 ${passage._count.questions}개와 학습 결과 ${passage._count.results}개도 함께 삭제됩니다.`
+      )
+    ) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/teacher/passages/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || '지문 삭제에 실패했습니다.');
+      }
+
+      alert('지문이 삭제되었습니다.');
+      router.push('/teacher/passages');
+      router.refresh();
+    } catch (error: any) {
+      alert(error.message || '지문 삭제에 실패했습니다.');
+      setIsDeleting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-600">로딩 중...</p>
+      </div>
+    );
   }
 
-  const passage = await getPassageDetail(id);
-
   if (!passage) {
-    notFound();
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-600">지문을 찾을 수 없습니다.</p>
+      </div>
+    );
   }
 
   const contentBlocks = passage.contentBlocks as ContentBlock[];
@@ -90,6 +144,13 @@ export default async function PassageDetailPage({
           >
             수정
           </Link>
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors font-medium"
+          >
+            {isDeleting ? '삭제 중...' : '삭제'}
+          </button>
           <Link
             href="/teacher/passages"
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"

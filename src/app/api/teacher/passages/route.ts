@@ -81,7 +81,34 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 
+    // URL 파라미터에서 필터 가져오기
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    const subcategory = searchParams.get('subcategory');
+    const difficulty = searchParams.get('difficulty');
+    const search = searchParams.get('search');
+
+    // where 조건 생성
+    const where: any = {};
+
+    if (category) {
+      where.category = category;
+    }
+
+    if (subcategory) {
+      where.subcategory = subcategory;
+    }
+
+    if (difficulty) {
+      where.difficulty = difficulty;
+    }
+
+    if (search) {
+      where.title = { contains: search };
+    }
+
     const passages = await prisma.passage.findMany({
+      where,
       orderBy: { createdAt: 'desc' },
       include: {
         _count: {
