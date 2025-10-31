@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/ui';
+import { Card, Button } from '@/components/ui';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -137,25 +137,19 @@ export default function PassageDetailPage() {
             {passage.category} · {passage.subcategory} · {passage.difficulty}
           </p>
         </div>
-        <div className="flex gap-3">
-          <Link
-            href={`/teacher/passages/${passage.id}/edit`}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-          >
-            수정
+        <div className="flex gap-2">
+          <Link href={`/teacher/passages/${passage.id}/edit`}>
+            <Button variant="secondary">수정</Button>
           </Link>
-          <button
+          <Button
+            variant="danger"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors font-medium"
           >
             {isDeleting ? '삭제 중...' : '삭제'}
-          </button>
-          <Link
-            href="/teacher/passages"
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-          >
-            목록으로
+          </Button>
+          <Link href="/teacher/passages">
+            <Button variant="secondary">목록</Button>
           </Link>
         </div>
       </div>

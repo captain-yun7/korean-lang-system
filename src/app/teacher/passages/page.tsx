@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/ui';
+import { Card, Button } from '@/components/ui';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -102,11 +102,8 @@ export default function PassagesPage() {
           <h1 className="text-3xl font-bold text-gray-900">지문 관리</h1>
           <p className="text-gray-600 mt-1">학습 지문을 관리하고 문제를 출제하세요</p>
         </div>
-        <Link
-          href="/teacher/passages/new"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-        >
-          + 지문 등록
+        <Link href="/teacher/passages/new">
+          <Button variant="primary">+ 지문 등록</Button>
         </Link>
       </div>
 

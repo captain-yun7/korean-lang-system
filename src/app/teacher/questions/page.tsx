@@ -121,7 +121,7 @@ export default function QuestionsPage() {
           </p>
         </div>
         <Link href="/teacher/questions/new">
-          <Button variant="primary">문제 등록</Button>
+          <Button variant="primary">+ 문제 등록</Button>
         </Link>
       </div>
 
@@ -273,6 +273,12 @@ export default function QuestionsPage() {
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           상세
+                        </Link>
+                        <Link
+                          href={`/teacher/questions/${question.id}/edit`}
+                          className="text-gray-600 hover:text-gray-900"
+                        >
+                          수정
                         </Link>
                         <button
                           onClick={() => handleDelete(question.id)}
