@@ -274,16 +274,7 @@ export default function NewPassagePage() {
 
             {/* 지문 내용 (문단별) */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">지문 내용</h2>
-                <button
-                  type="button"
-                  onClick={addBlock}
-                  className="px-3 py-1 text-sm bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors"
-                >
-                  + 문단 추가
-                </button>
-              </div>
+              <h2 className="text-lg font-semibold text-gray-900">지문 내용</h2>
 
               {formData.contentBlocks.map((block, index) => (
                 <div key={index} className="p-4 border border-gray-200 rounded-lg space-y-3">
@@ -360,6 +351,15 @@ export default function NewPassagePage() {
                   </div>
                 </div>
               ))}
+
+              {/* 문단 추가 버튼 */}
+              <button
+                type="button"
+                onClick={addBlock}
+                className="w-full px-4 py-3 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
+              >
+                + 문단 추가
+              </button>
             </div>
 
             {/* 버튼 */}
