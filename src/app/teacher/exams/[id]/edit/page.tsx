@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, Button } from '@/components/ui';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 // 영역 및 카테고리
@@ -36,9 +36,10 @@ interface ExamFormData {
   items: ExamItem[];
 }
 
-export default function NewExamPaperPage() {
+export default function EditExamPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState<ExamFormData>({
@@ -61,6 +62,37 @@ export default function NewExamPaperPage() {
       },
     ],
   });
+
+  // 기존 시험지 데이터 불러오기
+  useEffect(() => {
+    const fetchExam = async () => {
+      try {
+        const response = await fetch(`/api/teacher/exams/${params.id}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setFormData({
+            title: data.examPaper.title,
+            category: data.examPaper.category,
+            targetGrade: data.examPaper.targetGrade,
+            targetClass: data.examPaper.targetClass,
+            items: data.examPaper.items,
+          });
+        } else {
+          alert('시험지를 불러오는데 실패했습니다.');
+          router.push('/teacher/exams');
+        }
+      } catch (error) {
+        console.error('Error fetching exam:', error);
+        alert('시험지를 불러오는데 실패했습니다.');
+        router.push('/teacher/exams');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExam();
+  }, [params.id, router]);
 
   // 문항 그룹 추가
   const addItemGroup = () => {
@@ -248,8 +280,8 @@ export default function NewExamPaperPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/teacher/exams', {
-        method: 'POST',
+      const response = await fetch(`/api/teacher/exams/${params.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -259,25 +291,33 @@ export default function NewExamPaperPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || '시험지 등록에 실패했습니다.');
+        throw new Error(data.error || '시험지 수정에 실패했습니다.');
       }
 
-      alert('시험지가 등록되었습니다.');
-      router.push('/teacher/exams');
+      alert('시험지가 수정되었습니다.');
+      router.push(`/teacher/exams/${params.id}`);
       router.refresh();
     } catch (err: any) {
-      setError(err.message || '시험지 등록에 실패했습니다.');
+      setError(err.message || '시험지 수정에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <p className="text-gray-500">로딩 중...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">시험지 등록</h1>
-        <p className="text-gray-600 mt-1">새로운 시험지를 만들어 학생들에게 배정하세요</p>
+        <h1 className="text-2xl font-bold text-gray-900">시험지 수정</h1>
+        <p className="text-gray-600 mt-1">시험지 내용을 수정하세요</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -649,7 +689,7 @@ export default function NewExamPaperPage() {
             취소
           </Button>
           <Button type="submit" variant="primary" disabled={isLoading}>
-            {isLoading ? '등록 중...' : '시험지 등록'}
+            {isLoading ? '수정 중...' : '시험지 수정'}
           </Button>
         </div>
       </form>
