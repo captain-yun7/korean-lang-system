@@ -4,47 +4,49 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
 
-interface Result {
+interface ExamResult {
   id: string;
-  readingTime: number;
   score: number;
+  totalQuestions: number;
+  correctCount: number;
+  elapsedTime: number;
   submittedAt: string;
   student: {
     id: string;
     name: string;
+    schoolLevel: string;
     grade: number;
     class: number;
     number: number;
   };
-  passage: {
+  exam: {
     id: string;
     title: string;
     category: string;
-    subcategory: string;
-    difficulty: string;
-  };
-  _count: {
-    questionAnswers: number;
+    targetSchool: string;
+    targetGrade: number;
   };
 }
 
 interface Student {
   id: string;
   name: string;
+  schoolLevel: string;
   grade: number;
   class: number;
   number: number;
 }
 
-interface Passage {
+interface Exam {
   id: string;
   title: string;
+  category: string;
 }
 
 export default function ResultsPage() {
-  const [results, setResults] = useState<Result[]>([]);
+  const [results, setResults] = useState<ExamResult[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
-  const [passages, setPassages] = useState<Passage[]>([]);
+  const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,7 +54,8 @@ export default function ResultsPage() {
   // 필터 상태
   const [filters, setFilters] = useState({
     studentId: '',
-    passageId: '',
+    examId: '',
+    category: '',
     startDate: '',
     endDate: '',
     sortBy: 'submittedAt',
@@ -64,10 +67,10 @@ export default function ResultsPage() {
     fetchResults();
   }, [currentPage, filters]);
 
-  // 학생 목록 조회 (필터용)
+  // 학생 목록 및 시험지 목록 조회 (필터용)
   useEffect(() => {
     fetchStudents();
-    fetchPassages();
+    fetchExams();
   }, []);
 
   const fetchResults = async () => {
@@ -77,7 +80,8 @@ export default function ResultsPage() {
         page: currentPage.toString(),
         limit: '20',
         ...(filters.studentId && { studentId: filters.studentId }),
-        ...(filters.passageId && { passageId: filters.passageId }),
+        ...(filters.examId && { examId: filters.examId }),
+        ...(filters.category && { category: filters.category }),
         ...(filters.startDate && { startDate: filters.startDate }),
         ...(filters.endDate && { endDate: filters.endDate }),
         sortBy: filters.sortBy,
@@ -100,7 +104,7 @@ export default function ResultsPage() {
 
   const fetchStudents = async () => {
     try {
-      const res = await fetch('/api/teacher/students?limit=1000');
+      const res = await fetch('/api/teacher/students');
       if (!res.ok) throw new Error('Failed to fetch students');
 
       const data = await res.json();
@@ -110,13 +114,13 @@ export default function ResultsPage() {
     }
   };
 
-  const fetchPassages = async () => {
+  const fetchExams = async () => {
     try {
-      const res = await fetch('/api/teacher/passages?limit=100');
-      if (!res.ok) throw new Error('Failed to fetch passages');
+      const res = await fetch('/api/teacher/exams');
+      if (!res.ok) throw new Error('Failed to fetch exams');
 
       const data = await res.json();
-      setPassages(data.passages);
+      setExams(data.examPapers);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -128,15 +132,21 @@ export default function ResultsPage() {
   };
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours}시간 ${minutes}분`;
+    }
     return `${minutes}분 ${secs}초`;
   };
 
   const handleExcelDownload = () => {
     const params = new URLSearchParams({
       ...(filters.studentId && { studentId: filters.studentId }),
-      ...(filters.passageId && { passageId: filters.passageId }),
+      ...(filters.examId && { examId: filters.examId }),
+      ...(filters.category && { category: filters.category }),
       ...(filters.startDate && { startDate: filters.startDate }),
       ...(filters.endDate && { endDate: filters.endDate }),
       sortBy: filters.sortBy,
@@ -146,6 +156,8 @@ export default function ResultsPage() {
     window.open(`/api/teacher/results/export?${params}`, '_blank');
   };
 
+  const CATEGORIES = ['비문학', '문학', '문법', '어휘', '기타'];
+
   return (
     <div className="space-y-6">
       {/* 헤더 */}
@@ -153,7 +165,7 @@ export default function ResultsPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">성적 관리</h1>
           <p className="text-gray-600 mt-1">
-            학생들의 학습 성적을 조회하고 관리하세요
+            학생들의 시험 성적을 조회하고 관리하세요
           </p>
         </div>
         <Button variant="primary" onClick={handleExcelDownload}>
@@ -165,7 +177,7 @@ export default function ResultsPage() {
       <Card padding="md">
         <div className="space-y-4">
           {/* 첫 번째 행 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* 학생 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -179,27 +191,46 @@ export default function ResultsPage() {
                 <option value="">전체</option>
                 {students.map((student) => (
                   <option key={student.id} value={student.id}>
-                    {student.name} ({student.grade}학년 {student.class}반{' '}
+                    {student.name} ({student.schoolLevel} {student.grade}학년 {student.class}반{' '}
                     {student.number}번)
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* 지문 */}
+            {/* 시험지 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                지문
+                시험지
               </label>
               <select
-                value={filters.passageId}
-                onChange={(e) => handleFilterChange('passageId', e.target.value)}
+                value={filters.examId}
+                onChange={(e) => handleFilterChange('examId', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="">전체</option>
-                {passages.map((passage) => (
-                  <option key={passage.id} value={passage.id}>
-                    {passage.title}
+                {exams.map((exam) => (
+                  <option key={exam.id} value={exam.id}>
+                    {exam.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 카테고리 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                영역
+              </label>
+              <select
+                value={filters.category}
+                onChange={(e) => handleFilterChange('category', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="">전체</option>
+                {CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
                   </option>
                 ))}
               </select>
@@ -284,16 +315,16 @@ export default function ResultsPage() {
                       학생
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      지문
+                      시험지
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       점수
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      독해 시간
+                      정답률
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      문제 수
+                      소요 시간
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       제출일
@@ -304,60 +335,65 @@ export default function ResultsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {results.map((result) => (
-                    <tr key={result.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {result.student.name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {result.student.grade}학년 {result.student.class}반{' '}
-                          {result.student.number}번
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">
-                          {result.passage.title}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {result.passage.category} /{' '}
-                          {result.passage.subcategory}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            result.score >= 90
-                              ? 'bg-green-100 text-green-800'
-                              : result.score >= 70
-                              ? 'bg-blue-100 text-blue-800'
-                              : result.score >= 50
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {result.score}점
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatTime(result.readingTime)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {result._count.questionAnswers}문제
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(result.submittedAt).toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link
-                          href={`/teacher/results/${result.id}`}
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
-                          상세
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                  {results.map((result) => {
+                    const accuracy = result.totalQuestions > 0
+                      ? Math.round((result.correctCount / result.totalQuestions) * 100)
+                      : 0;
+
+                    return (
+                      <tr key={result.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {result.student.name}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {result.student.schoolLevel} {result.student.grade}학년{' '}
+                            {result.student.class}반 {result.student.number}번
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">
+                            {result.exam.title}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {result.exam.category}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              result.score >= 90
+                                ? 'bg-green-100 text-green-800'
+                                : result.score >= 70
+                                ? 'bg-blue-100 text-blue-800'
+                                : result.score >= 50
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {result.score}점
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {accuracy}% ({result.correctCount}/{result.totalQuestions})
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatTime(result.elapsedTime)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(result.submittedAt).toLocaleString('ko-KR')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <Link
+                            href={`/teacher/results/${result.id}`}
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
+                            상세
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
