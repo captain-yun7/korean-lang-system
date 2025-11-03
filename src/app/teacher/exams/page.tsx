@@ -114,9 +114,9 @@ export default function ExamPapersPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="">전체</option>
-              <option value="문법">문법</option>
+              <option value="비문학">비문학</option>
               <option value="문학">문학</option>
-              <option value="교과개념">교과개념</option>
+              <option value="문법">문법</option>
               <option value="어휘">어휘</option>
               <option value="기타">기타</option>
             </select>

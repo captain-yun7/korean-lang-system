@@ -95,12 +95,28 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { title, category, targetGrade, targetClass, items } = body;
+    const { title, category, targetSchool, targetGrade, items } = body;
 
     // 유효성 검사
-    if (!title || !category || !targetGrade || !items || items.length === 0) {
+    if (!title || !category || !targetSchool || !targetGrade || !items || items.length === 0) {
       return NextResponse.json(
         { error: '필수 항목을 입력해주세요.' },
+        { status: 400 }
+      );
+    }
+
+    // 카테고리 검증
+    if (!['비문학', '문학', '문법', '어휘', '기타'].includes(category)) {
+      return NextResponse.json(
+        { error: '올바른 영역을 선택해주세요.' },
+        { status: 400 }
+      );
+    }
+
+    // 학교급 검증
+    if (!['중등', '고등'].includes(targetSchool)) {
+      return NextResponse.json(
+        { error: '올바른 대상을 선택해주세요.' },
         { status: 400 }
       );
     }
@@ -117,14 +133,35 @@ export async function PUT(
       );
     }
 
+    // 각 문항 검사
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (!item.questions || item.questions.length === 0) {
+        return NextResponse.json(
+          { error: `${i + 1}번 문항 그룹에 질문이 없습니다.` },
+          { status: 400 }
+        );
+      }
+
+      for (let j = 0; j < item.questions.length; j++) {
+        const question = item.questions[j];
+        if (!question.text || !question.answers || question.answers.length === 0) {
+          return NextResponse.json(
+            { error: `${i + 1}번 문항 그룹의 ${j + 1}번 질문이 유효하지 않습니다.` },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     // 시험지 수정
     const examPaper = await prisma.exam.update({
       where: { id: params.id },
       data: {
         title,
         category,
+        targetSchool,
         targetGrade,
-        targetClass: targetClass || null,
         items,
       },
     });

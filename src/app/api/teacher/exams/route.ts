@@ -86,10 +86,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, category, targetGrade, targetClass, items } = body;
+    const { title, category, targetSchool, targetGrade, items } = body;
 
     // 유효성 검사
-    if (!title || !category || !targetGrade || !items || items.length === 0) {
+    if (!title || !category || !targetSchool || !targetGrade || !items || items.length === 0) {
       return NextResponse.json(
         { error: '필수 항목을 입력해주세요.' },
         { status: 400 }
@@ -97,9 +97,17 @@ export async function POST(request: NextRequest) {
     }
 
     // 카테고리 검증
-    if (!['문법', '문학', '교과개념', '어휘', '기타'].includes(category)) {
+    if (!['비문학', '문학', '문법', '어휘', '기타'].includes(category)) {
       return NextResponse.json(
         { error: '올바른 영역을 선택해주세요.' },
+        { status: 400 }
+      );
+    }
+
+    // 학교급 검증
+    if (!['중등', '고등'].includes(targetSchool)) {
+      return NextResponse.json(
+        { error: '올바른 대상을 선택해주세요.' },
         { status: 400 }
       );
     }
@@ -130,8 +138,8 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         category,
+        targetSchool,
         targetGrade,
-        targetClass: targetClass || null,
         items,
       },
     });

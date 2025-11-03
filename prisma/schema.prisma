@@ -103,6 +103,7 @@ model Student {
   userId              String    @unique
   studentId           String    @unique // 학번 (예: 030201 - 3학년 2반 1번)
   name                String
+  schoolLevel         String    @default("중등") // 중등, 고등
   grade               Int // 학년 (1, 2, 3)
   class               Int // 반
   number              Int // 번호
@@ -112,13 +113,9 @@ model Student {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  results           Result[]
-  assignedPassages  AssignedPassage[]  @relation("StudentAssignedPassages")
-  assignedQuestions AssignedQuestion[] @relation("StudentAssignedQuestions")
-  wrongAnswers      WrongAnswer[]
-  examResults       ExamResult[]
-  assignedExams     AssignedExam[]     @relation("StudentAssignedExams")
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examResults   ExamResult[]
+  assignedExams AssignedExam[] @relation("StudentAssignedExams")
 
   @@map("students")
 }
@@ -133,9 +130,7 @@ model Passage {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  questions        Question[]
-  results          Result[]
-  assignedPassages AssignedPassage[]
+  questions Question[]
 
   @@map("passages")
 }
@@ -152,10 +147,7 @@ model Question {
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
-  passage           Passage?           @relation(fields: [passageId], references: [id], onDelete: Cascade)
-  questionAnswers   QuestionAnswer[]
-  assignedQuestions AssignedQuestion[]
-  wrongAnswers      WrongAnswer[]
+  passage Passage? @relation(fields: [passageId], references: [id], onDelete: Cascade)
 
   @@index([passageId])
   @@map("questions")
@@ -163,20 +155,20 @@ model Question {
 
 // 시험 (여러 문항을 포함하는 시험지)
 model Exam {
-  id          String   @id @default(cuid())
-  title       String // 시험 제목
-  category    String // 문법, 교과개념, 문학
-  targetGrade Int // 대상 학년
-  targetClass Int? // 대상 반 (null이면 전체)
-  items       Json // 시험 문항 배열 [{ passage?: string, questions: [{ text, type, options?, answers, explanation? }] }]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  title        String // 시험 제목
+  category     String // 비문학, 문학, 문법, 어휘, 기타
+  targetSchool String // 중등, 고등
+  targetGrade  Int // 대상 학년 (1, 2, 3)
+  items        Json // 시험 문항 배열 [{ passage?: string, questions: [{ text, type, options?, answers, explanation? }] }]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   examResults   ExamResult[]
   assignedExams AssignedExam[]
 
   @@index([category])
-  @@index([targetGrade, targetClass])
+  @@index([targetSchool, targetGrade])
   @@map("exams")
 }
 
@@ -200,111 +192,21 @@ model ExamResult {
 
 // 시험 배정
 model AssignedExam {
-  id          String    @id @default(cuid())
-  examId      String
-  assignedBy  String // 교사 ID
-  assignedTo  String? // 학생 ID (null인 경우 학년/반 전체)
-  targetGrade Int?
-  targetClass Int?
-  dueDate     DateTime? // 완료 기한
-  createdAt   DateTime  @default(now())
+  id           String    @id @default(cuid())
+  examId       String
+  assignedBy   String // 교사 ID
+  assignedTo   String? // 학생 ID (null인 경우 학교급/학년 전체)
+  targetSchool String? // 중등, 고등
+  targetGrade  Int? // 1, 2, 3
+  dueDate      DateTime? // 완료 기한
+  createdAt    DateTime  @default(now())
 
   exam    Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   student Student? @relation("StudentAssignedExams", fields: [assignedTo], references: [id], onDelete: Cascade)
 
   @@index([examId])
   @@index([assignedTo])
-  @@index([targetGrade, targetClass])
+  @@index([targetSchool, targetGrade])
   @@map("assigned_exams")
 }
 
-model Result {
-  id               String   @id @default(cuid())
-  studentId        String
-  passageId        String
-  readingTime      Int // 독해 시간 (초 단위)
-  score            Int // 점수 (0-100)
-  paragraphAnswers Json // 문단별 질문 답변 배열
-  isAssigned       Boolean  @default(false) // 교사 지정 여부
-  submittedAt      DateTime @default(now())
-
-  student         Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  passage         Passage          @relation(fields: [passageId], references: [id], onDelete: Cascade)
-  questionAnswers QuestionAnswer[]
-
-  @@index([studentId])
-  @@index([passageId])
-  @@map("results")
-}
-
-model QuestionAnswer {
-  id         String  @id @default(cuid())
-  resultId   String
-  questionId String
-  answer     String  @db.Text
-  isCorrect  Boolean
-
-  result   Result   @relation(fields: [resultId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@index([resultId])
-  @@index([questionId])
-  @@map("question_answers")
-}
-
-model AssignedPassage {
-  id          String    @id @default(cuid())
-  passageId   String
-  assignedBy  String // 교사 ID
-  assignedTo  String? // 학생 ID (null인 경우 학년/반 전체)
-  targetGrade Int? // 대상 학년
-  targetClass Int? // 대상 반
-  dueDate     DateTime? // 완료 기한
-  createdAt   DateTime  @default(now())
-
-  passage Passage  @relation(fields: [passageId], references: [id], onDelete: Cascade)
-  student Student? @relation("StudentAssignedPassages", fields: [assignedTo], references: [id], onDelete: Cascade)
-
-  @@index([passageId])
-  @@index([assignedTo])
-  @@index([targetGrade, targetClass])
-  @@map("assigned_passages")
-}
-
-model AssignedQuestion {
-  id          String    @id @default(cuid())
-  questionId  String
-  assignedBy  String // 교사 ID
-  assignedTo  String? // 학생 ID (null인 경우 학년/반 전체)
-  targetGrade Int? // 대상 학년
-  targetClass Int? // 대상 반
-  dueDate     DateTime? // 완료 기한
-  createdAt   DateTime  @default(now())
-
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  student  Student? @relation("StudentAssignedQuestions", fields: [assignedTo], references: [id], onDelete: Cascade)
-
-  @@index([questionId])
-  @@index([assignedTo])
-  @@index([targetGrade, targetClass])
-  @@map("assigned_questions")
-}
-
-model WrongAnswer {
-  id            String   @id @default(cuid())
-  studentId     String
-  questionId    String
-  wrongAnswer   String   @db.Text // 틀린 답변
-  correctAnswer String   @db.Text // 정답
-  explanation   String?  @db.Text // 해설
-  isReviewed    Boolean  @default(false) // 복습 완료 여부
-  createdAt     DateTime @default(now())
-
-  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@index([studentId])
-  @@index([questionId])
-  @@index([studentId, isReviewed])
-  @@map("wrong_answers")
-}

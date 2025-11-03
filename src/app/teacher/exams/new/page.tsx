@@ -5,8 +5,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 // 영역 카테고리
-const CATEGORIES = ['문법', '문학', '교과개념', '어휘', '기타'];
+const CATEGORIES = ['비문학', '문학', '문법', '어휘', '기타'];
 
+const SCHOOL_LEVELS = ['중등', '고등'];
 const GRADES = [1, 2, 3];
 
 // 문항 인터페이스
@@ -27,8 +28,8 @@ interface ExamItem {
 interface ExamFormData {
   title: string;
   category: string;
+  targetSchool: string;
   targetGrade: number;
-  targetClass: number | null;
   items: ExamItem[];
 }
 
@@ -39,9 +40,9 @@ export default function NewExamPaperPage() {
 
   const [formData, setFormData] = useState<ExamFormData>({
     title: '',
-    category: '문법',
+    category: '비문학',
+    targetSchool: '중등',
     targetGrade: 1,
-    targetClass: null,
     items: [
       {
         passage: '',
@@ -328,27 +329,54 @@ export default function NewExamPaperPage() {
               </div>
             </div>
 
-            {/* 대상 학년 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                대상 학년 <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formData.targetGrade}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    targetGrade: parseInt(e.target.value),
-                  })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              >
-                {GRADES.map((grade) => (
-                  <option key={grade} value={grade}>
-                    {grade}학년
-                  </option>
-                ))}
-              </select>
+            {/* 대상 설정 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  대상 <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-4">
+                  {SCHOOL_LEVELS.map((level) => (
+                    <label key={level} className="flex items-center">
+                      <input
+                        type="radio"
+                        value={level}
+                        checked={formData.targetSchool === level}
+                        onChange={(e) =>
+                          setFormData({ ...formData, targetSchool: e.target.value })
+                        }
+                        className="mr-2"
+                      />
+                      {level}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  대상 학년 <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-4">
+                  {GRADES.map((grade) => (
+                    <label key={grade} className="flex items-center">
+                      <input
+                        type="radio"
+                        value={grade}
+                        checked={formData.targetGrade === grade}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            targetGrade: parseInt(e.target.value),
+                          })
+                        }
+                        className="mr-2"
+                      />
+                      {grade}학년
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </Card>

@@ -22,8 +22,8 @@ interface Exam {
   id: string;
   title: string;
   category: string;
+  targetSchool: string;
   targetGrade: number;
-  targetClass: number | null;
   items: ExamItem[];
   createdAt: string;
   updatedAt: string;
@@ -114,7 +114,7 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
             <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
               {exam.category}
             </span>
-            <span>{exam.targetGrade}학년</span>
+            <span>{exam.targetSchool} {exam.targetGrade}학년</span>
             <span>•</span>
             <span>총 {totalQuestions}문항</span>
             <span>•</span>
