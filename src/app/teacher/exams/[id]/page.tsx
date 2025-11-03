@@ -123,6 +123,9 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
         </div>
 
         <div className="flex items-center gap-2">
+          <Link href={`/teacher/exams/${params.id}/assign`}>
+            <Button variant="primary">학생에게 배정</Button>
+          </Link>
           <Link href={`/teacher/exams/${params.id}/edit`}>
             <Button variant="secondary">수정</Button>
           </Link>
