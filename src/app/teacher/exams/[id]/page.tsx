@@ -114,10 +114,7 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
             <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
               {exam.category}
             </span>
-            <span>
-              {exam.targetGrade}학년
-              {exam.targetClass ? ` ${exam.targetClass}반` : ' 전체'}
-            </span>
+            <span>{exam.targetGrade}학년</span>
             <span>•</span>
             <span>총 {totalQuestions}문항</span>
             <span>•</span>

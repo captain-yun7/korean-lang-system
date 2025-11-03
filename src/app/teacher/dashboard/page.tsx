@@ -9,7 +9,7 @@ interface Stats {
   totalStudents: number;
   activeStudents: number;
   totalPassages: number;
-  totalQuestions: number;
+  totalExams: number;
   averageScore: number;
 }
 
@@ -49,13 +49,13 @@ async function getStats(): Promise<Stats> {
       totalStudents,
       activeStudents,
       totalPassages,
-      totalQuestions,
+      totalExams,
       averageScoreData,
     ] = await Promise.all([
       prisma.student.count(),
       prisma.student.count({ where: { isActive: true } }),
       prisma.passage.count(),
-      prisma.question.count(),
+      prisma.exam.count(),
       prisma.result.aggregate({ _avg: { score: true } }),
     ]);
 
@@ -63,7 +63,7 @@ async function getStats(): Promise<Stats> {
       totalStudents,
       activeStudents,
       totalPassages,
-      totalQuestions,
+      totalExams,
       averageScore: averageScoreData._avg.score
         ? Math.round(averageScoreData._avg.score * 10) / 10
         : 0,
@@ -74,7 +74,7 @@ async function getStats(): Promise<Stats> {
       totalStudents: 0,
       activeStudents: 0,
       totalPassages: 0,
-      totalQuestions: 0,
+      totalExams: 0,
       averageScore: 0,
     };
   }
@@ -178,21 +178,21 @@ export default async function TeacherDashboardPage() {
           </div>
         </Card>
 
-        {/* Total Questions */}
+        {/* Total Exams */}
         <Card hover padding="md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">등록된 문제</p>
+              <p className="text-sm font-medium text-gray-600">등록된 시험지</p>
               <p className="text-3xl font-bold text-gray-900 mt-2">
-                {stats.totalQuestions}
+                {stats.totalExams}
               </p>
-              <Link href="/teacher/questions" className="text-sm text-indigo-600 hover:text-indigo-700 mt-1 inline-block">
+              <Link href="/teacher/exams" className="text-sm text-indigo-600 hover:text-indigo-700 mt-1 inline-block">
                 관리하기 →
               </Link>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
           </div>
@@ -320,7 +320,7 @@ export default async function TeacherDashboardPage() {
           </Card>
         </Link>
 
-        <Link href="/teacher/questions" className="block">
+        <Link href="/teacher/exams/new" className="block">
           <Card hover padding="md" className="h-full">
             <div className="text-center">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -328,8 +328,8 @@ export default async function TeacherDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-gray-900">문제 등록</h3>
-              <p className="text-sm text-gray-600 mt-1">새로운 문제를 추가하세요</p>
+              <h3 className="font-semibold text-gray-900">시험지 등록</h3>
+              <p className="text-sm text-gray-600 mt-1">새로운 시험지를 추가하세요</p>
             </div>
           </Card>
         </Link>

@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 카테고리 검증
-    if (!['비문학', '문학', '문법'].includes(category)) {
+    if (!['문법', '문학', '교과개념', '어휘', '기타'].includes(category)) {
       return NextResponse.json(
         { error: '올바른 영역을 선택해주세요.' },
         { status: 400 }

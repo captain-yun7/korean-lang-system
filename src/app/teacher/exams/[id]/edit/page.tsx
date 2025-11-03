@@ -4,12 +4,8 @@ import { Card, Button } from '@/components/ui';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-// 영역 및 카테고리
-const CATEGORIES = {
-  비문학: ['인문예술', '과학기술', '사회문화'],
-  문학: ['고전산문', '고전시가', '현대산문', '현대시'],
-  문법: ['품사', '단어의 형성', '음운 변동', '문장', '한글맞춤법', '중세 국어'],
-};
+// 영역 카테고리
+const CATEGORIES = ['문법', '문학', '교과개념', '어휘', '기타'];
 
 const GRADES = [1, 2, 3];
 
@@ -44,7 +40,7 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
 
   const [formData, setFormData] = useState<ExamFormData>({
     title: '',
-    category: '비문학',
+    category: '문법',
     targetGrade: 1,
     targetClass: null,
     items: [
@@ -355,7 +351,7 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
                 영역 <span className="text-red-500">*</span>
               </label>
               <div className="flex gap-4">
-                {Object.keys(CATEGORIES).map((cat) => (
+                {CATEGORIES.map((cat) => (
                   <label key={cat} className="flex items-center">
                     <input
                       type="radio"
@@ -372,52 +368,27 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            {/* 대상 선택 */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  대상 학년 <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={formData.targetGrade}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      targetGrade: parseInt(e.target.value),
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                  {GRADES.map((grade) => (
-                    <option key={grade} value={grade}>
-                      {grade}학년
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  대상 반
-                </label>
-                <select
-                  value={formData.targetClass || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      targetClass: e.target.value ? parseInt(e.target.value) : null,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                >
-                  <option value="">전체</option>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((classNum) => (
-                    <option key={classNum} value={classNum}>
-                      {classNum}반
-                    </option>
-                  ))}
-                </select>
-              </div>
+            {/* 대상 학년 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                대상 학년 <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.targetGrade}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    targetGrade: parseInt(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                {GRADES.map((grade) => (
+                  <option key={grade} value={grade}>
+                    {grade}학년
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </Card>

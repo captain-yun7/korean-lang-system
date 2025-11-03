@@ -3,7 +3,6 @@
 import { Card, Button } from '@/components/ui';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 interface ExamPaper {
   id: string;
@@ -19,7 +18,6 @@ interface ExamPaper {
 }
 
 export default function ExamPapersPage() {
-  const router = useRouter();
   const [examPapers, setExamPapers] = useState<ExamPaper[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -116,9 +114,11 @@ export default function ExamPapersPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="">전체</option>
-              <option value="비문학">비문학</option>
-              <option value="문학">문학</option>
               <option value="문법">문법</option>
+              <option value="문학">문학</option>
+              <option value="교과개념">교과개념</option>
+              <option value="어휘">어휘</option>
+              <option value="기타">기타</option>
             </select>
           </div>
 
@@ -173,10 +173,7 @@ export default function ExamPapersPage() {
                     <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
                       {examPaper.category}
                     </span>
-                    <span>
-                      {examPaper.targetGrade}학년
-                      {examPaper.targetClass ? ` ${examPaper.targetClass}반` : ' 전체'}
-                    </span>
+                    <span>{examPaper.targetGrade}학년</span>
                     <span>•</span>
                     <span>
                       {new Date(examPaper.createdAt).toLocaleDateString()}
