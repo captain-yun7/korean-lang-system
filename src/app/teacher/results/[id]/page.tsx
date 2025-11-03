@@ -1,376 +1,392 @@
-'use client';
-
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { Card } from '@/components/ui';
 import Link from 'next/link';
-import { Card, Button } from '@/components/ui';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import {
+  CheckCircleIcon,
+  XCircleIcon,
+  ClockIcon,
+  TrophyIcon,
+  UserIcon,
+  DocumentTextIcon,
+} from '@heroicons/react/24/solid';
 
-interface ParagraphAnswer {
-  q: string;
-  answer: string;
-  correctAnswer: string;
-  isCorrect: boolean;
-  explanation: string;
+async function getExamResult(resultId: string) {
+  try {
+    const examResult = await prisma.examResult.findUnique({
+      where: { id: resultId },
+      include: {
+        student: {
+          select: {
+            id: true,
+            studentId: true,
+            name: true,
+            schoolLevel: true,
+            grade: true,
+            class: true,
+            number: true,
+          },
+        },
+        exam: true,
+      },
+    });
+
+    if (!examResult) return null;
+
+    // 시험지 items 정보 가져오기
+    const items = examResult.exam.items as any[];
+
+    return {
+      examResult,
+      items,
+    };
+  } catch (error) {
+    console.error('Failed to fetch exam result:', error);
+    return null;
+  }
 }
 
-interface QuestionAnswer {
-  id: string;
-  answer: string;
-  isCorrect: boolean;
-  question: {
-    id: string;
-    type: string;
-    text: string;
-    options: string[] | null;
-    answers: string[];
-    explanation: string | null;
-  };
-}
-
-interface Result {
-  id: string;
-  readingTime: number;
-  score: number;
-  paragraphAnswers: ParagraphAnswer[];
-  submittedAt: string;
-  student: {
-    id: string;
-    studentId: string;
-    name: string;
-    grade: number;
-    class: number;
-    number: number;
-  };
-  passage: {
-    id: string;
-    title: string;
-    category: string;
-    subcategory: string;
-    difficulty: string;
-    contentBlocks: Array<{
-      para: string;
-      q: string;
-      a: string;
-      explanation: string;
-    }>;
-  };
-  questionAnswers: QuestionAnswer[];
-}
-
-export default function ResultDetailPage({
+export default async function TeacherResultDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const router = useRouter();
-  const [result, setResult] = useState<Result | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { id } = await params;
 
-  useEffect(() => {
-    fetchResult();
-  }, [id]);
+  const session = await auth();
+  if (!session?.user || session.user.role !== 'TEACHER') {
+    redirect('/');
+  }
 
-  const fetchResult = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/teacher/results/${id}`);
-      if (!res.ok) throw new Error('Failed to fetch result');
+  const data = await getExamResult(id);
 
-      const data = await res.json();
-      setResult(data.result);
-    } catch (error) {
-      console.error('Error:', error);
-      alert('성적 정보를 불러오는데 실패했습니다.');
-      router.push('/teacher/results');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}분 ${secs}초`;
-  };
-
-  if (loading) {
+  if (!data) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">로딩 중...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-600">성적 정보를 찾을 수 없습니다.</p>
       </div>
     );
   }
 
-  if (!result) return null;
+  const { examResult, items } = data;
+  const detailedResults = examResult.detailedResults as any[];
+  const studentAnswers = examResult.answers as any[];
 
-  const paragraphCorrect =
-    result.paragraphAnswers?.filter((a) => a.isCorrect).length || 0;
-  const questionCorrect =
-    result.questionAnswers?.filter((a) => a.isCorrect).length || 0;
-  const totalCorrect = paragraphCorrect + questionCorrect;
-  const totalQuestions =
-    (result.paragraphAnswers?.length || 0) + result.questionAnswers.length;
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours}시간 ${minutes}분 ${secs}초`;
+    }
+    return `${minutes}분 ${secs}초`;
+  };
+
+  const accuracy = examResult.totalQuestions > 0
+    ? Math.round((examResult.correctCount / examResult.totalQuestions) * 100)
+    : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* 헤더 */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">성적 상세</h1>
+          <h1 className="text-3xl font-bold text-gray-900">성적 상세</h1>
+          <p className="text-gray-600 mt-1">학생의 시험 결과를 확인하세요</p>
         </div>
-        <Button variant="secondary" onClick={() => router.back()}>
-          목록
-        </Button>
+        <Link
+          href="/teacher/results"
+          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+        >
+          목록으로
+        </Link>
       </div>
 
-      {/* 학생 및 지문 정보 */}
+      {/* 학생 정보 */}
       <Card padding="md">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">기본 정보</h2>
+        <div className="flex items-center gap-3 mb-4">
+          <UserIcon className="w-6 h-6 text-indigo-600" />
+          <h2 className="text-lg font-semibold text-gray-900">학생 정보</h2>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 학생 정보 */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">
-              학생 정보
-            </h3>
-            <div className="space-y-1">
-              <div className="flex">
-                <span className="text-sm text-gray-500 w-20">이름</span>
-                <span className="text-sm text-gray-900">
-                  {result.student.name}
-                </span>
-              </div>
-              <div className="flex">
-                <span className="text-sm text-gray-500 w-20">학년/반</span>
-                <span className="text-sm text-gray-900">
-                  {result.student.grade}학년 {result.student.class}반{' '}
-                  {result.student.number}번
-                </span>
-              </div>
-              <div className="flex">
-                <span className="text-sm text-gray-500 w-20">학번</span>
-                <span className="text-sm text-gray-900">
-                  {result.student.studentId}
-                </span>
-              </div>
-            </div>
+          <div className="flex">
+            <span className="text-sm text-gray-500 w-24">이름</span>
+            <span className="text-sm font-medium text-gray-900">
+              {examResult.student.name}
+            </span>
           </div>
-
-          {/* 지문 정보 */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">
-              지문 정보
-            </h3>
-            <div className="space-y-1">
-              <div className="flex">
-                <span className="text-sm text-gray-500 w-20">제목</span>
-                <span className="text-sm text-gray-900">
-                  <Link
-                    href={`/teacher/passages/${result.passage.id}`}
-                    className="text-indigo-600 hover:text-indigo-900"
-                  >
-                    {result.passage.title}
-                  </Link>
-                </span>
-              </div>
-              <div className="flex">
-                <span className="text-sm text-gray-500 w-20">카테고리</span>
-                <span className="text-sm text-gray-900">
-                  {result.passage.category} / {result.passage.subcategory}
-                </span>
-              </div>
-              <div className="flex">
-                <span className="text-sm text-gray-500 w-20">난이도</span>
-                <span className="text-sm text-gray-900">
-                  {result.passage.difficulty}
-                </span>
-              </div>
-            </div>
+          <div className="flex">
+            <span className="text-sm text-gray-500 w-24">학번</span>
+            <span className="text-sm font-medium text-gray-900">
+              {examResult.student.studentId}
+            </span>
+          </div>
+          <div className="flex">
+            <span className="text-sm text-gray-500 w-24">학년/반</span>
+            <span className="text-sm font-medium text-gray-900">
+              {examResult.student.schoolLevel} {examResult.student.grade}학년{' '}
+              {examResult.student.class}반 {examResult.student.number}번
+            </span>
+          </div>
+          <div className="flex">
+            <span className="text-sm text-gray-500 w-24">제출일</span>
+            <span className="text-sm font-medium text-gray-900">
+              {new Date(examResult.submittedAt).toLocaleString('ko-KR')}
+            </span>
           </div>
         </div>
       </Card>
 
-      {/* 성적 요약 */}
+      {/* 시험지 정보 */}
       <Card padding="md">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">성적 요약</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-indigo-600">
-              {result.score}점
-            </p>
-            <p className="text-sm text-gray-500 mt-1">총점</p>
+        <div className="flex items-center gap-3 mb-4">
+          <DocumentTextIcon className="w-6 h-6 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">시험지 정보</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex">
+            <span className="text-sm text-gray-500 w-24">제목</span>
+            <Link
+              href={`/teacher/exams/${examResult.exam.id}`}
+              className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+            >
+              {examResult.exam.title}
+            </Link>
           </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-gray-900">
-              {totalCorrect}/{totalQuestions}
-            </p>
-            <p className="text-sm text-gray-500 mt-1">정답 수</p>
+          <div className="flex">
+            <span className="text-sm text-gray-500 w-24">영역</span>
+            <span className="text-sm font-medium text-gray-900">
+              {examResult.exam.category}
+            </span>
           </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-gray-900">
-              {formatTime(result.readingTime)}
-            </p>
-            <p className="text-sm text-gray-500 mt-1">독해 시간</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-gray-900">
-              {new Date(result.submittedAt).toLocaleDateString()}
-            </p>
-            <p className="text-sm text-gray-500 mt-1">제출일</p>
+          <div className="flex">
+            <span className="text-sm text-gray-500 w-24">대상</span>
+            <span className="text-sm font-medium text-gray-900">
+              {examResult.exam.targetSchool} {examResult.exam.targetGrade}학년
+            </span>
           </div>
         </div>
       </Card>
 
-      {/* 문단별 질문 답변 */}
-      {result.paragraphAnswers && result.paragraphAnswers.length > 0 && (
+      {/* 결과 요약 */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card padding="md">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            문단별 질문 답변
-          </h2>
-          <div className="space-y-4">
-            {result.paragraphAnswers.map((answer, index) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg border-2 ${
-                  answer.isCorrect
-                    ? 'border-green-200 bg-green-50'
-                    : 'border-red-200 bg-red-50'
-                }`}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-gray-900">
-                    문단 {index + 1}
-                  </h3>
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      answer.isCorrect
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}
-                  >
-                    {answer.isCorrect ? '정답' : '오답'}
-                  </span>
-                </div>
-
-                {/* 질문 */}
-                <div className="mb-2">
-                  <p className="text-sm font-medium text-gray-700">질문:</p>
-                  <p className="text-sm text-gray-900">{answer.q}</p>
-                </div>
-
-                {/* 학생 답변 */}
-                <div className="mb-2">
-                  <p className="text-sm font-medium text-gray-700">학생 답변:</p>
-                  <p className="text-sm text-gray-900">{answer.answer}</p>
-                </div>
-
-                {/* 정답 */}
-                <div className="mb-2">
-                  <p className="text-sm font-medium text-gray-700">정답:</p>
-                  <p className="text-sm text-green-700 font-medium">
-                    {answer.correctAnswer}
-                  </p>
-                </div>
-
-                {/* 해설 */}
-                {answer.explanation && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">해설:</p>
-                    <p className="text-sm text-gray-600 whitespace-pre-wrap">
-                      {answer.explanation}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
+          <div className="flex items-center gap-3">
+            <TrophyIcon className="w-8 h-8 text-yellow-500" />
+            <div>
+              <div className="text-sm text-gray-600">점수</div>
+              <div className="text-2xl font-bold text-gray-900">{examResult.score}점</div>
+            </div>
           </div>
         </Card>
-      )}
 
-      {/* 문제별 답변 */}
-      {result.questionAnswers && result.questionAnswers.length > 0 && (
         <Card padding="md">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            문제별 답변
-          </h2>
-          <div className="space-y-4">
-            {result.questionAnswers.map((answer, index) => (
-              <div
-                key={answer.id}
-                className={`p-4 rounded-lg border-2 ${
-                  answer.isCorrect
-                    ? 'border-green-200 bg-green-50'
-                    : 'border-red-200 bg-red-50'
-                }`}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-gray-900">
-                    문제 {index + 1} ({answer.question.type})
-                  </h3>
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      answer.isCorrect
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
+          <div className="flex items-center gap-3">
+            <CheckCircleIcon className="w-8 h-8 text-green-500" />
+            <div>
+              <div className="text-sm text-gray-600">정답률</div>
+              <div className="text-2xl font-bold text-gray-900">{accuracy}%</div>
+            </div>
+          </div>
+        </Card>
+
+        <Card padding="md">
+          <div className="flex items-center gap-3">
+            <div className="text-2xl font-bold text-gray-900">
+              {examResult.correctCount}/{examResult.totalQuestions}
+            </div>
+            <div className="text-sm text-gray-600">정답 수</div>
+          </div>
+        </Card>
+
+        <Card padding="md">
+          <div className="flex items-center gap-3">
+            <ClockIcon className="w-8 h-8 text-blue-500" />
+            <div>
+              <div className="text-sm text-gray-600">소요 시간</div>
+              <div className="text-lg font-bold text-gray-900">
+                {formatTime(examResult.elapsedTime)}
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* 문제별 결과 */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold text-gray-900">문제별 결과</h2>
+
+        {items.map((item, itemIndex) => (
+          <Card key={itemIndex} padding="lg">
+            <div className="space-y-6">
+              {/* 문항 그룹 헤더 */}
+              <div className="border-b pb-3">
+                <h3 className="text-lg font-bold text-gray-900">
+                  문항 그룹 {itemIndex + 1}
+                </h3>
+              </div>
+
+              {/* 제시문 */}
+              {item.passage && (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm font-medium text-gray-700 mb-2">제시문</div>
+                  <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">
+                    {item.passage}
+                  </div>
+                </div>
+              )}
+
+              {/* 질문들 */}
+              {item.questions.map((question: any, questionIndex: number) => {
+                const result = detailedResults.find(
+                  (r) => r.itemIndex === itemIndex && r.questionIndex === questionIndex
+                );
+
+                const globalQuestionNum = items
+                  .slice(0, itemIndex)
+                  .reduce((sum, it) => sum + it.questions.length, 0) + questionIndex + 1;
+
+                return (
+                  <div
+                    key={questionIndex}
+                    className={`border-l-4 pl-4 space-y-3 ${
+                      result?.isCorrect ? 'border-green-500' : 'border-red-500'
                     }`}
                   >
-                    {answer.isCorrect ? '정답' : '오답'}
-                  </span>
-                </div>
-
-                {/* 문제 내용 */}
-                <div className="mb-2">
-                  <p className="text-sm font-medium text-gray-700">문제:</p>
-                  <p className="text-sm text-gray-900 whitespace-pre-wrap">
-                    {answer.question.text}
-                  </p>
-                </div>
-
-                {/* 객관식 선택지 */}
-                {answer.question.type === '객관식' &&
-                  answer.question.options && (
-                    <div className="mb-2">
-                      <p className="text-sm font-medium text-gray-700 mb-1">
-                        선택지:
-                      </p>
-                      <div className="space-y-1">
-                        {answer.question.options.map((option, optIndex) => (
-                          <div key={optIndex} className="text-sm text-gray-900">
-                            {optIndex + 1}. {option}
-                          </div>
-                        ))}
+                    {/* 질문 번호 및 결과 */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-gray-900">
+                          {globalQuestionNum}.
+                        </span>
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                          {question.type}
+                        </span>
                       </div>
+                      {result?.isCorrect ? (
+                        <div className="flex items-center gap-1 text-green-600 font-semibold">
+                          <CheckCircleIcon className="w-5 h-5" />
+                          정답
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-red-600 font-semibold">
+                          <XCircleIcon className="w-5 h-5" />
+                          오답
+                        </div>
+                      )}
                     </div>
-                  )}
 
-                {/* 학생 답변 */}
-                <div className="mb-2">
-                  <p className="text-sm font-medium text-gray-700">학생 답변:</p>
-                  <p className="text-sm text-gray-900">{answer.answer}</p>
-                </div>
+                    {/* 질문 텍스트 */}
+                    <div className="text-gray-900 whitespace-pre-wrap">
+                      {question.text}
+                    </div>
 
-                {/* 정답 */}
-                <div className="mb-2">
-                  <p className="text-sm font-medium text-gray-700">정답:</p>
-                  <p className="text-sm text-green-700 font-medium">
-                    {answer.question.answers.join(', ')}
-                  </p>
-                </div>
+                    {/* 객관식 선택지 */}
+                    {question.type === '객관식' && question.options && (
+                      <div className="space-y-2">
+                        {question.options.map((option: string, optionIndex: number) => {
+                          const optionNum = String(optionIndex + 1);
+                          const isCorrect = result?.correctAnswer.includes(optionNum);
+                          const isSelected = result?.studentAnswer.includes(optionNum);
 
-                {/* 해설 */}
-                {answer.question.explanation && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">해설:</p>
-                    <p className="text-sm text-gray-600 whitespace-pre-wrap">
-                      {answer.question.explanation}
-                    </p>
+                          return (
+                            <div
+                              key={optionIndex}
+                              className={`p-3 rounded-lg border-2 ${
+                                isCorrect
+                                  ? 'border-green-500 bg-green-50'
+                                  : isSelected
+                                  ? 'border-red-500 bg-red-50'
+                                  : 'border-gray-200'
+                              }`}
+                            >
+                              <div className="flex items-start gap-2">
+                                <span className="font-medium text-gray-700">
+                                  {optionIndex + 1}.
+                                </span>
+                                <span className="flex-1 text-gray-900">{option}</span>
+                                {isCorrect && (
+                                  <span className="text-green-600 text-sm font-medium">
+                                    정답
+                                  </span>
+                                )}
+                                {isSelected && !isCorrect && (
+                                  <span className="text-red-600 text-sm font-medium">
+                                    선택함
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* 주관식/서술형 답안 */}
+                    {question.type !== '객관식' && (
+                      <div className="space-y-2">
+                        <div
+                          className={`p-3 rounded-lg border-2 ${
+                            result?.isCorrect
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-red-500 bg-red-50'
+                          }`}
+                        >
+                          <div className="text-sm font-medium text-gray-700 mb-1">
+                            학생 답안
+                          </div>
+                          <div className="text-gray-900">
+                            {result?.studentAnswer[0] || '(답안 없음)'}
+                          </div>
+                        </div>
+
+                        {!result?.isCorrect && (
+                          <div className="p-3 rounded-lg border-2 border-green-500 bg-green-50">
+                            <div className="text-sm font-medium text-green-700 mb-1">
+                              정답
+                            </div>
+                            <div className="text-gray-900">
+                              {result?.correctAnswer.join(', ')}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* 해설 */}
+                    {question.explanation && (
+                      <div className="bg-blue-50 border border-blue-200 p-3 rounded">
+                        <div className="text-sm font-medium text-blue-700 mb-1">해설</div>
+                        <div className="text-gray-900 whitespace-pre-wrap">
+                          {question.explanation}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+                );
+              })}
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* 하단 버튼 */}
+      <div className="flex justify-between">
+        <Link
+          href="/teacher/results"
+          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+        >
+          목록으로
+        </Link>
+        <Link
+          href={`/teacher/students/${examResult.student.id}`}
+          className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+        >
+          학생 정보 보기
+        </Link>
+      </div>
     </div>
   );
 }

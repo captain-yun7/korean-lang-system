@@ -23,17 +23,56 @@ async function getStudentStats(studentId: string) {
     // 학생 정보 조회
     const student = await prisma.student.findUnique({
       where: { id: studentId },
+    });
+
+    if (!student) return null;
+
+    // 최근 시험 결과 조회
+    const recentResults = await prisma.examResult.findMany({
+      where: { studentId },
+      orderBy: { submittedAt: 'desc' },
+      take: 5,
       include: {
-        results: {
-          orderBy: { submittedAt: 'desc' },
-          take: 5,
-          include: {
-            passage: {
-              select: {
-                id: true,
-                title: true,
-                category: true,
-                subcategory: true,
+        exam: {
+          select: {
+            id: true,
+            title: true,
+            category: true,
+            targetSchool: true,
+            targetGrade: true,
+          },
+        },
+      },
+    });
+
+    // 전체 통계 계산
+    const totalResults = await prisma.examResult.count({
+      where: { studentId },
+    });
+
+    const avgScoreData = await prisma.examResult.aggregate({
+      where: { studentId },
+      _avg: {
+        score: true,
+      },
+    });
+
+    const totalElapsedTime = await prisma.examResult.aggregate({
+      where: { studentId },
+      _sum: {
+        elapsedTime: true,
+      },
+    });
+
+    // 미완료 과제 개수 (배정되었지만 아직 완료하지 않은 시험)
+    const assignedCount = await prisma.assignedExam.count({
+      where: {
+        studentId,
+        NOT: {
+          exam: {
+            examResults: {
+              some: {
+                studentId,
               },
             },
           },
@@ -41,39 +80,15 @@ async function getStudentStats(studentId: string) {
       },
     });
 
-    if (!student) return null;
-
-    // 전체 통계 계산
-    const totalResults = await prisma.result.count({
-      where: { studentId },
-    });
-
-    const avgScoreData = await prisma.result.aggregate({
-      where: { studentId },
-      _avg: {
-        score: true,
-      },
-    });
-
-    const totalReadingTime = await prisma.result.aggregate({
-      where: { studentId },
-      _sum: {
-        readingTime: true,
-      },
-    });
-
-    // 지정된 학습 (미완료) - 추후 구현
-    const assignedCount = 0;
-
     return {
       student,
       totalResults,
       averageScore: avgScoreData._avg.score
         ? Math.round(avgScoreData._avg.score * 10) / 10
         : 0,
-      totalReadingTime: totalReadingTime._sum.readingTime || 0,
+      totalElapsedTime: totalElapsedTime._sum.elapsedTime || 0,
       assignedCount,
-      recentResults: student.results,
+      recentResults,
     };
   } catch (error) {
     console.error('Failed to fetch student stats:', error);
@@ -181,7 +196,7 @@ export default async function StudentDashboardPage() {
           </div>
         </div>
 
-        {/* 총 독해 시간 */}
+        {/* 총 학습 시간 */}
         <div className="relative group">
           <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
           <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
@@ -191,13 +206,13 @@ export default async function StudentDashboardPage() {
                 집중 시간
               </div>
             </div>
-            <p className="text-sm font-semibold text-gray-900 mb-1">총 독해 시간</p>
+            <p className="text-sm font-semibold text-gray-900 mb-1">총 학습 시간</p>
             <p className="text-5xl font-black text-gray-900">
-              {Math.floor(stats.totalReadingTime / 60)}
+              {Math.floor(stats.totalElapsedTime / 60)}
               <span className="text-2xl ml-1 text-gray-700">분</span>
             </p>
             <p className="text-xs text-gray-600 mt-2">
-              {stats.totalReadingTime > 0 ? `${Math.floor(stats.totalReadingTime / 3600)}시간 ${Math.floor((stats.totalReadingTime % 3600) / 60)}분` : '시작이 반이에요'}
+              {stats.totalElapsedTime > 0 ? `${Math.floor(stats.totalElapsedTime / 3600)}시간 ${Math.floor((stats.totalElapsedTime % 3600) / 60)}분` : '시작이 반이에요'}
             </p>
           </div>
         </div>
@@ -227,53 +242,33 @@ export default async function StudentDashboardPage() {
       {/* 빠른 시작 */}
       <div className="mt-20">
         <h2 className="text-2xl font-bold text-gray-900 mb-10">빠른 시작</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          <Link href="/student/study" className="group">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Link href="/student/exams" className="group">
             <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <BookOpenIcon className="w-12 h-12 mb-3" />
-              <h3 className="text-xl font-bold mb-2">학습하기</h3>
+              <h3 className="text-xl font-bold mb-2">시험지</h3>
               <p className="text-sm text-white/90">
-                스스로, 문법 학습 선택
+                시험 응시 및 과제 확인
               </p>
             </div>
           </Link>
 
-          <Link href="/student/study/assigned" className="group">
+          <Link href="/student/exams" className="group">
             <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <AcademicCapIcon className="w-12 h-12 mb-3" />
-              <h3 className="text-xl font-bold mb-2">교사 지정</h3>
+              <h3 className="text-xl font-bold mb-2">배정된 과제</h3>
               <p className="text-sm text-white/90">
-                선생님 배정 과제
+                선생님이 배정한 시험
               </p>
             </div>
           </Link>
 
-          <Link href="/student/results" className="group">
+          <Link href="/student/dashboard" className="group">
             <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <ChartBarIcon className="w-12 h-12 mb-3" />
-              <h3 className="text-xl font-bold mb-2">내 성적</h3>
+              <h3 className="text-xl font-bold mb-2">학습 현황</h3>
               <p className="text-sm text-white/90">
-                학습 기록 확인
-              </p>
-            </div>
-          </Link>
-
-          <Link href="/student/wrong-answers" className="group">
-            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
-              <XCircleIcon className="w-12 h-12 mb-3" />
-              <h3 className="text-xl font-bold mb-2">오답 노트</h3>
-              <p className="text-sm text-white/90">
-                틀린 문제 복습
-              </p>
-            </div>
-          </Link>
-
-          <Link href="/student/ranking" className="group">
-            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
-              <TrophyIcon className="w-12 h-12 mb-3" />
-              <h3 className="text-xl font-bold mb-2">순위</h3>
-              <p className="text-sm text-white/90">
-                반, 학년 순위
+                성적 및 통계 확인
               </p>
             </div>
           </Link>
@@ -298,7 +293,7 @@ export default async function StudentDashboardPage() {
             {stats.recentResults.map((result, index) => (
               <Link
                 key={result.id}
-                href={`/student/results/${result.id}`}
+                href={`/student/exams/${result.examId}/result`}
                 className="block p-6 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all group"
               >
                 <div className="flex items-center justify-between">
@@ -308,14 +303,14 @@ export default async function StudentDashboardPage() {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors">
-                        {result.passage.title}
+                        {result.exam.title}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full font-medium">
-                          {result.passage.category}
+                          {result.exam.category}
                         </span>
                         <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded-full font-medium">
-                          {result.passage.subcategory}
+                          {result.exam.targetSchool} {result.exam.targetGrade}학년
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-2">
@@ -337,7 +332,7 @@ export default async function StudentDashboardPage() {
                     </div>
                     <p className="text-xs text-gray-500 flex items-center gap-1 justify-end">
                       <ClockIcon className="w-3 h-3" />
-                      {Math.floor(result.readingTime / 60)}분 {result.readingTime % 60}초
+                      {Math.floor(result.elapsedTime / 60)}분 {result.elapsedTime % 60}초
                     </p>
                   </div>
                 </div>
@@ -352,16 +347,16 @@ export default async function StudentDashboardPage() {
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-12 text-center">
           <BookOpenIcon className="w-24 h-24 mx-auto mb-6 text-indigo-300" />
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            아직 학습 기록이 없습니다
+            아직 시험 기록이 없습니다
           </h3>
           <p className="text-gray-600 mb-8 text-lg">
-            첫 학습을 시작하고 실력을 향상시켜보세요
+            첫 시험을 응시하고 실력을 향상시켜보세요
           </p>
           <Link
-            href="/student/study"
+            href="/student/exams"
             className="inline-block px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            학습 시작하기
+            시험지 보기
           </Link>
           <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-200 rounded-full blur-3xl opacity-50"></div>
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-200 rounded-full blur-3xl opacity-50"></div>
