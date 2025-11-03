@@ -8,6 +8,7 @@ import Link from 'next/link';
 interface StudentFormData {
   name: string;
   userId: string; // 로그인 아이디 추가
+  schoolLevel: string; // 중등, 고등
   grade: number;
   class: number;
   number: number;
@@ -25,6 +26,7 @@ export default function NewStudentPage() {
   const [formData, setFormData] = useState<StudentFormData>({
     name: '',
     userId: '', // 로그인 아이디 초기값
+    schoolLevel: '중등',
     grade: 1,
     class: 1,
     number: 1,
@@ -153,6 +155,28 @@ export default function NewStudentPage() {
                 <p className="text-xs text-gray-500 mt-1">
                   학생이 로그인 시 사용할 아이디입니다
                 </p>
+              </div>
+
+              {/* 학교급 */}
+              <div>
+                <label htmlFor="schoolLevel" className="block text-sm font-medium text-gray-700 mb-1">
+                  학교급 <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-4">
+                  {['중등', '고등'].map((level) => (
+                    <label key={level} className="flex items-center">
+                      <input
+                        type="radio"
+                        name="schoolLevel"
+                        value={level}
+                        checked={formData.schoolLevel === level}
+                        onChange={handleChange}
+                        className="mr-2"
+                      />
+                      {level}
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* 학년/반/번호 */}

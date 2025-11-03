@@ -9,6 +9,7 @@ interface StudentListItem {
   id: string;
   studentId: string;
   name: string;
+  schoolLevel: string;
   grade: number;
   class: number;
   number: number;
@@ -18,6 +19,7 @@ interface StudentListItem {
 }
 
 interface SearchParams {
+  schoolLevel?: string;
   grade?: string;
   class?: string;
   status?: string;
@@ -28,6 +30,11 @@ interface SearchParams {
 async function getStudents(params: SearchParams): Promise<StudentListItem[]> {
   try {
     const where: any = {};
+
+    // 학교급 필터
+    if (params.schoolLevel) {
+      where.schoolLevel = params.schoolLevel;
+    }
 
     // 학년 필터
     if (params.grade) {
@@ -57,6 +64,7 @@ async function getStudents(params: SearchParams): Promise<StudentListItem[]> {
     const students = await prisma.student.findMany({
       where,
       orderBy: [
+        { schoolLevel: 'asc' },
         { grade: 'asc' },
         { class: 'asc' },
         { number: 'asc' },
@@ -65,6 +73,7 @@ async function getStudents(params: SearchParams): Promise<StudentListItem[]> {
         id: true,
         studentId: true,
         name: true,
+        schoolLevel: true,
         grade: true,
         class: true,
         number: true,
@@ -122,6 +131,23 @@ export default async function StudentsPage({
       <Card>
         <Card.Body className="p-6">
           <form className="flex gap-4 flex-wrap">
+            {/* 학교급 필터 */}
+            <div>
+              <label htmlFor="schoolLevel" className="block text-sm font-medium text-gray-700 mb-1">
+                학교급
+              </label>
+              <select
+                id="schoolLevel"
+                name="schoolLevel"
+                defaultValue={searchParams.schoolLevel || ''}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">전체</option>
+                <option value="중등">중등</option>
+                <option value="고등">고등</option>
+              </select>
+            </div>
+
             {/* 학년 필터 */}
             <div>
               <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-1">
@@ -233,6 +259,9 @@ export default async function StudentsPage({
                       이름
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      학교급
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       학년/반/번호
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -256,6 +285,9 @@ export default async function StudentsPage({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{student.name}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{student.schoolLevel}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">

@@ -63,6 +63,7 @@ export async function PUT(
     const {
       name,
       userId, // 로그인 아이디
+      schoolLevel,
       grade: gradeStr,
       class: classStr,
       number: numberStr,
@@ -78,9 +79,17 @@ export async function PUT(
     const number = parseInt(numberStr);
 
     // 필수 필드 확인
-    if (!name || !userId || isNaN(grade) || isNaN(classNum) || isNaN(number)) {
+    if (!name || !userId || !schoolLevel || isNaN(grade) || isNaN(classNum) || isNaN(number)) {
       return NextResponse.json(
         { error: '필수 필드가 누락되었거나 올바르지 않습니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 학교급 검증
+    if (!['중등', '고등'].includes(schoolLevel)) {
+      return NextResponse.json(
+        { error: '올바른 학교급을 선택해주세요.' },
         { status: 400 }
       );
     }
@@ -170,6 +179,7 @@ export async function PUT(
         data: {
           studentId: newStudentId,
           name,
+          schoolLevel,
           grade,
           class: classNum,
           number,
