@@ -17,7 +17,7 @@ interface Activity {
   id: string;
   studentName: string;
   action: string;
-  passageTitle: string;
+  examTitle: string;
   score: number;
   time: string;
   createdAt: Date;
@@ -56,7 +56,7 @@ async function getStats(): Promise<Stats> {
       prisma.student.count({ where: { isActive: true } }),
       prisma.passage.count(),
       prisma.exam.count(),
-      prisma.result.aggregate({ _avg: { score: true } }),
+      prisma.examResult.aggregate({ _avg: { score: true } }),
     ]);
 
     return {
@@ -83,18 +83,16 @@ async function getStats(): Promise<Stats> {
 // 최근 활동 데이터 가져오기
 async function getRecentActivities(): Promise<Activity[]> {
   try {
-    const recentResults = await prisma.result.findMany({
+    const recentResults = await prisma.examResult.findMany({
       take: 4,
       orderBy: { submittedAt: 'desc' },
       include: {
         student: {
-          include: {
-            user: {
-              select: { name: true },
-            },
+          select: {
+            name: true,
           },
         },
-        passage: {
+        exam: {
           select: { title: true },
         },
       },
@@ -102,9 +100,9 @@ async function getRecentActivities(): Promise<Activity[]> {
 
     return recentResults.map((result) => ({
       id: result.id,
-      studentName: result.student.user.name,
-      action: '지문 학습 완료',
-      passageTitle: result.passage.title,
+      studentName: result.student.name,
+      action: '시험 응시 완료',
+      examTitle: result.exam.title,
       score: result.score,
       time: getTimeAgo(result.submittedAt),
       createdAt: result.submittedAt,
@@ -250,7 +248,7 @@ export default async function TeacherDashboardPage() {
                     <div>
                       <p className="font-medium text-gray-900">{activity.studentName}</p>
                       <p className="text-sm text-gray-600">
-                        {activity.action}: <span className="font-medium">{activity.passageTitle}</span>
+                        {activity.action}: <span className="font-medium">{activity.examTitle}</span>
                       </p>
                     </div>
                   </div>
@@ -284,7 +282,7 @@ export default async function TeacherDashboardPage() {
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
-              아직 학습 기록이 없습니다.
+              아직 시험 응시 기록이 없습니다.
             </div>
           )}
         </Card.Body>
