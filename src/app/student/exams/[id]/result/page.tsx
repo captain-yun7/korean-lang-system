@@ -155,11 +155,11 @@ export default async function ExamResultPage({
     : 0;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
       {/* 헤더 */}
-      <div>
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">시험 결과</h1>
-        <p className="text-gray-600 mt-1">{examResult.exam.title}</p>
+        <p className="text-gray-600 mt-2">{examResult.exam.title}</p>
       </div>
 
       {/* 결과 요약 */}
@@ -207,24 +207,24 @@ export default async function ExamResultPage({
       </div>
 
       {/* 문제별 결과 */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-bold text-gray-900">문제별 결과</h2>
+      <div className="space-y-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">문제별 결과</h2>
 
         {items.map((item, itemIndex) => (
           <Card key={itemIndex} padding="lg">
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* 문항 그룹 헤더 */}
-              <div className="border-b pb-3">
-                <h3 className="text-lg font-bold text-gray-900">
+              <div className="border-b-2 pb-4">
+                <h3 className="text-xl font-bold text-gray-900">
                   문항 그룹 {itemIndex + 1}
                 </h3>
               </div>
 
               {/* 제시문 */}
               {item.passage && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="text-sm font-medium text-gray-700 mb-2">제시문</div>
-                  <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">
+                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                  <div className="text-sm font-semibold text-gray-700 mb-3">제시문</div>
+                  <div className="text-gray-900 whitespace-pre-wrap leading-relaxed text-base">
                     {item.passage}
                   </div>
                 </div>
@@ -243,41 +243,41 @@ export default async function ExamResultPage({
                 return (
                   <div
                     key={questionIndex}
-                    className={`border-l-4 pl-4 space-y-3 ${
+                    className={`border-l-4 pl-6 py-4 space-y-4 ${
                       result?.isCorrect ? 'border-green-500' : 'border-red-500'
                     }`}
                   >
                     {/* 질문 번호 및 결과 */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-gray-900">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl font-bold text-gray-900">
                           {globalQuestionNum}.
                         </span>
-                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                        <span className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded font-medium">
                           {question.type}
                         </span>
                       </div>
                       {result?.isCorrect ? (
-                        <div className="flex items-center gap-1 text-green-600 font-semibold">
-                          <CheckCircleIcon className="w-5 h-5" />
+                        <div className="flex items-center gap-2 text-green-600 font-semibold text-base">
+                          <CheckCircleIcon className="w-6 h-6" />
                           정답
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1 text-red-600 font-semibold">
-                          <XCircleIcon className="w-5 h-5" />
+                        <div className="flex items-center gap-2 text-red-600 font-semibold text-base">
+                          <XCircleIcon className="w-6 h-6" />
                           오답
                         </div>
                       )}
                     </div>
 
                     {/* 질문 텍스트 */}
-                    <div className="text-gray-900 whitespace-pre-wrap">
+                    <div className="text-gray-900 whitespace-pre-wrap text-base leading-7">
                       {question.text}
                     </div>
 
                     {/* 객관식 선택지 */}
                     {question.type === '객관식' && question.options && (
-                      <div className="space-y-2">
+                      <div className="space-y-3 mt-4">
                         {question.options.map((option: string, optionIndex: number) => {
                           const optionNum = String(optionIndex + 1);
                           const isCorrect = result?.correctAnswer.includes(optionNum);
@@ -286,26 +286,26 @@ export default async function ExamResultPage({
                           return (
                             <div
                               key={optionIndex}
-                              className={`p-3 rounded-lg border-2 ${
+                              className={`p-4 rounded-lg border-2 ${
                                 isCorrect
                                   ? 'border-green-500 bg-green-50'
                                   : isSelected
                                   ? 'border-red-500 bg-red-50'
-                                  : 'border-gray-200'
+                                  : 'border-gray-200 bg-white'
                               }`}
                             >
-                              <div className="flex items-start gap-2">
-                                <span className="font-medium text-gray-700">
+                              <div className="flex items-start gap-3">
+                                <span className="font-semibold text-gray-700 text-base">
                                   {optionIndex + 1}.
                                 </span>
-                                <span className="flex-1 text-gray-900">{option}</span>
+                                <span className="flex-1 text-gray-900 text-base leading-relaxed">{option}</span>
                                 {isCorrect && (
-                                  <span className="text-green-600 text-sm font-medium">
+                                  <span className="text-green-600 text-sm font-semibold">
                                     정답
                                   </span>
                                 )}
                                 {isSelected && !isCorrect && (
-                                  <span className="text-red-600 text-sm font-medium">
+                                  <span className="text-red-600 text-sm font-semibold">
                                     선택함
                                   </span>
                                 )}
@@ -318,28 +318,28 @@ export default async function ExamResultPage({
 
                     {/* 주관식/서술형 답안 */}
                     {question.type !== '객관식' && (
-                      <div className="space-y-2">
+                      <div className="space-y-3 mt-4">
                         <div
-                          className={`p-3 rounded-lg border-2 ${
+                          className={`p-4 rounded-lg border-2 ${
                             result?.isCorrect
                               ? 'border-green-500 bg-green-50'
                               : 'border-red-500 bg-red-50'
                           }`}
                         >
-                          <div className="text-sm font-medium text-gray-700 mb-1">
+                          <div className="text-sm font-semibold text-gray-700 mb-2">
                             내 답안
                           </div>
-                          <div className="text-gray-900">
+                          <div className="text-gray-900 text-base">
                             {result?.studentAnswer[0] || '(답안 없음)'}
                           </div>
                         </div>
 
                         {!result?.isCorrect && (
-                          <div className="p-3 rounded-lg border-2 border-green-500 bg-green-50">
-                            <div className="text-sm font-medium text-green-700 mb-1">
+                          <div className="p-4 rounded-lg border-2 border-green-500 bg-green-50">
+                            <div className="text-sm font-semibold text-green-700 mb-2">
                               정답
                             </div>
-                            <div className="text-gray-900">
+                            <div className="text-gray-900 text-base">
                               {result?.correctAnswer.join(', ')}
                             </div>
                           </div>
@@ -349,9 +349,9 @@ export default async function ExamResultPage({
 
                     {/* 해설 */}
                     {question.explanation && (
-                      <div className="bg-blue-50 border border-blue-200 p-3 rounded">
-                        <div className="text-sm font-medium text-blue-700 mb-1">해설</div>
-                        <div className="text-gray-900 whitespace-pre-wrap">
+                      <div className="bg-blue-50 border-2 border-blue-200 p-5 rounded-lg mt-4">
+                        <div className="text-sm font-semibold text-blue-700 mb-3">해설</div>
+                        <div className="text-gray-900 whitespace-pre-wrap text-base leading-relaxed">
                           {question.explanation}
                         </div>
                       </div>
@@ -365,16 +365,16 @@ export default async function ExamResultPage({
       </div>
 
       {/* 하단 버튼 */}
-      <div className="flex justify-center gap-3">
+      <div className="flex justify-center gap-4 pt-6 pb-4">
         <Link
           href="/student/exams"
-          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+          className="px-8 py-3.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold text-base"
         >
           시험지 목록으로
         </Link>
         <Link
           href="/student/dashboard"
-          className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+          className="px-8 py-3.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-base"
         >
           대시보드로
         </Link>
