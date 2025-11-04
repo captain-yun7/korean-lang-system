@@ -65,7 +65,7 @@ export const POST = auth(async function POST(
         const existing = await prisma.assignedExam.findFirst({
           where: {
             examId: id,
-            studentId,
+            assignedTo: studentId,
           },
         });
 
@@ -82,7 +82,8 @@ export const POST = auth(async function POST(
           return await prisma.assignedExam.create({
             data: {
               examId: id,
-              studentId,
+              assignedBy: session.user.id, // 교사 ID
+              assignedTo: studentId,
               dueDate: new Date(dueDate),
             },
           });
