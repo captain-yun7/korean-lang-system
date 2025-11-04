@@ -6,15 +6,15 @@ import Link from 'next/link';
 
 interface Result {
   id: string;
-  readingTime: number;
+  totalTime: number;
   score: number;
   submittedAt: string;
-  passage: {
+  exam: {
     id: string;
     title: string;
     category: string;
-    subcategory: string;
-    difficulty: string;
+    targetSchool: string;
+    targetGrade: number;
   };
 }
 
@@ -150,6 +150,8 @@ export default function StudentResultsPage() {
             <option value="비문학">비문학</option>
             <option value="문학">문학</option>
             <option value="문법">문법</option>
+            <option value="어휘">어휘</option>
+            <option value="기타">기타</option>
           </select>
         </div>
       </div>
@@ -160,16 +162,16 @@ export default function StudentResultsPage() {
           <Card.Body className="p-12 text-center">
             <div className="text-6xl mb-4">📚</div>
             <h3 className="text-lg font-semibold text-gray-900">
-              학습 기록이 없습니다
+              시험 결과가 없습니다
             </h3>
             <p className="text-gray-600 mt-2 mb-6">
-              지문을 학습하고 성적을 확인해보세요!
+              시험을 응시하고 성적을 확인해보세요!
             </p>
             <Link
-              href="/student/study/self"
+              href="/student/exams"
               className="inline-block px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-medium border-2 border-gray-900"
             >
-              학습 시작하기
+              시험 목록 보기
             </Link>
           </Card.Body>
         </Card>
@@ -177,7 +179,7 @@ export default function StudentResultsPage() {
         <Card>
           <Card.Header className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">
-              학습 기록 ({results.length}개)
+              시험 결과 ({results.length}개)
             </h2>
           </Card.Header>
           <Card.Body className="p-0">
@@ -186,19 +188,19 @@ export default function StudentResultsPage() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      지문
+                      시험지
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       카테고리
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      난이도
+                      대상
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       점수
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      독해 시간
+                      소요 시간
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       제출일
@@ -213,20 +215,17 @@ export default function StudentResultsPage() {
                     <tr key={result.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {result.passage.title}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {result.passage.subcategory}
+                          {result.exam.title}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 text-xs font-medium rounded bg-blue-50 text-blue-600">
-                          {result.passage.category}
+                          {result.exam.category}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm text-gray-900">
-                          {result.passage.difficulty}
+                          {result.exam.targetSchool} {result.exam.targetGrade}학년
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -238,8 +237,8 @@ export default function StudentResultsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {Math.floor(result.readingTime / 60)}분{' '}
-                          {result.readingTime % 60}초
+                          {Math.floor(result.totalTime / 60)}분{' '}
+                          {result.totalTime % 60}초
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -255,7 +254,7 @@ export default function StudentResultsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <Link
-                          href={`/student/study/result/${result.id}`}
+                          href={`/student/exams/${result.exam.id}/result`}
                           className="text-purple-600 hover:text-purple-800 text-sm font-medium"
                         >
                           상세 보기
