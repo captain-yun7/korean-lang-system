@@ -39,6 +39,8 @@ interface ExamItem {
 interface ExamFormData {
   title: string;
   category: string;
+  examType: string;
+  isPublic: boolean;
   targetSchool: string;
   targetGrade: number;
   items: ExamItem[];
@@ -62,6 +64,8 @@ export default function NewExamPaperPage() {
   const [formData, setFormData] = useState<ExamFormData>({
     title: '',
     category: '비문학',
+    examType: 'ASSIGNED',
+    isPublic: false,
     targetSchool: '중등',
     targetGrade: 1,
     items: [
@@ -420,6 +424,70 @@ export default function NewExamPaperPage() {
               </div>
             </div>
 
+            {/* 시험지 타입 선택 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                시험지 타입 <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="ASSIGNED"
+                    checked={formData.examType === 'ASSIGNED'}
+                    onChange={(e) =>
+                      setFormData({ ...formData, examType: e.target.value, isPublic: false })
+                    }
+                    className="mr-2"
+                  />
+                  배정용 (교사가 학생에게 배정)
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="SELF_STUDY"
+                    checked={formData.examType === 'SELF_STUDY'}
+                    onChange={(e) =>
+                      setFormData({ ...formData, examType: e.target.value, isPublic: true })
+                    }
+                    className="mr-2"
+                  />
+                  자습용 (학생이 스스로 선택)
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="GRAMMAR"
+                    checked={formData.examType === 'GRAMMAR'}
+                    onChange={(e) =>
+                      setFormData({ ...formData, examType: e.target.value, isPublic: true, category: '문법' })
+                    }
+                    className="mr-2"
+                  />
+                  문법 전용 (지문 없음)
+                </label>
+              </div>
+            </div>
+
+            {/* 공개 여부 (자습용일 때만 표시) */}
+            {formData.examType === 'SELF_STUDY' && (
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.isPublic}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isPublic: e.target.checked })
+                    }
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">
+                    학생들에게 공개 (자습용 시험지는 자동으로 공개됩니다)
+                  </span>
+                </label>
+              </div>
+            )}
+
             {/* 대상 설정 */}
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -503,13 +571,14 @@ export default function NewExamPaperPage() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      제시문 (선택사항)
+                      제시문 (선택사항) {formData.examType === 'GRAMMAR' && '- 문법 타입은 지문을 사용할 수 없습니다'}
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => openPassageModal(itemIndex)}
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg font-medium text-sm"
-                    >
+                    {formData.examType !== 'GRAMMAR' && (
+                      <button
+                        type="button"
+                        onClick={() => openPassageModal(itemIndex)}
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg font-medium text-sm"
+                      >
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -525,13 +594,15 @@ export default function NewExamPaperPage() {
                       </svg>
                       지문 불러오기
                     </button>
+                    )}
                   </div>
                   <textarea
                     value={item.passage}
                     onChange={(e) => handlePassageChange(itemIndex, e.target.value)}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="제시문을 입력하세요 (비워두면 제시문 없는 문제)"
+                    disabled={formData.examType === 'GRAMMAR'}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder={formData.examType === 'GRAMMAR' ? '문법 타입은 제시문을 사용할 수 없습니다' : '제시문을 입력하세요 (비워두면 제시문 없는 문제)'}
                   />
                 </div>
 

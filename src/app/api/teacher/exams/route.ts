@@ -88,10 +88,10 @@ export const POST = auth(async function POST(request) {
     }
 
     const body = await request.json();
-    const { title, category, targetSchool, targetGrade, items } = body;
+    const { title, category, examType, isPublic, targetSchool, targetGrade, items } = body;
 
     // 유효성 검사
-    if (!title || !category || !targetSchool || !targetGrade || !items || items.length === 0) {
+    if (!title || !category || !examType || !targetSchool || !targetGrade || !items || items.length === 0) {
       return NextResponse.json(
         { error: '필수 항목을 입력해주세요.' },
         { status: 400 }
@@ -135,11 +135,21 @@ export const POST = auth(async function POST(request) {
       }
     }
 
+    // examType 검증
+    if (!['SELF_STUDY', 'ASSIGNED', 'GRAMMAR'].includes(examType)) {
+      return NextResponse.json(
+        { error: '올바른 시험지 타입을 선택해주세요.' },
+        { status: 400 }
+      );
+    }
+
     // 시험지 생성
     const examPaper = await prisma.exam.create({
       data: {
         title,
         category,
+        examType,
+        isPublic: isPublic ?? false,
         targetSchool,
         targetGrade,
         items,
