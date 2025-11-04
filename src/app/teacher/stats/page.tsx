@@ -19,6 +19,7 @@ interface Overview {
   totalStudents: number;
   totalPassages: number;
   totalQuestions: number;
+  totalExams: number;
   totalResults: number;
   avgScore: number;
 }
@@ -42,15 +43,9 @@ interface CategoryStat {
   count: number;
 }
 
-interface SubcategoryStat {
-  category: string;
-  subcategory: string;
-  avgScore: number;
-  count: number;
-}
-
-interface DifficultyStat {
-  difficulty: string;
+interface TargetGradeStat {
+  targetSchool: string;
+  targetGrade: number;
   avgScore: number;
   count: number;
 }
@@ -66,8 +61,7 @@ interface Statistics {
   gradeStats: GradeStat[];
   classStats: ClassStat[];
   categoryStats: CategoryStat[];
-  subcategoryStats: SubcategoryStat[];
-  difficultyStats: DifficultyStat[];
+  targetGradeStats: TargetGradeStat[];
   recentTrend: TrendData[];
 }
 
@@ -83,13 +77,19 @@ export default function StatisticsPage() {
     try {
       setLoading(true);
       const res = await fetch('/api/teacher/statistics');
-      if (!res.ok) throw new Error('Failed to fetch statistics');
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API Error:', errorData);
+        throw new Error(errorData.error || `Failed to fetch statistics: ${res.status}`);
+      }
 
       const data = await res.json();
+      console.log('Statistics data:', data);
       setStatistics(data);
     } catch (error) {
-      console.error('Error:', error);
-      alert('통계 정보를 불러오는데 실패했습니다.');
+      console.error('Error fetching statistics:', error);
+      alert(`통계 정보를 불러오는데 실패했습니다.\n${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
     }
@@ -277,21 +277,21 @@ export default function StatisticsPage() {
         </Card>
       )}
 
-      {/* 세부 카테고리별 평균 점수 */}
-      {statistics.subcategoryStats.length > 0 && (
+      {/* 대상 학년별 평균 점수 */}
+      {statistics.targetGradeStats.length > 0 && (
         <Card padding="md">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            세부 카테고리별 평균 점수
+            시험 대상 학년별 평균 점수
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
-                    대분류
+                    학교급
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
-                    세부 카테고리
+                    학년
                   </th>
                   <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
                     평균 점수
@@ -302,13 +302,13 @@ export default function StatisticsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {statistics.subcategoryStats.map((stat, index) => (
+                {statistics.targetGradeStats.map((stat, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-4 py-2 text-sm text-gray-900">
-                      {stat.category}
+                      {stat.targetSchool}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900">
-                      {stat.subcategory}
+                      {stat.targetGrade}학년
                     </td>
                     <td className="px-4 py-2 text-sm text-right">
                       <span
@@ -333,25 +333,6 @@ export default function StatisticsPage() {
               </tbody>
             </table>
           </div>
-        </Card>
-      )}
-
-      {/* 난이도별 평균 점수 */}
-      {statistics.difficultyStats.length > 0 && (
-        <Card padding="md">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            난이도별 평균 점수
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={statistics.difficultyStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="difficulty" />
-              <YAxis domain={[0, 100]} />
-              <Tooltip formatter={(value: any) => [`${value}점`, '평균 점수']} />
-              <Legend formatter={() => '평균 점수'} />
-              <Bar dataKey="avgScore" fill="#8b5cf6" />
-            </BarChart>
-          </ResponsiveContainer>
         </Card>
       )}
     </div>

@@ -15,10 +15,11 @@ export async function GET(request: NextRequest) {
     const totalStudents = await prisma.student.count();
     const totalPassages = await prisma.passage.count();
     const totalQuestions = await prisma.question.count();
-    const totalResults = await prisma.result.count();
+    const totalExams = await prisma.exam.count();
+    const totalResults = await prisma.examResult.count();
 
     // 전체 평균 점수
-    const avgScoreResult = await prisma.result.aggregate({
+    const avgScoreResult = await prisma.examResult.aggregate({
       _avg: {
         score: true,
       },
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
         s.grade,
         ROUND(AVG(r.score)::numeric, 1) as "avgScore",
         COUNT(r.id)::int as count
-      FROM results r
+      FROM exam_results r
       JOIN students s ON r."studentId" = s.id
       GROUP BY s.grade
       ORDER BY s.grade
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
         s.class,
         ROUND(AVG(r.score)::numeric, 1) as "avgScore",
         COUNT(r.id)::int as count
-      FROM results r
+      FROM exam_results r
       JOIN students s ON r."studentId" = s.id
       GROUP BY s.grade, s.class
       ORDER BY s.grade, s.class
@@ -58,53 +59,33 @@ export async function GET(request: NextRequest) {
       Array<{ category: string; avgScore: number; count: number }>
     >`
       SELECT
-        p.category,
+        e.category,
         ROUND(AVG(r.score)::numeric, 1) as "avgScore",
         COUNT(r.id)::int as count
-      FROM results r
-      JOIN passages p ON r."passageId" = p.id
-      GROUP BY p.category
-      ORDER BY p.category
+      FROM exam_results r
+      JOIN exams e ON r."examId" = e.id
+      GROUP BY e.category
+      ORDER BY e.category
     `;
 
-    // 세부 카테고리별 평균 점수
-    const subcategoryStats = await prisma.$queryRaw<
+    // 대상 학년별 평균 점수
+    const targetGradeStats = await prisma.$queryRaw<
       Array<{
-        category: string;
-        subcategory: string;
+        targetSchool: string;
+        targetGrade: number;
         avgScore: number;
         count: number;
       }>
     >`
       SELECT
-        p.category,
-        p.subcategory,
+        e."targetSchool",
+        e."targetGrade",
         ROUND(AVG(r.score)::numeric, 1) as "avgScore",
         COUNT(r.id)::int as count
-      FROM results r
-      JOIN passages p ON r."passageId" = p.id
-      GROUP BY p.category, p.subcategory
-      ORDER BY p.category, p.subcategory
-    `;
-
-    // 난이도별 평균 점수
-    const difficultyStats = await prisma.$queryRaw<
-      Array<{ difficulty: string; avgScore: number; count: number }>
-    >`
-      SELECT
-        p.difficulty,
-        ROUND(AVG(r.score)::numeric, 1) as "avgScore",
-        COUNT(r.id)::int as count
-      FROM results r
-      JOIN passages p ON r."passageId" = p.id
-      GROUP BY p.difficulty
-      ORDER BY
-        CASE p.difficulty
-          WHEN '중학교' THEN 1
-          WHEN '고1-2' THEN 2
-          WHEN '고3' THEN 3
-          ELSE 4
-        END
+      FROM exam_results r
+      JOIN exams e ON r."examId" = e.id
+      GROUP BY e."targetSchool", e."targetGrade"
+      ORDER BY e."targetSchool", e."targetGrade"
     `;
 
     // 최근 30일 성적 추이 (일별)
@@ -115,7 +96,7 @@ export async function GET(request: NextRequest) {
         TO_CHAR(r."submittedAt", 'YYYY-MM-DD') as date,
         ROUND(AVG(r.score)::numeric, 1) as "avgScore",
         COUNT(r.id)::int as count
-      FROM results r
+      FROM exam_results r
       WHERE r."submittedAt" >= NOW() - INTERVAL '30 days'
       GROUP BY TO_CHAR(r."submittedAt", 'YYYY-MM-DD')
       ORDER BY date
@@ -126,6 +107,7 @@ export async function GET(request: NextRequest) {
         totalStudents,
         totalPassages,
         totalQuestions,
+        totalExams,
         totalResults,
         avgScore: avgScoreResult._avg.score
           ? Math.round(avgScoreResult._avg.score * 10) / 10
@@ -134,8 +116,7 @@ export async function GET(request: NextRequest) {
       gradeStats,
       classStats,
       categoryStats,
-      subcategoryStats,
-      difficultyStats,
+      targetGradeStats,
       recentTrend,
     });
   } catch (error) {
