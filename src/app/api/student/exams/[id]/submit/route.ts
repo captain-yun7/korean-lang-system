@@ -11,9 +11,10 @@ interface Answer {
 // POST /api/student/exams/[id]/submit - 시험 제출
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
 
     if (!session || session.user.role !== 'STUDENT') {
@@ -45,7 +46,7 @@ export async function POST(
 
     // 시험지 조회
     const exam = await prisma.exam.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!exam) {
@@ -58,7 +59,7 @@ export async function POST(
     // 이미 완료한 시험인지 확인
     const existingResult = await prisma.examResult.findFirst({
       where: {
-        examId: params.id,
+        examId: id,
         studentId: student.id,
       },
     });
@@ -113,15 +114,11 @@ export async function POST(
     // 결과 저장
     const examResult = await prisma.examResult.create({
       data: {
-        examId: params.id,
+        examId: id,
         studentId: student.id,
         score,
-        totalQuestions,
-        correctCount,
         answers: answers,
-        detailedResults,
-        elapsedTime: elapsedTime || 0,
-        submittedAt: new Date(),
+        totalTime: elapsedTime || 0,
       },
     });
 
