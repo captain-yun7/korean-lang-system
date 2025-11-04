@@ -10,6 +10,39 @@ import {
   TrophyIcon,
 } from '@heroicons/react/24/solid';
 
+// 답안 체크 함수
+function checkAnswer(
+  correctAnswers: string[],
+  studentAnswers: string[],
+  questionType: string
+): boolean {
+  if (!studentAnswers || studentAnswers.length === 0) {
+    return false;
+  }
+
+  if (questionType === '객관식') {
+    if (correctAnswers.length !== studentAnswers.length) {
+      return false;
+    }
+
+    const sortedCorrect = [...correctAnswers].sort();
+    const sortedStudent = [...studentAnswers].sort();
+
+    return sortedCorrect.every((ans, idx) => ans === sortedStudent[idx]);
+  } else {
+    const normalizedStudentAnswer = studentAnswers[0]
+      ?.toLowerCase()
+      .replace(/\s+/g, '') || '';
+
+    return correctAnswers.some((correctAns) => {
+      const normalizedCorrect = correctAns
+        .toLowerCase()
+        .replace(/\s+/g, '');
+      return normalizedStudentAnswer === normalizedCorrect;
+    });
+  }
+}
+
 async function getExamResult(examId: string, studentId: string) {
   try {
     const student = await prisma.student.findFirst({
@@ -32,11 +65,49 @@ async function getExamResult(examId: string, studentId: string) {
 
     // 시험지 items 정보 가져오기
     const items = examResult.exam.items as any[];
+    const studentAnswers = examResult.answers as any[];
+
+    // 채점 결과 계산
+    let totalQuestions = 0;
+    let correctCount = 0;
+    const detailedResults: any[] = [];
+
+    items.forEach((item, itemIndex) => {
+      item.questions.forEach((question: any, questionIndex: number) => {
+        totalQuestions++;
+
+        // 학생 답안 찾기
+        const studentAnswer = studentAnswers.find(
+          (a: any) => a.itemIndex === itemIndex && a.questionIndex === questionIndex
+        );
+
+        const isCorrect = checkAnswer(
+          question.answers || [],
+          studentAnswer?.answer || [],
+          question.type
+        );
+
+        if (isCorrect) {
+          correctCount++;
+        }
+
+        detailedResults.push({
+          itemIndex,
+          questionIndex,
+          studentAnswer: studentAnswer?.answer || [],
+          correctAnswer: question.answers || [],
+          isCorrect,
+        });
+      });
+    });
 
     return {
       examResult,
       items,
       student,
+      detailedResults,
+      totalQuestions,
+      correctCount,
     };
   } catch (error) {
     console.error('Failed to fetch exam result:', error);
@@ -66,9 +137,7 @@ export default async function ExamResultPage({
     );
   }
 
-  const { examResult, items } = data;
-  const detailedResults = examResult.detailedResults as any[];
-  const studentAnswers = examResult.answers as any[];
+  const { examResult, items, detailedResults, totalQuestions, correctCount } = data;
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -81,8 +150,8 @@ export default async function ExamResultPage({
     return `${minutes}분 ${secs}초`;
   };
 
-  const accuracy = examResult.totalQuestions > 0
-    ? Math.round((examResult.correctCount / examResult.totalQuestions) * 100)
+  const accuracy = totalQuestions > 0
+    ? Math.round((correctCount / totalQuestions) * 100)
     : 0;
 
   return (
@@ -118,7 +187,7 @@ export default async function ExamResultPage({
         <Card padding="md">
           <div className="flex items-center gap-3">
             <div className="text-2xl font-bold text-gray-900">
-              {examResult.correctCount}/{examResult.totalQuestions}
+              {correctCount}/{totalQuestions}
             </div>
             <div className="text-sm text-gray-600">정답 수</div>
           </div>
@@ -130,7 +199,7 @@ export default async function ExamResultPage({
             <div>
               <div className="text-sm text-gray-600">소요 시간</div>
               <div className="text-lg font-bold text-gray-900">
-                {formatTime(examResult.elapsedTime)}
+                {formatTime(examResult.totalTime)}
               </div>
             </div>
           </div>
