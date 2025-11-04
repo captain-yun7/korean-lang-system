@@ -60,7 +60,7 @@ async function getStudentStats(studentId: string) {
     const totalElapsedTime = await prisma.examResult.aggregate({
       where: { studentId },
       _sum: {
-        elapsedTime: true,
+        totalTime: true,
       },
     });
 
@@ -86,7 +86,7 @@ async function getStudentStats(studentId: string) {
       averageScore: avgScoreData._avg.score
         ? Math.round(avgScoreData._avg.score * 10) / 10
         : 0,
-      totalElapsedTime: totalElapsedTime._sum.elapsedTime || 0,
+      totalElapsedTime: totalElapsedTime._sum.totalTime || 0,
       assignedCount,
       recentResults,
     };
