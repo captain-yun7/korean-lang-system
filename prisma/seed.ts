@@ -22,18 +22,18 @@ async function main() {
   await prisma.teacher.create({
     data: {
       userId: teacherUser.id,
-      teacherId: 'T001',
+      teacherId: 'teacher001',
       name: 'Teacher Kim',
     },
   });
 
-  console.log('Teacher created: teacher001 / password123');
+  console.log('Teacher created: teacher001 / password123 (teacherId: teacher001)');
 
   // Create student account
   console.log('Creating student account...');
   const studentUser = await prisma.user.create({
     data: {
-      email: 'student001@system.local',
+      email: 'student001',
       name: 'Student Hong',
       password: hashedPassword,
       role: 'STUDENT',
@@ -53,7 +53,7 @@ async function main() {
     },
   });
 
-  console.log('Student created: student001 / password123 (Grade 3, Class 1, No. 1)');
+  console.log('Student created: student001 / password123 (studentId: 030101, Grade 3, Class 1, No. 1)');
 
   console.log('Seed completed!');
 }
