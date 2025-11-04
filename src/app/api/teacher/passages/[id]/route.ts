@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 // 지문 상세 조회 (GET)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 인증 확인
@@ -14,16 +14,10 @@ export async function GET(
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     const passage = await prisma.passage.findUnique({
-      where: { id: params.id },
-      include: {
-        questions: true,
-        _count: {
-          select: {
-            questions: true,
-          },
-        },
-      },
+      where: { id },
     });
 
     if (!passage) {
@@ -46,7 +40,7 @@ export async function GET(
 // 지문 정보 수정 (PUT)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 인증 확인
@@ -54,6 +48,8 @@ export async function PUT(
     if (!session?.user || session.user.role !== 'TEACHER') {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
+
+    const { id } = await params;
 
     const body = await request.json();
     const { title, category, subcategory, difficulty, contentBlocks } = body;
@@ -85,7 +81,7 @@ export async function PUT(
 
     // 지문 존재 확인
     const existingPassage = await prisma.passage.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingPassage) {
@@ -97,7 +93,7 @@ export async function PUT(
 
     // Passage 업데이트
     const updatedPassage = await prisma.passage.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         category,
@@ -129,7 +125,7 @@ export async function PUT(
 // 지문 삭제 (DELETE)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 인증 확인
@@ -138,16 +134,11 @@ export async function DELETE(
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     // 지문 존재 확인
     const passage = await prisma.passage.findUnique({
-      where: { id: params.id },
-      include: {
-        _count: {
-          select: {
-            questions: true,
-          },
-        },
-      },
+      where: { id },
     });
 
     if (!passage) {
@@ -157,17 +148,9 @@ export async function DELETE(
       );
     }
 
-    // 연관된 데이터 확인 (optional - 경고 목적)
-    if (passage._count.questions > 0) {
-      // CASCADE 설정되어 있으므로 자동으로 삭제되지만, 경고 메시지는 표시
-      console.log(
-        `Warning: Deleting passage ${params.id} with ${passage._count.questions} questions`
-      );
-    }
-
-    // Passage 삭제 (연결된 Questions, Results 등은 CASCADE로 자동 삭제)
+    // Passage 삭제
     await prisma.passage.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({

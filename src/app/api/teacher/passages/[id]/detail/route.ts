@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 // 지문 상세 조회 (GET)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 인증 확인
@@ -14,18 +14,10 @@ export async function GET(
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     const passage = await prisma.passage.findUnique({
-      where: { id: params.id },
-      include: {
-        questions: {
-          orderBy: { createdAt: 'desc' },
-        },
-        _count: {
-          select: {
-            questions: true,
-          },
-        },
-      },
+      where: { id },
     });
 
     if (!passage) {
