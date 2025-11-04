@@ -3,149 +3,116 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  DocumentTextIcon,
-  SparklesIcon,
-  ArrowLeftIcon
-} from '@heroicons/react/24/solid';
+import { BookOpenIcon, ClockIcon } from '@heroicons/react/24/solid';
 
-interface Question {
+interface Exam {
   id: string;
-  text: string;
-  type: string;
+  title: string;
+  category: string;
+  targetSchool: string;
+  targetGrade: number;
   createdAt: string;
+  _count: {
+    examResults: number;
+  };
 }
 
 export default function GrammarStudyPage() {
-  const router = useRouter();
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchQuestions();
+    fetchExams();
   }, []);
 
-  const fetchQuestions = async () => {
+  const fetchExams = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/student/grammar/questions');
-      if (!res.ok) throw new Error('Failed to fetch questions');
+      const params = new URLSearchParams();
+      params.append('examType', 'GRAMMAR');
+      params.append('isPublic', 'true');
+
+      const res = await fetch(`/api/student/exams/grammar?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to fetch grammar exams');
 
       const data = await res.json();
-      setQuestions(data.questions);
+      setExams(data.exams);
     } catch (error) {
       console.error('Error:', error);
-      alert('문법 문제를 불러오는데 실패했습니다.');
+      alert('문법 시험지 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRandomSelect = () => {
-    if (questions.length === 0) {
-      alert('선택 가능한 문제가 없습니다.');
-      return;
-    }
-    const randomIndex = Math.floor(Math.random() * questions.length);
-    const randomQuestion = questions[randomIndex];
-    router.push(`/student/study/grammar/${randomQuestion.id}`);
-  };
-
   return (
     <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200 flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900">문법 학습</h1>
-          <p className="text-gray-600 text-lg mt-2">문법/개념 문제를 풀어보세요</p>
-        </div>
-        <Link
-          href="/student/study"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-purple-500 text-white font-bold rounded-lg hover:bg-purple-600 transition-all border-2 border-gray-900"
-        >
-          <ArrowLeftIcon className="w-5 h-5" /> 뒤로가기
-        </Link>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
+        <h1 className="text-4xl font-bold text-gray-900">문법 학습</h1>
+        <p className="text-gray-600 text-lg mt-2">문법 문제를 풀어 국어 실력을 향상시키세요</p>
       </div>
 
-      {/* 랜덤 선택 */}
-      <div className="relative group mt-20">
-        <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
-        <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <SparklesIcon className="w-10 h-10 text-purple-500" />
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  랜덤 문제 풀기
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  랜덤으로 선택된 문법 문제를 풀어보세요
-                </p>
-              </div>
+      {/* 통계 */}
+      <Card>
+        <Card.Body className="p-6">
+          <div className="flex items-center gap-3">
+            <BookOpenIcon className="w-10 h-10 text-orange-500" />
+            <div>
+              <div className="text-sm text-gray-600">문법 시험지</div>
+              <div className="text-3xl font-bold text-gray-900">{exams.length}개</div>
             </div>
-            <button
-              onClick={handleRandomSelect}
-              disabled={questions.length === 0}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-purple-500 text-white font-bold rounded-lg hover:bg-purple-600 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed border-2 border-gray-900"
-            >
-              <SparklesIcon className="w-5 h-5" /> 랜덤 선택
-            </button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
 
-      {/* 문제 목록 */}
+      {/* 시험지 목록 */}
       {loading ? (
         <div className="text-center py-12">
-          <p className="text-gray-600">문제를 불러오는 중...</p>
+          <p className="text-gray-600">시험지를 불러오는 중...</p>
         </div>
-      ) : questions.length === 0 ? (
+      ) : exams.length === 0 ? (
         <Card>
           <Card.Body className="p-12 text-center">
-            <div className="text-6xl mb-4">📖</div>
+            <div className="text-6xl mb-4">📝</div>
             <h3 className="text-lg font-semibold text-gray-900">
-              문법 문제가 없습니다
+              문법 시험지가 없습니다
             </h3>
             <p className="text-gray-600 mt-2">
-              교사가 문법 문제를 등록하면 여기에 표시됩니다.
+              선생님이 문법 시험지를 등록하면 여기에 표시됩니다
             </p>
           </Card.Body>
         </Card>
       ) : (
-        <>
-          <div className="bg-white rounded-lg p-6 border-2 border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900">
-              전체 문제 <span className="text-purple-500">({questions.length}개)</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {questions.map((question, index) => (
-                <Link key={question.id} href={`/student/study/grammar/${question.id}`}>
-                  <div className="relative group h-full">
-                    <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
-                    <div className="relative bg-white rounded-lg p-6 m-1 h-full flex flex-col border border-gray-200">
-                      <div className="flex items-start justify-between mb-3">
-                        <span className="text-3xl font-bold text-purple-500">
-                          #{index + 1}
-                        </span>
-                        <span className="px-3 py-1 text-xs font-bold bg-purple-500 text-white rounded-full">
-                          {question.type}
-                        </span>
-                      </div>
-                      <p className="text-gray-900 font-medium line-clamp-3 flex-1">{question.text}</p>
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <span className="text-xs text-gray-500">
-                          등록일: {new Date(question.createdAt).toLocaleDateString('ko-KR')}
-                        </span>
-                      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {exams.map((exam) => (
+            <Link key={exam.id} href={`/student/exams/${exam.id}`}>
+              <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200">
+                <Card.Body className="p-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-lg font-semibold text-gray-900 flex-1">
+                      {exam.title}
+                    </h3>
+                    <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium flex-shrink-0 ml-2">
+                      문법
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">
+                        {exam.targetSchool} {exam.targetGrade}학년
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <ClockIcon className="w-4 h-4" />
+                      {new Date(exam.createdAt).toLocaleDateString()}
                     </div>
                   </div>
-                </Link>
-              ))}
-          </div>
-        </>
+                </Card.Body>
+              </Card>
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   );

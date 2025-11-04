@@ -3,245 +3,228 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { BookOpenIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 
-// 카테고리 및 하위 카테고리
-const CATEGORIES = {
-  비문학: ['인문예술', '과학기술', '사회문화'],
-  문학: ['고전산문', '고전시가', '현대산문', '현대시'],
-  문법: ['품사', '단어의 형성', '음운 변동', '문장', '한글맞춤법', '중세 국어'],
-};
+// 카테고리
+const CATEGORIES = ['전체', '비문학', '문학'];
 
-const DIFFICULTIES = ['중학교', '고1-2', '고3'];
-
-interface Passage {
+interface Exam {
   id: string;
   title: string;
   category: string;
-  subcategory: string;
-  difficulty: string;
+  targetSchool: string;
+  targetGrade: number;
+  createdAt: string;
   _count: {
-    questions: number;
+    examResults: number;
   };
 }
 
 export default function SelfStudyPage() {
-  const router = useRouter();
-  const [passages, setPassages] = useState<Passage[]>([]);
+  const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(false);
-
-  // 필터
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('전체');
 
   useEffect(() => {
-    fetchPassages();
-  }, [selectedCategory, selectedSubcategory, selectedDifficulty]);
+    fetchExams();
+  }, [selectedCategory]);
 
-  const fetchPassages = async () => {
+  const fetchExams = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (selectedCategory) params.append('category', selectedCategory);
-      if (selectedSubcategory) params.append('subcategory', selectedSubcategory);
-      if (selectedDifficulty) params.append('difficulty', selectedDifficulty);
-      if (searchTerm) params.append('search', searchTerm);
+      params.append('examType', 'SELF_STUDY');
+      params.append('isPublic', 'true');
+      if (selectedCategory && selectedCategory !== '전체') {
+        params.append('category', selectedCategory);
+      }
 
-      const res = await fetch(`/api/student/passages?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to fetch passages');
+      const res = await fetch(`/api/student/exams/self-study?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to fetch exams');
 
       const data = await res.json();
-      setPassages(data.passages);
+      setExams(data.exams);
     } catch (error) {
       console.error('Error:', error);
-      alert('지문 목록을 불러오는데 실패했습니다.');
+      alert('시험지 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchPassages();
+  // 카테고리별로 시험지 분류
+  const categorizedExams = {
+    비문학: exams.filter((exam) => exam.category === '비문학'),
+    문학: exams.filter((exam) => exam.category === '문학'),
   };
 
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-    setSelectedSubcategory('');
-  };
-
-  const handleRandomSelect = () => {
-    if (passages.length === 0) {
-      alert('선택 가능한 지문이 없습니다.');
-      return;
-    }
-    const randomIndex = Math.floor(Math.random() * passages.length);
-    const randomPassage = passages[randomIndex];
-    router.push(`/student/study/reading/${randomPassage.id}`);
-  };
-
-  const subcategories = selectedCategory
-    ? CATEGORIES[selectedCategory as keyof typeof CATEGORIES] || []
-    : [];
+  const displayExams = selectedCategory === '전체' ? exams : categorizedExams[selectedCategory as keyof typeof categorizedExams] || [];
 
   return (
     <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
       <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
         <h1 className="text-4xl font-bold text-gray-900">스스로 학습</h1>
-        <p className="text-gray-600 text-lg mt-2">원하는 지문을 선택하여 학습하세요</p>
+        <p className="text-gray-600 text-lg mt-2">원하는 시험지를 선택하여 학습하세요</p>
       </div>
 
-      {/* 필터 */}
+      {/* 통계 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card padding="md">
+          <div className="flex items-center gap-3">
+            <BookOpenIcon className="w-8 h-8 text-blue-500" />
+            <div>
+              <div className="text-sm text-gray-600">비문학</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {categorizedExams.비문학.length}개
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card padding="md">
+          <div className="flex items-center gap-3">
+            <BookOpenIcon className="w-8 h-8 text-purple-500" />
+            <div>
+              <div className="text-sm text-gray-600">문학</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {categorizedExams.문학.length}개
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card padding="md">
+          <div className="flex items-center gap-3">
+            <CheckCircleIcon className="w-8 h-8 text-green-500" />
+            <div>
+              <div className="text-sm text-gray-600">전체 시험지</div>
+              <div className="text-2xl font-bold text-gray-900">{exams.length}개</div>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* 카테고리 필터 */}
       <Card>
         <Card.Body className="p-6">
-          <div className="space-y-4">
-            {/* 검색 */}
-            <form onSubmit={handleSearch}>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                지문 검색
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="지문 제목을 검색..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                />
+          <div className="flex gap-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              카테고리 선택:
+            </label>
+            <div className="flex gap-2">
+              {CATEGORIES.map((cat) => (
                 <button
-                  type="submit"
-                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    selectedCategory === cat
+                      ? 'bg-purple-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
-                  검색
+                  {cat}
                 </button>
-              </div>
-            </form>
-
-            {/* 카테고리 필터 */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  카테고리
-                </label>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                >
-                  <option value="">전체</option>
-                  {Object.keys(CATEGORIES).map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  세부 카테고리
-                </label>
-                <select
-                  value={selectedSubcategory}
-                  onChange={(e) => setSelectedSubcategory(e.target.value)}
-                  disabled={!selectedCategory}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-100"
-                >
-                  <option value="">전체</option>
-                  {subcategories.map((subcat) => (
-                    <option key={subcat} value={subcat}>
-                      {subcat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  난이도
-                </label>
-                <select
-                  value={selectedDifficulty}
-                  onChange={(e) => setSelectedDifficulty(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                >
-                  <option value="">전체</option>
-                  {DIFFICULTIES.map((diff) => (
-                    <option key={diff} value={diff}>
-                      {diff}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-end">
-                <button
-                  onClick={handleRandomSelect}
-                  disabled={passages.length === 0}
-                  className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  랜덤 선택
-                </button>
-              </div>
+              ))}
             </div>
           </div>
         </Card.Body>
       </Card>
 
-      {/* 지문 목록 */}
+      {/* 시험지 목록 */}
       {loading ? (
         <div className="text-center py-12">
-          <p className="text-gray-600">지문을 불러오는 중...</p>
+          <p className="text-gray-600">시험지를 불러오는 중...</p>
         </div>
-      ) : passages.length === 0 ? (
+      ) : displayExams.length === 0 ? (
         <Card>
           <Card.Body className="p-12 text-center">
-            <div className="text-6xl mb-4">📚</div>
+            <div className="text-6xl mb-4">📝</div>
             <h3 className="text-lg font-semibold text-gray-900">
-              지문이 없습니다
+              시험지가 없습니다
             </h3>
             <p className="text-gray-600 mt-2">
-              다른 필터 조건을 선택해보세요
+              다른 카테고리를 선택해보세요
             </p>
           </Card.Body>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {passages.map((passage) => (
-            <Link
-              key={passage.id}
-              href={`/student/study/reading/${passage.id}`}
-            >
-              <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
-                <Card.Body className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {passage.title}
-                  </h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded font-medium">
-                        {passage.category}
+        <div className="space-y-6">
+          {selectedCategory === '전체' ? (
+            // 전체 보기: 카테고리별로 그룹화
+            <>
+              {Object.entries(categorizedExams).map(([category, categoryExams]) => {
+                if (categoryExams.length === 0) return null;
+                return (
+                  <div key={category}>
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <BookOpenIcon className="w-6 h-6 text-purple-500" />
+                      {category}
+                      <span className="text-sm font-normal text-gray-500">
+                        ({categoryExams.length}개)
                       </span>
-                      <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded font-medium">
-                        {passage.subcategory}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded font-medium">
-                        {passage.difficulty}
-                      </span>
-                      <span className="text-gray-500">
-                        문제 {passage._count.questions}개
-                      </span>
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {categoryExams.map((exam) => (
+                        <Link key={exam.id} href={`/student/exams/${exam.id}`}>
+                          <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                            <Card.Body className="p-6">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                                {exam.title}
+                              </h3>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                                    {exam.category}
+                                  </span>
+                                  <span className="text-sm text-gray-600">
+                                    {exam.targetSchool} {exam.targetGrade}학년
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-gray-500">
+                                  <ClockIcon className="w-4 h-4" />
+                                  {new Date(exam.createdAt).toLocaleDateString()}
+                                </div>
+                              </div>
+                            </Card.Body>
+                          </Card>
+                        </Link>
+                      ))}
                     </div>
                   </div>
-                </Card.Body>
-              </Card>
-            </Link>
-          ))}
+                );
+              })}
+            </>
+          ) : (
+            // 특정 카테고리 보기
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {displayExams.map((exam) => (
+                <Link key={exam.id} href={`/student/exams/${exam.id}`}>
+                  <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                    <Card.Body className="p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        {exam.title}
+                      </h3>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                            {exam.category}
+                          </span>
+                          <span className="text-sm text-gray-600">
+                            {exam.targetSchool} {exam.targetGrade}학년
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <ClockIcon className="w-4 h-4" />
+                          {new Date(exam.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
