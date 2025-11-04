@@ -100,9 +100,8 @@ export default async function StudentExamsPage() {
 
   const exams = await getStudentExams(student.id);
 
-  // 배정된 시험지와 미배정 시험지 분류
+  // 배정된 시험지만 필터링
   const assignedExams = exams.filter((exam) => exam.isAssigned);
-  const unassignedExams = exams.filter((exam) => !exam.isAssigned);
 
   // 배정된 시험지를 완료/미완료로 분류
   const completedAssignedExams = assignedExams.filter((exam) => exam.isCompleted);
@@ -112,17 +111,17 @@ export default async function StudentExamsPage() {
     <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
       <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
-        <h1 className="text-4xl font-bold text-gray-900">시험지</h1>
-        <p className="text-gray-600 text-lg mt-2">배정된 시험지와 전체 시험지를 확인하세요</p>
+        <h1 className="text-4xl font-bold text-gray-900">교사 지정 학습</h1>
+        <p className="text-gray-600 text-lg mt-2">선생님이 배정한 시험지를 확인하세요</p>
       </div>
 
       {/* 통계 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-20">
         <Card padding="md">
           <div className="flex items-center gap-3">
             <AcademicCapIcon className="w-8 h-8 text-orange-500" />
             <div>
-              <div className="text-sm text-gray-600">배정된 시험지</div>
+              <div className="text-sm text-gray-600">미완료 시험지</div>
               <div className="text-2xl font-bold text-gray-900">
                 {incompleteAssignedExams.length}개
               </div>
@@ -138,16 +137,6 @@ export default async function StudentExamsPage() {
               <div className="text-2xl font-bold text-gray-900">
                 {completedAssignedExams.length}개
               </div>
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <DocumentTextIcon className="w-8 h-8 text-blue-500" />
-            <div>
-              <div className="text-sm text-gray-600">전체 시험지</div>
-              <div className="text-2xl font-bold text-gray-900">{exams.length}개</div>
             </div>
           </div>
         </Card>
@@ -275,69 +264,16 @@ export default async function StudentExamsPage() {
         </div>
       )}
 
-      {/* 전체 시험지 */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <DocumentTextIcon className="w-6 h-6 text-blue-500" />
-          전체 시험지
-          <span className="text-sm font-normal text-gray-500">({exams.length}개)</span>
-        </h2>
-        {exams.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {exams.map((exam) => (
-              <Link
-                key={exam.id}
-                href={
-                  exam.isCompleted
-                    ? `/student/exams/${exam.id}/result`
-                    : `/student/exams/${exam.id}`
-                }
-              >
-                <Card
-                  padding="md"
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-bold text-gray-900 text-lg line-clamp-2">
-                        {exam.title}
-                      </h3>
-                      {exam.isCompleted && (
-                        <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0 ml-2" />
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
-                        {exam.category}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        {exam.targetSchool} {exam.targetGrade}학년
-                      </span>
-                    </div>
-
-                    {exam.isCompleted && exam.score !== null && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">내 점수</span>
-                        <span className="text-xl font-bold text-green-600">
-                          {exam.score}점
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-              </Link>
-            ))}
+      {/* 배정된 시험지가 없을 때 */}
+      {assignedExams.length === 0 && (
+        <Card padding="lg">
+          <div className="text-center py-12 text-gray-500">
+            <AcademicCapIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-semibold">배정된 시험지가 없습니다.</p>
+            <p className="text-sm mt-2">선생님이 시험지를 배정하면 여기에 표시됩니다.</p>
           </div>
-        ) : (
-          <Card padding="lg">
-            <div className="text-center py-12 text-gray-500">
-              <DocumentTextIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg">등록된 시험지가 없습니다.</p>
-            </div>
-          </Card>
-        )}
-      </div>
+        </Card>
+      )}
     </div>
   );
 }
