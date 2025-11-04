@@ -54,19 +54,19 @@ export default function StudentStudyPage() {
         </Link>
 
         {/* 교사 지정 학습 */}
-        <Link href="/student/study/assigned">
+        <Link href="/student/exams">
           <div className="h-full">
             <div className="rounded-lg bg-purple-500 p-8 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
               <div className="text-center">
                 <AcademicCapIcon className="w-16 h-16 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold mb-3">교사 지정 학습</h2>
                 <p className="text-white/90 mb-4">
-                  선생님이 배정한 과제를 풀어볼 수 있습니다.
+                  선생님이 배정한 시험지를 풀어볼 수 있습니다.
                 </p>
                 <div className="space-y-2 text-sm text-left">
                   <div className="flex items-start gap-2">
                     <CheckIcon className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                    <span className="text-white/90">과제 마감일 확인</span>
+                    <span className="text-white/90">시험 마감일 확인</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <CheckIcon className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -79,7 +79,7 @@ export default function StudentStudyPage() {
                 </div>
                 <div className="mt-6">
                   <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-lg font-bold">
-                    과제 확인하기 <ArrowRightIcon className="w-4 h-4" />
+                    시험 확인하기 <ArrowRightIcon className="w-4 h-4" />
                   </span>
                 </div>
               </div>
