@@ -61,13 +61,13 @@ export default function EditStudentPage() {
         const data = await response.json();
         setStudent(data.student);
         setFormData({
-          name: data.student.name,
-          userId: data.student.user.email, // user.email에 userId가 저장되어 있음
-          schoolLevel: data.student.schoolLevel,
-          grade: data.student.grade,
-          class: data.student.class,
-          number: data.student.number,
-          isActive: data.student.isActive,
+          name: data.student.name || '',
+          userId: data.student.user.email || '', // user.email에 userId가 저장되어 있음
+          schoolLevel: data.student.schoolLevel || '중등',
+          grade: data.student.grade || 1,
+          class: data.student.class || 1,
+          number: data.student.number || 1,
+          isActive: data.student.isActive ?? true,
           activationStartDate: data.student.activationStartDate
             ? new Date(data.student.activationStartDate).toISOString().split('T')[0]
             : '',

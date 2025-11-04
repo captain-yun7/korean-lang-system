@@ -70,25 +70,8 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy,
         include: {
-          student: {
-            select: {
-              id: true,
-              name: true,
-              schoolLevel: true,
-              grade: true,
-              class: true,
-              number: true,
-            },
-          },
-          exam: {
-            select: {
-              id: true,
-              title: true,
-              category: true,
-              targetSchool: true,
-              targetGrade: true,
-            },
-          },
+          student: true,
+          exam: true,
         },
       }),
       prisma.examResult.count({ where }),
@@ -96,8 +79,56 @@ export async function GET(request: NextRequest) {
 
     const totalPages = Math.ceil(total / limit);
 
+    // 프론트엔드 인터페이스에 맞게 데이터 변환
+    const formattedResults = results.map((result) => {
+      // exam.items에서 총 문제 수 계산
+      const items = result.exam.items as any[];
+      let totalQuestions = 0;
+      items.forEach((item) => {
+        totalQuestions += item.questions?.length || 0;
+      });
+
+      // answers에서 정답 개수 계산
+      const answers = result.answers as any[];
+      const correctCount = answers.filter((answer) => {
+        const item = items[answer.itemIndex];
+        if (!item) return false;
+
+        const question = item.questions?.[answer.questionIndex];
+        if (!question) return false;
+
+        // 답안 체크
+        const correctAnswers = question.answers || [];
+        const studentAnswers = answer.answer || [];
+
+        if (question.type === '객관식') {
+          if (correctAnswers.length !== studentAnswers.length) return false;
+          const sortedCorrect = [...correctAnswers].sort();
+          const sortedStudent = [...studentAnswers].sort();
+          return sortedCorrect.every((ans: string, idx: number) => ans === sortedStudent[idx]);
+        } else {
+          const normalizedStudentAnswer = studentAnswers[0]?.toLowerCase().replace(/\s+/g, '') || '';
+          return correctAnswers.some((correctAns: string) => {
+            const normalizedCorrect = correctAns.toLowerCase().replace(/\s+/g, '');
+            return normalizedStudentAnswer === normalizedCorrect;
+          });
+        }
+      }).length;
+
+      return {
+        id: result.id,
+        score: result.score,
+        totalQuestions,
+        correctCount,
+        elapsedTime: result.totalTime,
+        submittedAt: result.submittedAt,
+        student: result.student,
+        exam: result.exam,
+      };
+    });
+
     return NextResponse.json({
-      results,
+      results: formattedResults,
       pagination: {
         page,
         limit,

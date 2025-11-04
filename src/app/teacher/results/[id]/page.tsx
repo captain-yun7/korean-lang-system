@@ -36,10 +36,64 @@ async function getExamResult(resultId: string) {
 
     // 시험지 items 정보 가져오기
     const items = examResult.exam.items as any[];
+    const studentAnswers = examResult.answers as any[];
+
+    // 총 문제 수 계산
+    let totalQuestions = 0;
+    items.forEach((item) => {
+      totalQuestions += item.questions?.length || 0;
+    });
+
+    // 각 문제별 상세 결과 계산
+    const detailedResults: any[] = [];
+    let correctCount = 0;
+
+    items.forEach((item, itemIndex) => {
+      item.questions?.forEach((question: any, questionIndex: number) => {
+        // 학생 답안 찾기
+        const studentAnswer = studentAnswers.find(
+          (a: any) => a.itemIndex === itemIndex && a.questionIndex === questionIndex
+        );
+
+        const studentAns = studentAnswer?.answer || [];
+        const correctAns = question.answers || [];
+
+        // 정답 체크
+        let isCorrect = false;
+        if (question.type === '객관식') {
+          if (correctAns.length === studentAns.length) {
+            const sortedCorrect = [...correctAns].sort();
+            const sortedStudent = [...studentAns].sort();
+            isCorrect = sortedCorrect.every((ans: string, idx: number) => ans === sortedStudent[idx]);
+          }
+        } else {
+          const normalizedStudentAnswer = studentAns[0]?.toLowerCase().replace(/\s+/g, '') || '';
+          isCorrect = correctAns.some((correctAnswer: string) => {
+            const normalizedCorrect = correctAnswer.toLowerCase().replace(/\s+/g, '');
+            return normalizedStudentAnswer === normalizedCorrect;
+          });
+        }
+
+        if (isCorrect) {
+          correctCount++;
+        }
+
+        detailedResults.push({
+          itemIndex,
+          questionIndex,
+          studentAnswer: studentAns,
+          correctAnswer: correctAns,
+          isCorrect,
+        });
+      });
+    });
 
     return {
       examResult,
       items,
+      detailedResults,
+      totalQuestions,
+      correctCount,
     };
   } catch (error) {
     console.error('Failed to fetch exam result:', error);
@@ -69,9 +123,7 @@ export default async function TeacherResultDetailPage({
     );
   }
 
-  const { examResult, items } = data;
-  const detailedResults = examResult.detailedResults as any[];
-  const studentAnswers = examResult.answers as any[];
+  const { examResult, items, detailedResults, totalQuestions, correctCount } = data;
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -84,8 +136,8 @@ export default async function TeacherResultDetailPage({
     return `${minutes}분 ${secs}초`;
   };
 
-  const accuracy = examResult.totalQuestions > 0
-    ? Math.round((examResult.correctCount / examResult.totalQuestions) * 100)
+  const accuracy = totalQuestions > 0
+    ? Math.round((correctCount / totalQuestions) * 100)
     : 0;
 
   return (
@@ -195,7 +247,7 @@ export default async function TeacherResultDetailPage({
         <Card padding="md">
           <div className="flex items-center gap-3">
             <div className="text-2xl font-bold text-gray-900">
-              {examResult.correctCount}/{examResult.totalQuestions}
+              {correctCount}/{totalQuestions}
             </div>
             <div className="text-sm text-gray-600">정답 수</div>
           </div>
@@ -207,7 +259,7 @@ export default async function TeacherResultDetailPage({
             <div>
               <div className="text-sm text-gray-600">소요 시간</div>
               <div className="text-lg font-bold text-gray-900">
-                {formatTime(examResult.elapsedTime)}
+                {formatTime(examResult.totalTime)}
               </div>
             </div>
           </div>

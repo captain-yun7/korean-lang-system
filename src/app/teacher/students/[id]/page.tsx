@@ -19,15 +19,15 @@ async function getStudentDetail(id: string) {
             createdAt: true,
           },
         },
-        results: {
-          orderBy: { submittedAt: 'desc' },
+        examResults: {
+          orderBy: { submittedAt: 'desc' as const },
           take: 10,
           include: {
-            passage: {
+            exam: {
               select: {
+                id: true,
                 title: true,
                 category: true,
-                subcategory: true,
               },
             },
           },
@@ -41,15 +41,15 @@ async function getStudentDetail(id: string) {
 
     // 학습 통계 계산
     const stats = {
-      totalResults: student.results.length,
-      averageScore: student.results.length > 0
+      totalResults: student.examResults.length,
+      averageScore: student.examResults.length > 0
         ? Math.round(
-            (student.results.reduce((sum, r) => sum + r.score, 0) /
-              student.results.length) *
+            (student.examResults.reduce((sum, r) => sum + r.score, 0) /
+              student.examResults.length) *
               10
           ) / 10
         : 0,
-      totalReadingTime: student.results.reduce((sum, r) => sum + r.readingTime, 0),
+      totalTime: student.examResults.reduce((sum, r) => sum + r.totalTime, 0),
     };
 
     return { student, stats };
@@ -144,7 +144,7 @@ export default async function StudentDetailPage({
             <div className="text-center">
               <p className="text-sm font-medium text-gray-600">총 학습 시간</p>
               <p className="text-3xl font-bold text-gray-900 mt-2">
-                {Math.floor(stats.totalReadingTime / 60)}분
+                {Math.floor(stats.totalTime / 60)}분
               </p>
             </div>
           </Card.Body>
@@ -226,13 +226,13 @@ export default async function StudentDetailPage({
           </div>
         </Card.Header>
         <Card.Body className="p-0">
-          {student.results.length > 0 ? (
+          {student.examResults.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      제목
+                      시험 제목
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       카테고리
@@ -241,24 +241,27 @@ export default async function StudentDetailPage({
                       점수
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      독해 시간
+                      소요 시간
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       제출일
                     </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      작업
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {student.results.map((result) => (
+                  {student.examResults.map((result) => (
                     <tr key={result.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {result.passage.title}
+                          {result.exam.title}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {result.passage.category} · {result.passage.subcategory}
+                          {result.exam.category}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -266,13 +269,21 @@ export default async function StudentDetailPage({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {Math.floor(result.readingTime / 60)}분 {result.readingTime % 60}초
+                          {Math.floor(result.totalTime / 60)}분 {result.totalTime % 60}초
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           {new Date(result.submittedAt).toLocaleDateString('ko-KR')}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <Link
+                          href={`/teacher/results/${result.id}`}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          상세
+                        </Link>
                       </td>
                     </tr>
                   ))}
