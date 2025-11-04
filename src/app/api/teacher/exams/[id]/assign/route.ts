@@ -3,12 +3,12 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
 // POST /api/teacher/exams/[id]/assign - 시험지 배정
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+export const POST = auth(async function POST(
+  request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    const session = request.auth;
 
     if (!session || session.user.role !== 'TEACHER') {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
@@ -32,9 +32,11 @@ export async function POST(
       );
     }
 
+    const { id } = await params;
+
     // 시험지 존재 확인
     const exam = await prisma.exam.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!exam) {
@@ -62,7 +64,7 @@ export async function POST(
         // 기존 배정 확인
         const existing = await prisma.assignedExam.findFirst({
           where: {
-            examId: params.id,
+            examId: id,
             studentId,
           },
         });
@@ -79,7 +81,7 @@ export async function POST(
           // 새 배정 생성
           return await prisma.assignedExam.create({
             data: {
-              examId: params.id,
+              examId: id,
               studentId,
               dueDate: new Date(dueDate),
             },
@@ -99,22 +101,24 @@ export async function POST(
       { status: 500 }
     );
   }
-}
+}) as any;
 
 // GET /api/teacher/exams/[id]/assign - 배정된 학생 목록 조회
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+export const GET = auth(async function GET(
+  request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    const session = request.auth;
 
     if (!session || session.user.role !== 'TEACHER') {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     const assignments = await prisma.assignedExam.findMany({
-      where: { examId: params.id },
+      where: { examId: id },
       include: {
         student: {
           select: {
@@ -144,4 +148,4 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+}) as any;

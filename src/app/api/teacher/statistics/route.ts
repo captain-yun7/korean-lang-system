@@ -3,9 +3,9 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/teacher/statistics - 전체 통계 조회
-export async function GET(request: NextRequest) {
+export const GET = auth(async function GET(request) {
   try {
-    const session = await auth();
+    const session = request.auth;
 
     if (!session || session.user.role !== 'TEACHER') {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
@@ -126,4 +126,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+}) as any;

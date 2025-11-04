@@ -3,9 +3,9 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/teacher/exam-papers - 시험지 목록 조회
-export async function GET(request: NextRequest) {
+export const GET = auth(async function GET(request) {
   try {
-    const session = await auth();
+    const session = request.auth;
 
     if (!session || session.user.role !== 'TEACHER') {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
@@ -74,14 +74,16 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+}) as any;
 
 // POST /api/teacher/exam-papers - 시험지 등록
-export async function POST(request: NextRequest) {
+export const POST = auth(async function POST(request) {
   try {
-    const session = await auth();
+    const session = request.auth;
+    console.log('[API] POST /api/teacher/exams - Session:', session);
 
     if (!session || session.user.role !== 'TEACHER') {
+      console.log('[API] Access denied - session:', session, 'role:', session?.user?.role);
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 
@@ -152,4 +154,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+}) as any;

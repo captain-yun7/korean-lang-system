@@ -2,7 +2,7 @@
 
 import { Card, Button } from '@/components/ui';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Question {
@@ -33,7 +33,8 @@ interface Exam {
   };
 }
 
-export default function ExamDetailPage({ params }: { params: { id: string } }) {
+export default function ExamDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const router = useRouter();
   const [exam, setExam] = useState<Exam | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +45,7 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
 
   const fetchExam = async () => {
     try {
-      const response = await fetch(`/api/teacher/exams/${params.id}`);
+      const response = await fetch(`/api/teacher/exams/${resolvedParams.id}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -72,7 +73,7 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
     }
 
     try {
-      const response = await fetch(`/api/teacher/exams/${params.id}`, {
+      const response = await fetch(`/api/teacher/exams/${resolvedParams.id}`, {
         method: 'DELETE',
       });
 
@@ -123,10 +124,10 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link href={`/teacher/exams/${params.id}/assign`}>
+          <Link href={`/teacher/exams/${resolvedParams.id}/assign`}>
             <Button variant="primary">학생에게 배정</Button>
           </Link>
-          <Link href={`/teacher/exams/${params.id}/edit`}>
+          <Link href={`/teacher/exams/${resolvedParams.id}/edit`}>
             <Button variant="secondary">수정</Button>
           </Link>
           <Button variant="danger" onClick={handleDelete}>
@@ -262,7 +263,7 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
           목록으로
         </Button>
         <div className="flex gap-2">
-          <Link href={`/teacher/exams/${params.id}/edit`}>
+          <Link href={`/teacher/exams/${resolvedParams.id}/edit`}>
             <Button variant="secondary">수정</Button>
           </Link>
           <Button variant="danger" onClick={handleDelete}>

@@ -3,19 +3,20 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/teacher/exam-papers/[id] - 시험지 상세 조회
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+export const GET = auth(async function GET(
+  request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    const session = request.auth;
 
     if (!session || session.user.role !== 'TEACHER') {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 
+    const { id } = await params;
     const examPaper = await prisma.exam.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -41,23 +42,25 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+}) as any;
 
 // DELETE /api/teacher/exam-papers/[id] - 시험지 삭제
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+export const DELETE = auth(async function DELETE(
+  request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    const session = request.auth;
 
     if (!session || session.user.role !== 'TEACHER') {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     // 시험지 존재 여부 확인
     const examPaper = await prisma.exam.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!examPaper) {
@@ -69,7 +72,7 @@ export async function DELETE(
 
     // 시험지 삭제 (cascading으로 관련 데이터도 삭제됨)
     await prisma.exam.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: '시험지가 삭제되었습니다.' });
@@ -80,15 +83,15 @@ export async function DELETE(
       { status: 500 }
     );
   }
-}
+}) as any;
 
 // PUT /api/teacher/exam-papers/[id] - 시험지 수정
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+export const PUT = auth(async function PUT(
+  request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    const session = request.auth;
 
     if (!session || session.user.role !== 'TEACHER') {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
@@ -121,9 +124,11 @@ export async function PUT(
       );
     }
 
+    const { id } = await params;
+
     // 시험지 존재 여부 확인
     const existingExamPaper = await prisma.exam.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingExamPaper) {
@@ -156,7 +161,7 @@ export async function PUT(
 
     // 시험지 수정
     const examPaper = await prisma.exam.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         category,
@@ -174,4 +179,4 @@ export async function PUT(
       { status: 500 }
     );
   }
-}
+}) as any;

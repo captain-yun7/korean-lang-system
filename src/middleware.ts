@@ -5,16 +5,17 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const { pathname } = req.nextUrl;
 
+  // Skip middleware for all API routes (they handle their own auth)
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+
   // Public routes (allow without authentication)
   const publicRoutes = ['/', '/login', '/signup'];
   const isPublicRoute = publicRoutes.some((route) => pathname === route);
 
-  // API routes that should allow public access
-  const publicApiRoutes = ['/api/auth', '/api/teacher/signup'];
-  const isPublicApi = publicApiRoutes.some((route) => pathname.startsWith(route));
-
-  // If not logged in and not on public route/api, redirect to login
-  if (!isLoggedIn && !isPublicRoute && !isPublicApi) {
+  // If not logged in and not on public route, redirect to login
+  if (!isLoggedIn && !isPublicRoute) {
     const loginUrl = new URL('/', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
