@@ -16,9 +16,6 @@ const DIFFICULTIES = ['중학교', '고1-2', '고3'];
 
 interface ContentBlock {
   para: string;
-  q: string;
-  a: string;
-  explanation: string;
 }
 
 interface PassageFormData {
@@ -41,7 +38,7 @@ export default function EditPassagePage() {
     subcategory: '인문예술',
     difficulty: '중학교',
     contentBlocks: [
-      { para: '', q: '', a: '', explanation: '' },
+      { para: '' },
     ],
   });
 
@@ -114,7 +111,7 @@ export default function EditPassagePage() {
       ...prev,
       contentBlocks: [
         ...prev.contentBlocks,
-        { para: '', q: '', a: '', explanation: '' },
+        { para: '' },
       ],
     }));
   };
@@ -149,14 +146,6 @@ export default function EditPassagePage() {
       const block = formData.contentBlocks[i];
       if (!block.para.trim()) {
         setError(`${i + 1}번째 문단의 내용을 입력해주세요.`);
-        return;
-      }
-      if (!block.q.trim()) {
-        setError(`${i + 1}번째 문단의 질문을 입력해주세요.`);
-        return;
-      }
-      if (!block.a.trim()) {
-        setError(`${i + 1}번째 문단의 답변을 입력해주세요.`);
         return;
       }
     }
@@ -341,50 +330,6 @@ export default function EditPassagePage() {
                       rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="문단 내용을 입력하세요"
-                    />
-                  </div>
-
-                  {/* 질문 */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      질문 <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={block.q}
-                      onChange={(e) => handleBlockChange(index, 'q', e.target.value)}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="이 문단에 대한 질문"
-                    />
-                  </div>
-
-                  {/* 답변 */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      모범 답안 <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      value={block.a}
-                      onChange={(e) => handleBlockChange(index, 'a', e.target.value)}
-                      required
-                      rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="모범 답안"
-                    />
-                  </div>
-
-                  {/* 해설 */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      해설 (선택)
-                    </label>
-                    <textarea
-                      value={block.explanation}
-                      onChange={(e) => handleBlockChange(index, 'explanation', e.target.value)}
-                      rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="답변에 대한 해설"
                     />
                   </div>
                 </div>

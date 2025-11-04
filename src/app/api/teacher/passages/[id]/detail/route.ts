@@ -20,22 +20,9 @@ export async function GET(
         questions: {
           orderBy: { createdAt: 'desc' },
         },
-        results: {
-          orderBy: { submittedAt: 'desc' },
-          take: 10,
-          include: {
-            student: {
-              select: {
-                name: true,
-                studentId: true,
-              },
-            },
-          },
-        },
         _count: {
           select: {
             questions: true,
-            results: true,
           },
         },
       },

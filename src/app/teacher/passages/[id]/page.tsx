@@ -7,9 +7,6 @@ import Link from 'next/link';
 
 interface ContentBlock {
   para: string;
-  q: string;
-  a: string;
-  explanation: string;
 }
 
 interface Question {
@@ -17,17 +14,6 @@ interface Question {
   text: string;
   type: string;
   createdAt: Date;
-}
-
-interface Result {
-  id: string;
-  score: number;
-  readingTime: number;
-  submittedAt: Date;
-  student: {
-    name: string;
-    studentId: string;
-  };
 }
 
 interface PassageDetail {
@@ -38,12 +24,10 @@ interface PassageDetail {
   difficulty: string;
   contentBlocks: ContentBlock[];
   questions: Question[];
-  results: Result[];
   createdAt: Date;
   updatedAt: Date;
   _count: {
     questions: number;
-    results: number;
   };
 }
 
@@ -83,7 +67,7 @@ export default function PassageDetailPage() {
 
     if (
       !confirm(
-        `"${passage.title}" 지문을 삭제하시겠습니까?\n\n연결된 문제 ${passage._count.questions}개와 학습 결과 ${passage._count.results}개도 함께 삭제됩니다.`
+        `"${passage.title}" 지문을 삭제하시겠습니까?\n\n연결된 문제 ${passage._count.questions}개도 함께 삭제됩니다.`
       )
     ) {
       return;
@@ -155,7 +139,7 @@ export default function PassageDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <Card.Body className="p-6">
             <div className="text-center">
@@ -177,17 +161,6 @@ export default function PassageDetailPage() {
             </div>
           </Card.Body>
         </Card>
-
-        <Card>
-          <Card.Body className="p-6">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">학습 횟수</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {passage._count.results}회
-              </p>
-            </div>
-          </Card.Body>
-        </Card>
       </div>
 
       {/* Content Blocks */}
@@ -202,26 +175,8 @@ export default function PassageDetailPage() {
                 <h3 className="font-semibold text-gray-900">문단 {index + 1}</h3>
 
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">내용</p>
                   <p className="text-gray-900 whitespace-pre-wrap">{block.para}</p>
                 </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">질문</p>
-                  <p className="text-gray-900">{block.q}</p>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">모범 답안</p>
-                  <p className="text-gray-900 whitespace-pre-wrap">{block.a}</p>
-                </div>
-
-                {block.explanation && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">해설</p>
-                    <p className="text-gray-600 whitespace-pre-wrap">{block.explanation}</p>
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -264,61 +219,6 @@ export default function PassageDetailPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </Card.Body>
-        </Card>
-      )}
-
-      {/* Recent Results */}
-      {passage.results.length > 0 && (
-        <Card>
-          <Card.Header className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">최근 학습 기록</h2>
-          </Card.Header>
-          <Card.Body className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      학생
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      점수
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      독해 시간
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      제출일
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {passage.results.map((result) => (
-                    <tr key={result.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {result.student.name} ({result.student.studentId})
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-bold text-gray-900">{result.score}점</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {Math.floor(result.readingTime / 60)}분 {result.readingTime % 60}초
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {new Date(result.submittedAt).toLocaleDateString('ko-KR')}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </Card.Body>
         </Card>

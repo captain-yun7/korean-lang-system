@@ -31,9 +31,9 @@ export async function POST(request: NextRequest) {
     }
 
     for (const block of contentBlocks) {
-      if (!block.para || !block.q || !block.a) {
+      if (!block.para) {
         return NextResponse.json(
-          { error: '모든 문단의 필수 필드(para, q, a)를 입력해주세요.' },
+          { error: '모든 문단의 내용을 입력해주세요.' },
           { status: 400 }
         );
       }
@@ -114,7 +114,6 @@ export async function GET(request: NextRequest) {
         _count: {
           select: {
             questions: true,
-            results: true,
           },
         },
       },

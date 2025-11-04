@@ -15,7 +15,6 @@ interface PassageListItem {
   createdAt: Date;
   _count: {
     questions: number;
-    results: number;
   };
 }
 
@@ -244,9 +243,6 @@ export default function PassagesPage() {
                       문제 수
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      학습 횟수
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       등록일
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -277,11 +273,6 @@ export default function PassagesPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           {passage._count.questions}개
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {passage._count.results}회
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

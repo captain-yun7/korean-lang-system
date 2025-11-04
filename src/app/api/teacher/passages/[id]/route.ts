@@ -21,7 +21,6 @@ export async function GET(
         _count: {
           select: {
             questions: true,
-            results: true,
           },
         },
       },
@@ -76,9 +75,9 @@ export async function PUT(
     }
 
     for (const block of contentBlocks) {
-      if (!block.para || !block.q || !block.a) {
+      if (!block.para) {
         return NextResponse.json(
-          { error: '모든 문단의 필수 필드(para, q, a)를 입력해주세요.' },
+          { error: '모든 문단의 내용을 입력해주세요.' },
           { status: 400 }
         );
       }
@@ -146,7 +145,6 @@ export async function DELETE(
         _count: {
           select: {
             questions: true,
-            results: true,
           },
         },
       },
@@ -160,10 +158,10 @@ export async function DELETE(
     }
 
     // 연관된 데이터 확인 (optional - 경고 목적)
-    if (passage._count.questions > 0 || passage._count.results > 0) {
+    if (passage._count.questions > 0) {
       // CASCADE 설정되어 있으므로 자동으로 삭제되지만, 경고 메시지는 표시
       console.log(
-        `Warning: Deleting passage ${params.id} with ${passage._count.questions} questions and ${passage._count.results} results`
+        `Warning: Deleting passage ${params.id} with ${passage._count.questions} questions`
       );
     }
 
