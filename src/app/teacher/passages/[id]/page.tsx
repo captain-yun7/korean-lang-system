@@ -9,13 +9,6 @@ interface ContentBlock {
   para: string;
 }
 
-interface Question {
-  id: string;
-  text: string;
-  type: string;
-  createdAt: Date;
-}
-
 interface PassageDetail {
   id: string;
   title: string;
@@ -23,12 +16,8 @@ interface PassageDetail {
   subcategory: string;
   difficulty: string;
   contentBlocks: ContentBlock[];
-  questions: Question[];
   createdAt: Date;
   updatedAt: Date;
-  _count: {
-    questions: number;
-  };
 }
 
 export default function PassageDetailPage() {
@@ -67,7 +56,7 @@ export default function PassageDetailPage() {
 
     if (
       !confirm(
-        `"${passage.title}" 지문을 삭제하시겠습니까?\n\n연결된 문제 ${passage._count.questions}개도 함께 삭제됩니다.`
+        `"${passage.title}" 지문을 삭제하시겠습니까?`
       )
     ) {
       return;
@@ -139,29 +128,16 @@ export default function PassageDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <Card.Body className="p-6">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">문단 수</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {contentBlocks.length}개
-              </p>
-            </div>
-          </Card.Body>
-        </Card>
-
-        <Card>
-          <Card.Body className="p-6">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">문제 수</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {passage._count.questions}개
-              </p>
-            </div>
-          </Card.Body>
-        </Card>
-      </div>
+      <Card>
+        <Card.Body className="p-6">
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-600">문단 수</p>
+            <p className="text-3xl font-bold text-gray-900 mt-2">
+              {contentBlocks.length}개
+            </p>
+          </div>
+        </Card.Body>
+      </Card>
 
       {/* Content Blocks */}
       <Card>
@@ -182,47 +158,6 @@ export default function PassageDetailPage() {
           </div>
         </Card.Body>
       </Card>
-
-      {/* Questions */}
-      {passage.questions.length > 0 && (
-        <Card>
-          <Card.Header className="px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
-                연결된 문제 ({passage.questions.length}개)
-              </h2>
-              <Link
-                href={`/teacher/questions/new?passageId=${passage.id}`}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-              >
-                + 문제 추가
-              </Link>
-            </div>
-          </Card.Header>
-          <Card.Body className="p-0">
-            <div className="divide-y divide-gray-200">
-              {passage.questions.map((question) => (
-                <div key={question.id} className="p-4 hover:bg-gray-50">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700">
-                        {question.type}
-                      </span>
-                      <p className="text-gray-900 mt-2">{question.text}</p>
-                    </div>
-                    <Link
-                      href={`/teacher/questions/${question.id}`}
-                      className="text-sm text-indigo-600 hover:text-indigo-700 ml-4"
-                    >
-                      상세
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card.Body>
-        </Card>
-      )}
 
       {/* Metadata */}
       <Card>

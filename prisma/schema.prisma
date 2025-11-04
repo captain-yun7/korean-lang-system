@@ -124,44 +124,29 @@ model Student {
 model Passage {
   id            String   @id @default(cuid())
   title         String
-  category      String // 비문학, 문학, 문법
-  subcategory   String // 세부 카테고리 (인문예술, 과학기술, 사회문화, 고전산문, 고전시가, 현대산문, 현대시, 품사, 단어의 형성, 음운 변동, 문장, 한글맞춤법, 중세 국어)
+  category      String // 비문학, 문학
+  subcategory   String // 세부 카테고리 (인문예술, 과학기술, 사회문화, 고전산문, 고전시가, 현대산문, 현대시)
   difficulty    String // 중학교, 고1-2, 고3
-  contentBlocks Json // [{ para: string, q: string, a: string, explanation: string }]
+  contentBlocks Json // [{ para: string }] - 순수 텍스트 단락만
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  questions Question[]
 
   @@map("passages")
 }
 
-model Question {
-  id                      String   @id @default(cuid())
-  passageId               String? // null인 경우 문법/개념 문제
-  type                    String // 객관식, 단답형, 서술형
-  text                    String   @db.Text
-  options                 Json? // 객관식 선택지 배열
-  answers                 String[] // 복수 정답 지원
-  explanation             String?  @db.Text
-  wrongAnswerExplanations Json? // 오답 선택지별 해설
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
-
-  passage Passage? @relation(fields: [passageId], references: [id], onDelete: Cascade)
-
-  @@index([passageId])
-  @@map("questions")
-}
+// Note: Question 모델은 더 이상 사용하지 않음 (시험지의 items에 JSON으로 저장)
+// 향후 제거 예정
 
 // 시험 (여러 문항을 포함하는 시험지)
 model Exam {
   id           String   @id @default(cuid())
   title        String // 시험 제목
   category     String // 비문학, 문학, 문법, 어휘, 기타
+  examType     String   @default("ASSIGNED") // SELF_STUDY(자습용), ASSIGNED(배정용), GRAMMAR(문법전용)
+  isPublic     Boolean  @default(false) // 자습용 시험지 공개 여부
   targetSchool String // 중등, 고등
   targetGrade  Int // 대상 학년 (1, 2, 3)
-  items        Json // 시험 문항 배열 [{ passage?: string, questions: [{ text, type, options?, answers, explanation? }] }]
+  items        Json // 시험 문항 배열 [{ passageId?: string, passage?: string, questions: [{ text, type, options?, answers, explanation? }] }]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -169,6 +154,8 @@ model Exam {
   assignedExams AssignedExam[]
 
   @@index([category])
+  @@index([examType])
+  @@index([isPublic])
   @@index([targetSchool, targetGrade])
   @@map("exams")
 }

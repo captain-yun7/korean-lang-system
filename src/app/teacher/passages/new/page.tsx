@@ -5,11 +5,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-// 카테고리 및 서브카테고리 정의
+// 카테고리 및 서브카테고리 정의 (지문은 비문학/문학만)
 const CATEGORIES = {
   비문학: ['인문예술', '과학기술', '사회문화'],
   문학: ['고전산문', '고전시가', '현대산문', '현대시'],
-  문법: ['품사', '단어의 형성', '음운 변동', '문장', '한글맞춤법', '중세 국어'],
 };
 
 const DIFFICULTIES = ['중학교', '고1-2', '고3'];
