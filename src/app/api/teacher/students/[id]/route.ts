@@ -6,9 +6,11 @@ import bcrypt from 'bcryptjs';
 // 학생 상세 조회 (GET)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     // 인증 확인
     const session = await auth();
     if (!session?.user || session.user.role !== 'TEACHER') {
@@ -16,7 +18,7 @@ export async function GET(
     }
 
     const student = await prisma.student.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         user: {
           select: {
@@ -25,6 +27,19 @@ export async function GET(
             email: true,
             role: true,
             createdAt: true,
+          },
+        },
+        examResults: {
+          orderBy: { submittedAt: 'desc' },
+          take: 10,
+          include: {
+            exam: {
+              select: {
+                id: true,
+                title: true,
+                category: true,
+              },
+            },
           },
         },
       },
@@ -50,9 +65,11 @@ export async function GET(
 // 학생 정보 수정 (PUT)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     // 인증 확인
     const session = await auth();
     if (!session?.user || session.user.role !== 'TEACHER') {
@@ -62,26 +79,17 @@ export async function PUT(
     const body = await request.json();
     const {
       name,
-      userId, // 로그인 아이디
       schoolLevel,
-      grade: gradeStr,
-      class: classStr,
-      number: numberStr,
       password,
       isActive,
       activationStartDate,
       activationEndDate,
     } = body;
 
-    // 숫자 변환
-    const grade = parseInt(gradeStr);
-    const classNum = parseInt(classStr);
-    const number = parseInt(numberStr);
-
     // 필수 필드 확인
-    if (!name || !userId || !schoolLevel || isNaN(grade) || isNaN(classNum) || isNaN(number)) {
+    if (!name || !schoolLevel) {
       return NextResponse.json(
-        { error: '필수 필드가 누락되었거나 올바르지 않습니다.' },
+        { error: '필수 필드가 누락되었습니다.' },
         { status: 400 }
       );
     }
@@ -96,7 +104,7 @@ export async function PUT(
 
     // 기존 학생 정보 조회
     const existingStudent = await prisma.student.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { user: true },
     });
 
@@ -107,54 +115,6 @@ export async function PUT(
       );
     }
 
-    // userId가 변경되었는지 확인하고 중복 체크
-    if (userId !== existingStudent.user.email) {
-      const duplicateUser = await prisma.user.findFirst({
-        where: {
-          email: userId,
-          id: { not: existingStudent.userId },
-        },
-      });
-
-      if (duplicateUser) {
-        return NextResponse.json(
-          { error: `이미 사용 중인 아이디입니다: ${userId}` },
-          { status: 400 }
-        );
-      }
-    }
-
-    // 학년/반/번호가 변경되었는지 확인
-    const isClassInfoChanged =
-      existingStudent.grade !== grade ||
-      existingStudent.class !== classNum ||
-      existingStudent.number !== number;
-
-    let newStudentId = existingStudent.studentId;
-
-    if (isClassInfoChanged) {
-      // 새로운 학번 생성
-      newStudentId = `${String(grade).padStart(2, '0')}${String(classNum).padStart(
-        2,
-        '0'
-      )}${String(number).padStart(2, '0')}`;
-
-      // 새로운 학번이 이미 존재하는지 확인 (자기 자신 제외)
-      const duplicateStudent = await prisma.student.findFirst({
-        where: {
-          studentId: newStudentId,
-          id: { not: params.id },
-        },
-      });
-
-      if (duplicateStudent) {
-        return NextResponse.json(
-          { error: `이미 등록된 학번입니다: ${grade}학년 ${classNum}반 ${number}번` },
-          { status: 400 }
-        );
-      }
-    }
-
     // 비밀번호 해싱 (비밀번호가 제공된 경우만)
     let hashedPassword: string | undefined;
     if (password) {
@@ -163,26 +123,21 @@ export async function PUT(
 
     // Student 및 User 업데이트 (트랜잭션)
     const updatedStudent = await prisma.$transaction(async (tx) => {
-      // User 업데이트
+      // User 업데이트 (이름과 비밀번호만)
       await tx.user.update({
         where: { id: existingStudent.userId },
         data: {
           name,
-          email: userId, // userId를 email 필드에 저장
           ...(hashedPassword && { password: hashedPassword }),
         },
       });
 
-      // Student 업데이트
+      // Student 업데이트 (학번, 학년/반/번호는 변경 불가)
       const student = await tx.student.update({
-        where: { id: params.id },
+        where: { id },
         data: {
-          studentId: newStudentId,
           name,
           schoolLevel,
-          grade,
-          class: classNum,
-          number,
           isActive,
           activationStartDate: activationStartDate
             ? new Date(activationStartDate)
@@ -213,7 +168,6 @@ export async function PUT(
         class: updatedStudent.class,
         number: updatedStudent.number,
         isActive: updatedStudent.isActive,
-        studentIdChanged: isClassInfoChanged,
       },
     });
   } catch (error) {
@@ -228,9 +182,11 @@ export async function PUT(
 // 학생 삭제 (DELETE)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     // 인증 확인
     const session = await auth();
     if (!session?.user || session.user.role !== 'TEACHER') {
@@ -239,7 +195,7 @@ export async function DELETE(
 
     // 학생 정보 조회
     const student = await prisma.student.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { user: true },
     });
 

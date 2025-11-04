@@ -1,84 +1,121 @@
+'use client';
+
 import { Card } from '@/components/ui';
-import { auth } from '@/auth';
-import { redirect, notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 
-// 학생 상세 정보 가져오기
-async function getStudentDetail(id: string) {
-  try {
-    const student = await prisma.student.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            createdAt: true,
-          },
-        },
-        examResults: {
-          orderBy: { submittedAt: 'desc' as const },
-          take: 10,
-          include: {
-            exam: {
-              select: {
-                id: true,
-                title: true,
-                category: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!student) {
-      return null;
-    }
-
-    // 학습 통계 계산
-    const stats = {
-      totalResults: student.examResults.length,
-      averageScore: student.examResults.length > 0
-        ? Math.round(
-            (student.examResults.reduce((sum, r) => sum + r.score, 0) /
-              student.examResults.length) *
-              10
-          ) / 10
-        : 0,
-      totalTime: student.examResults.reduce((sum, r) => sum + r.totalTime, 0),
+interface StudentData {
+  id: string;
+  studentId: string;
+  name: string;
+  schoolLevel: string;
+  grade: number;
+  class: number;
+  number: number;
+  isActive: boolean;
+  activationStartDate: string | null;
+  activationEndDate: string | null;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    createdAt: string;
+  };
+  examResults: Array<{
+    id: string;
+    score: number;
+    totalTime: number;
+    submittedAt: string;
+    exam: {
+      id: string;
+      title: string;
+      category: string;
     };
-
-    return { student, stats };
-  } catch (error) {
-    console.error('Failed to fetch student detail:', error);
-    return null;
-  }
+  }>;
 }
 
-export default async function StudentDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default function StudentDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const [student, setStudent] = useState<StudentData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // 인증 확인
-  const session = await auth();
-  if (!session?.user || session.user.role !== 'TEACHER') {
-    redirect('/');
+  useEffect(() => {
+    const fetchStudent = async () => {
+      try {
+        const response = await fetch(`/api/teacher/students/${params.id}`);
+        if (!response.ok) {
+          throw new Error('학생 정보를 불러오는데 실패했습니다.');
+        }
+        const data = await response.json();
+        setStudent(data.student);
+      } catch (error) {
+        console.error('Failed to fetch student:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudent();
+  }, [params.id]);
+
+  const handleDelete = async () => {
+    if (!student) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/teacher/students/${student.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('학생 삭제에 실패했습니다.');
+      }
+
+      alert('학생이 성공적으로 삭제되었습니다.');
+      router.push('/teacher/students');
+      router.refresh();
+    } catch (error) {
+      console.error('Failed to delete student:', error);
+      alert('학생 삭제에 실패했습니다.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-600">로딩 중...</p>
+      </div>
+    );
   }
 
-  const data = await getStudentDetail(id);
-
-  if (!data) {
-    notFound();
+  if (!student) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-600">학생 정보를 찾을 수 없습니다.</p>
+      </div>
+    );
   }
 
-  const { student, stats } = data;
+  // 학습 통계 계산
+  const stats = {
+    totalResults: student.examResults?.length || 0,
+    averageScore: student.examResults && student.examResults.length > 0
+      ? Math.round(
+          (student.examResults.reduce((sum, r) => sum + r.score, 0) /
+            student.examResults.length) *
+            10
+        ) / 10
+      : 0,
+    totalTime: student.examResults?.reduce((sum, r) => sum + r.totalTime, 0) || 0,
+  };
 
   return (
     <div className="space-y-6">
@@ -108,6 +145,12 @@ export default async function StudentDetailPage({
           >
             정보 수정
           </Link>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+          >
+            학생 삭제
+          </button>
           <Link
             href="/teacher/students"
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
@@ -297,6 +340,37 @@ export default async function StudentDetailPage({
           )}
         </Card.Body>
       </Card>
+
+      {/* 삭제 확인 모달 */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">학생 삭제 확인</h3>
+            <p className="text-gray-700 mb-2">
+              정말로 <span className="font-bold">{student.name}</span> 학생을 삭제하시겠습니까?
+            </p>
+            <p className="text-sm text-red-600 mb-6">
+              ⚠️ 이 작업은 되돌릴 수 없으며, 학생의 모든 학습 기록과 시험 결과가 함께 삭제됩니다.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isDeleting ? '삭제 중...' : '삭제'}
+              </button>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -30,20 +30,23 @@ export async function GET(request: NextRequest) {
       where.isReviewed = isReviewed === 'true';
     }
 
+    // 카테고리 필터 추가
+    if (category) {
+      where.category = category;
+    }
+
     // 오답 목록 조회
     const wrongAnswers = await prisma.wrongAnswer.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        question: {
+        examResult: {
           include: {
-            passage: {
+            exam: {
               select: {
                 id: true,
                 title: true,
                 category: true,
-                subcategory: true,
-                difficulty: true,
               },
             },
           },
@@ -51,23 +54,15 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // 카테고리 필터링 (클라이언트 측에서도 가능하지만 서버에서 처리)
-    let filteredAnswers = wrongAnswers;
-    if (category) {
-      filteredAnswers = wrongAnswers.filter(
-        (wa) => wa.question.passage?.category === category
-      );
-    }
-
     // 통계 계산
-    const totalWrong = filteredAnswers.length;
-    const reviewedCount = filteredAnswers.filter((wa) => wa.isReviewed).length;
+    const totalWrong = wrongAnswers.length;
+    const reviewedCount = wrongAnswers.filter((wa) => wa.isReviewed).length;
     const unreviewedCount = totalWrong - reviewedCount;
 
     // 카테고리별 통계
     const categoryStats: { [key: string]: number } = {};
-    filteredAnswers.forEach((wa) => {
-      const cat = wa.question.passage?.category || '기타';
+    wrongAnswers.forEach((wa) => {
+      const cat = wa.category || '기타';
       categoryStats[cat] = (categoryStats[cat] || 0) + 1;
     });
 
@@ -78,7 +73,7 @@ export async function GET(request: NextRequest) {
       .map(([category, count]) => ({ category, count }));
 
     return NextResponse.json({
-      wrongAnswers: filteredAnswers,
+      wrongAnswers,
       stats: {
         totalWrong,
         reviewedCount,

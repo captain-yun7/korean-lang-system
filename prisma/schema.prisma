@@ -116,6 +116,7 @@ model Student {
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   examResults   ExamResult[]
   assignedExams AssignedExam[] @relation("StudentAssignedExams")
+  wrongAnswers  WrongAnswer[]
 
   @@map("students")
 }
@@ -182,8 +183,9 @@ model ExamResult {
   totalTime   Int // 총 소요 시간 (초)
   submittedAt DateTime @default(now())
 
-  exam    Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exam         Exam          @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student      Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  wrongAnswers WrongAnswer[]
 
   @@index([examId])
   @@index([studentId])
@@ -208,5 +210,32 @@ model AssignedExam {
   @@index([assignedTo])
   @@index([targetSchool, targetGrade])
   @@map("assigned_exams")
+}
+
+// 오답 노트
+model WrongAnswer {
+  id             String   @id @default(cuid())
+  studentId      String
+  examResultId   String
+  itemIndex      Int // 문항 그룹 인덱스
+  questionIndex  Int // 문제 인덱스
+  questionText   String   @db.Text // 문제 텍스트
+  questionType   String // 객관식, 단답형, 서술형
+  studentAnswer  String[] // 학생의 오답
+  correctAnswer  String[] // 정답
+  explanation    String?  @db.Text // 해설
+  category       String // 시험 카테고리 (비문학, 문학, 문법 등)
+  isReviewed     Boolean  @default(false) // 복습 완료 여부
+  reviewedAt     DateTime? // 복습한 날짜
+  createdAt      DateTime @default(now())
+
+  student    Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examResult ExamResult @relation(fields: [examResultId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([examResultId])
+  @@index([category])
+  @@index([isReviewed])
+  @@map("wrong_answers")
 }
 

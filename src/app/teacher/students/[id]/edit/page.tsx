@@ -122,20 +122,25 @@ export default function EditStudentPage() {
       return;
     }
 
-    if (!formData.userId.trim()) {
-      setError('로그인 아이디를 입력해주세요.');
-      return;
-    }
-
     setIsSaving(true);
 
     try {
+      // userId, grade, class, number는 제출하지 않음 (수정 불가 필드)
+      const submitData = {
+        name: formData.name,
+        schoolLevel: formData.schoolLevel,
+        isActive: formData.isActive,
+        activationStartDate: formData.activationStartDate,
+        activationEndDate: formData.activationEndDate,
+        ...(formData.password && { password: formData.password }),
+      };
+
       const response = await fetch(`/api/teacher/students/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       });
 
       const data = await response.json();
@@ -222,23 +227,19 @@ export default function EditStudentPage() {
                 />
               </div>
 
-              {/* 로그인 아이디 */}
+              {/* 로그인 아이디 (수정 불가) */}
               <div>
-                <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
-                  로그인 아이디 <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  로그인 아이디 (변경 불가)
                 </label>
                 <input
                   type="text"
-                  id="userId"
-                  name="userId"
                   value={formData.userId}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="student01"
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  학생이 로그인 시 사용할 아이디입니다
+                  로그인 아이디는 변경할 수 없습니다. 변경이 필요한 경우 학생을 삭제 후 재등록해주세요.
                 </p>
               </div>
 
@@ -264,82 +265,51 @@ export default function EditStudentPage() {
                 </div>
               </div>
 
-              {/* 학년/반/번호 */}
+              {/* 학년/반/번호 (수정 불가) */}
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-1">
-                    학년 <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="grade"
-                    name="grade"
-                    value={formData.grade}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    <option value={1}>1학년</option>
-                    <option value={2}>2학년</option>
-                    <option value={3}>3학년</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="class" className="block text-sm font-medium text-gray-700 mb-1">
-                    반 <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="class"
-                    name="class"
-                    value={formData.class}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                      <option key={num} value={num}>
-                        {num}반
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="number" className="block text-sm font-medium text-gray-700 mb-1">
-                    번호 <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    학년 (변경 불가)
                   </label>
                   <input
-                    type="number"
-                    id="number"
-                    name="number"
-                    value={formData.number}
-                    onChange={handleChange}
-                    required
-                    min="1"
-                    max="50"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    type="text"
+                    value={`${formData.grade}학년`}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    반 (변경 불가)
+                  </label>
+                  <input
+                    type="text"
+                    value={`${formData.class}반`}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    번호 (변경 불가)
+                  </label>
+                  <input
+                    type="text"
+                    value={`${formData.number}번`}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                   />
                 </div>
               </div>
 
-              {/* 학년/반/번호 변경 시 경고 */}
-              {(formData.grade !== student.grade ||
-                formData.class !== student.class ||
-                formData.number !== student.number) && (
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    ⚠️ 학년/반/번호를 변경하면 학번이 변경됩니다. 학생이 기존 학번으로 로그인할 수 없게 됩니다.
-                  </p>
-                  <p className="text-sm text-yellow-700 mt-1">
-                    새로운 학번:{' '}
-                    <span className="font-bold">
-                      {String(formData.grade).padStart(2, '0')}
-                      {String(formData.class).padStart(2, '0')}
-                      {String(formData.number).padStart(2, '0')}
-                    </span>
-                  </p>
-                </div>
-              )}
+              {/* 변경 불가 안내 */}
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  💡 학번과 학년/반/번호는 변경할 수 없습니다. 변경이 필요한 경우 학생을 삭제 후 재등록해주세요.
+                </p>
+              </div>
             </div>
 
             {/* 비밀번호 변경 (선택사항) */}

@@ -31,15 +31,13 @@ export async function GET(
         studentId: student.id,
       },
       include: {
-        question: {
+        examResult: {
           include: {
-            passage: {
+            exam: {
               select: {
                 id: true,
                 title: true,
                 category: true,
-                subcategory: true,
-                difficulty: true,
               },
             },
           },
@@ -98,7 +96,10 @@ export async function PATCH(
     if (isCorrect) {
       await prisma.wrongAnswer.update({
         where: { id },
-        data: { isReviewed: true },
+        data: {
+          isReviewed: true,
+          reviewedAt: new Date(),
+        },
       });
     }
 

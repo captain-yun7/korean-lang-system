@@ -6,22 +6,21 @@ import Link from 'next/link';
 
 interface WrongAnswer {
   id: string;
-  wrongAnswer: string;
-  correctAnswer: string;
+  studentAnswer: string[];
+  correctAnswer: string[];
+  questionText: string;
+  questionType: string;
   explanation: string | null;
+  category: string;
   isReviewed: boolean;
   createdAt: string;
-  question: {
+  examResult: {
     id: string;
-    content: string;
-    type: string;
-    passage: {
+    exam: {
       id: string;
       title: string;
       category: string;
-      subcategory: string;
-      difficulty: string;
-    } | null;
+    };
   };
 }
 
@@ -52,14 +51,19 @@ export default function WrongAnswersPage() {
       if (selectedReviewStatus) params.append('isReviewed', selectedReviewStatus);
 
       const res = await fetch(`/api/student/wrong-answers?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to fetch wrong answers');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API Error:', res.status, errorData);
+        throw new Error(errorData.error || 'Failed to fetch wrong answers');
+      }
 
       const data = await res.json();
+      console.log('Wrong answers data:', data);
       setWrongAnswers(data.wrongAnswers);
       setStats(data.stats);
     } catch (error) {
       console.error('Error:', error);
-      alert('오답 목록을 불러오는데 실패했습니다.');
+      alert(`오답 목록을 불러오는데 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     } finally {
       setLoading(false);
     }
@@ -218,36 +222,28 @@ export default function WrongAnswersPage() {
               <Card.Body className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    {/* 지문 정보 */}
-                    {wrongAnswer.question.passage && (
-                      <div className="mb-3">
-                        <Link
-                          href={`/student/study/reading/${wrongAnswer.question.passage.id}`}
-                          className="text-sm font-medium text-purple-600 hover:text-purple-800"
-                        >
-                          {wrongAnswer.question.passage.title}
-                        </Link>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
-                            {wrongAnswer.question.passage.category}
-                          </span>
-                          <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
-                            {wrongAnswer.question.passage.subcategory}
-                          </span>
-                          <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
-                            {wrongAnswer.question.passage.difficulty}
-                          </span>
-                          <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
-                            {wrongAnswer.question.type}
-                          </span>
-                        </div>
+                    {/* 시험 정보 */}
+                    <div className="mb-3">
+                      <Link
+                        href={`/teacher/results/${wrongAnswer.examResult.id}`}
+                        className="text-sm font-medium text-purple-600 hover:text-purple-800"
+                      >
+                        {wrongAnswer.examResult.exam.title}
+                      </Link>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
+                          {wrongAnswer.category}
+                        </span>
+                        <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
+                          {wrongAnswer.questionType}
+                        </span>
                       </div>
-                    )}
+                    </div>
 
                     {/* 문제 */}
                     <div className="mb-4">
                       <p className="text-sm font-medium text-gray-700 mb-2">문제</p>
-                      <p className="text-gray-900">{wrongAnswer.question.content}</p>
+                      <p className="text-gray-900">{wrongAnswer.questionText}</p>
                     </div>
 
                     {/* 내 답변 (틀린 답) */}
@@ -255,13 +251,17 @@ export default function WrongAnswersPage() {
                       <p className="text-sm font-bold text-gray-900 mb-1">
                         내 답변 (틀림)
                       </p>
-                      <p className="text-gray-700">{wrongAnswer.wrongAnswer}</p>
+                      <p className="text-gray-700">
+                        {wrongAnswer.studentAnswer.length > 0
+                          ? wrongAnswer.studentAnswer.join(', ')
+                          : '(답안 없음)'}
+                      </p>
                     </div>
 
                     {/* 정답 */}
                     <div className="mb-4 p-3 bg-white rounded-lg border-2 border-gray-900">
                       <p className="text-sm font-bold text-gray-900 mb-1">정답</p>
-                      <p className="text-gray-700">{wrongAnswer.correctAnswer}</p>
+                      <p className="text-gray-700">{wrongAnswer.correctAnswer.join(', ')}</p>
                     </div>
 
                     {/* 해설 */}

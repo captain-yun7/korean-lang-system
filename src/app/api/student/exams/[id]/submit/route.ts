@@ -111,15 +111,48 @@ export async function POST(
       ? Math.round((correctCount / totalQuestions) * 100)
       : 0;
 
-    // 결과 저장
-    const examResult = await prisma.examResult.create({
-      data: {
-        examId: id,
-        studentId: student.id,
-        score,
-        answers: answers,
-        totalTime: elapsedTime || 0,
-      },
+    // 결과 저장 및 오답 노트 생성 (트랜잭션)
+    const examResult = await prisma.$transaction(async (tx) => {
+      // 시험 결과 저장
+      const result = await tx.examResult.create({
+        data: {
+          examId: id,
+          studentId: student.id,
+          score,
+          answers: answers,
+          totalTime: elapsedTime || 0,
+        },
+      });
+
+      // 오답만 WrongAnswer 테이블에 저장
+      const wrongAnswerData = detailedResults
+        .filter((detail) => !detail.isCorrect)
+        .map((detail) => {
+          const item = items[detail.itemIndex];
+          const question = item.questions[detail.questionIndex];
+
+          return {
+            studentId: student.id,
+            examResultId: result.id,
+            itemIndex: detail.itemIndex,
+            questionIndex: detail.questionIndex,
+            questionText: question.text,
+            questionType: question.type,
+            studentAnswer: detail.studentAnswer,
+            correctAnswer: detail.correctAnswer,
+            explanation: question.explanation || null,
+            category: exam.category,
+          };
+        });
+
+      // 오답이 있으면 저장
+      if (wrongAnswerData.length > 0) {
+        await tx.wrongAnswer.createMany({
+          data: wrongAnswerData,
+        });
+      }
+
+      return result;
     });
 
     return NextResponse.json({
