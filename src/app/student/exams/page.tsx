@@ -39,7 +39,7 @@ async function getStudentExams(studentId: string): Promise<ExamWithStatus[]> {
       orderBy: { createdAt: 'desc' },
       include: {
         assignedExams: {
-          where: { studentId },
+          where: { assignedTo: studentId },
         },
         examResults: {
           where: { studentId },

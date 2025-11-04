@@ -67,7 +67,7 @@ async function getStudentStats(studentId: string) {
     // 미완료 과제 개수 (배정되었지만 아직 완료하지 않은 시험)
     const assignedCount = await prisma.assignedExam.count({
       where: {
-        studentId,
+        assignedTo: studentId,
         NOT: {
           exam: {
             examResults: {
