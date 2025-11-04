@@ -110,13 +110,6 @@ export async function GET(request: NextRequest) {
     const passages = await prisma.passage.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: {
-        _count: {
-          select: {
-            questions: true,
-          },
-        },
-      },
     });
 
     return NextResponse.json({ passages });

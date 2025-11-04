@@ -13,16 +13,12 @@ interface PassageListItem {
   subcategory: string;
   difficulty: string;
   createdAt: Date;
-  _count: {
-    questions: number;
-  };
 }
 
 // 카테고리 및 서브카테고리 정의
 const CATEGORIES = {
   비문학: ['인문예술', '과학기술', '사회문화'],
   문학: ['고전산문', '고전시가', '현대산문', '현대시'],
-  문법: ['품사', '단어의 형성', '음운 변동', '문장', '한글맞춤법', '중세 국어'],
 };
 
 const DIFFICULTIES = ['중학교', '고1-2', '고3'];
@@ -240,9 +236,6 @@ export default function PassagesPage() {
                       난이도
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      문제 수
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       등록일
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -269,11 +262,6 @@ export default function PassagesPage() {
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
                           {passage.difficulty}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {passage._count.questions}개
-                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
