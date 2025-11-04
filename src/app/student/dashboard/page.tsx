@@ -11,9 +11,6 @@ import {
   BookOpenIcon,
   ClockIcon,
   CheckCircleIcon,
-  AcademicCapIcon,
-  XCircleIcon,
-  TrophyIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/solid';
 
@@ -236,42 +233,6 @@ export default async function StudentDashboardPage() {
               {stats.assignedCount > 0 ? '얼른 완료하세요' : '과제가 없어요'}
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* 빠른 시작 */}
-      <div className="mt-20">
-        <h2 className="text-2xl font-bold text-gray-900 mb-10">빠른 시작</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Link href="/student/exams" className="group">
-            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
-              <BookOpenIcon className="w-12 h-12 mb-3" />
-              <h3 className="text-xl font-bold mb-2">시험지</h3>
-              <p className="text-sm text-white/90">
-                시험 응시 및 과제 확인
-              </p>
-            </div>
-          </Link>
-
-          <Link href="/student/exams" className="group">
-            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
-              <AcademicCapIcon className="w-12 h-12 mb-3" />
-              <h3 className="text-xl font-bold mb-2">배정된 과제</h3>
-              <p className="text-sm text-white/90">
-                선생님이 배정한 시험
-              </p>
-            </div>
-          </Link>
-
-          <Link href="/student/dashboard" className="group">
-            <div className="rounded-lg bg-purple-500 p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-gray-900">
-              <ChartBarIcon className="w-12 h-12 mb-3" />
-              <h3 className="text-xl font-bold mb-2">학습 현황</h3>
-              <p className="text-sm text-white/90">
-                성적 및 통계 확인
-              </p>
-            </div>
-          </Link>
         </div>
       </div>
 

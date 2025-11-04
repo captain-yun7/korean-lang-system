@@ -109,15 +109,15 @@ export default async function StudentExamsPage() {
   const incompleteAssignedExams = assignedExams.filter((exam) => !exam.isCompleted);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-20 pb-16 mt-8">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">시험지</h1>
-        <p className="text-gray-600 mt-1">배정된 시험지와 전체 시험지를 확인하세요</p>
+      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
+        <h1 className="text-4xl font-bold text-gray-900">시험지</h1>
+        <p className="text-gray-600 text-lg mt-2">배정된 시험지와 전체 시험지를 확인하세요</p>
       </div>
 
       {/* 통계 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
         <Card padding="md">
           <div className="flex items-center gap-3">
             <AcademicCapIcon className="w-8 h-8 text-orange-500" />
