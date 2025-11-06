@@ -7,25 +7,20 @@ import Link from 'next/link';
 
 interface WrongAnswer {
   id: string;
-  wrongAnswer: string;
-  correctAnswer: string;
+  studentAnswer: string[];
+  correctAnswer: string[];
+  questionText: string;
+  questionType: string;
   explanation: string | null;
+  category: string;
   isReviewed: boolean;
   createdAt: string;
-  question: {
-    id: string;
-    content: string;
-    type: string;
-    options: string[] | null;
-    answers: string[];
-    explanation: string | null;
-    passage: {
+  examResult: {
+    exam: {
       id: string;
       title: string;
       category: string;
-      subcategory: string;
-      difficulty: string;
-    } | null;
+    };
   };
 }
 
@@ -91,15 +86,15 @@ export default function WrongAnswerReviewPage({
     let correct = false;
 
     // 채점
-    if (wrongAnswer.question.type === '객관식') {
-      correct = studentAnswer === wrongAnswer.question.answers[0];
-    } else if (wrongAnswer.question.type === '단답형') {
-      correct = wrongAnswer.question.answers.some(
+    if (wrongAnswer.questionType === '객관식') {
+      correct = studentAnswer === wrongAnswer.correctAnswer[0];
+    } else if (wrongAnswer.questionType === '단답형') {
+      correct = wrongAnswer.correctAnswer.some(
         (ans) => calculateSimilarity(studentAnswer, ans) >= 0.9
       );
-    } else if (wrongAnswer.question.type === '서술형') {
+    } else if (wrongAnswer.questionType === '서술형') {
       const similarity = Math.max(
-        ...wrongAnswer.question.answers.map((ans) =>
+        ...wrongAnswer.correctAnswer.map((ans) =>
           calculateSimilarity(studentAnswer, ans)
         )
       );
@@ -162,41 +157,30 @@ export default function WrongAnswerReviewPage({
         </Link>
       </div>
 
-      {/* 지문 정보 */}
-      {wrongAnswer.question.passage && (
-        <Card>
-          <Card.Body className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <Link
-                  href={`/student/study/reading/${wrongAnswer.question.passage.id}`}
-                  className="text-lg font-semibold text-purple-600 hover:text-purple-800"
-                >
-                  {wrongAnswer.question.passage.title}
-                </Link>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
-                    {wrongAnswer.question.passage.category}
-                  </span>
-                  <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
-                    {wrongAnswer.question.passage.subcategory}
-                  </span>
-                  <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
-                    {wrongAnswer.question.passage.difficulty}
-                  </span>
-                </div>
+      {/* 시험지 정보 */}
+      <Card>
+        <Card.Body className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-lg font-semibold text-gray-900">
+                {wrongAnswer.examResult.exam.title}
+              </p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded font-medium">
+                  {wrongAnswer.category}
+                </span>
               </div>
             </div>
-          </Card.Body>
-        </Card>
-      )}
+          </div>
+        </Card.Body>
+      </Card>
 
       {/* 문제 */}
       <Card>
         <Card.Header className="px-6 py-4 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900">
-              문제 ({wrongAnswer.question.type})
+              문제 ({wrongAnswer.questionType})
             </h2>
             {wrongAnswer.isReviewed && (
               <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
@@ -207,50 +191,26 @@ export default function WrongAnswerReviewPage({
         </Card.Header>
         <Card.Body className="p-6">
           <p className="text-gray-900 text-lg mb-6">
-            {wrongAnswer.question.content}
+            {wrongAnswer.questionText}
           </p>
 
           {/* 답변 입력 */}
           {!submitted && (
             <div className="space-y-4">
-              {wrongAnswer.question.type === '객관식' &&
-                wrongAnswer.question.options && (
-                  <div className="space-y-2">
-                    {wrongAnswer.question.options.map((option, idx) => (
-                      <label
-                        key={idx}
-                        className="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                      >
-                        <input
-                          type="radio"
-                          name="answer"
-                          value={option}
-                          checked={studentAnswer === option}
-                          onChange={(e) => setStudentAnswer(e.target.value)}
-                          className="w-4 h-4 text-purple-600"
-                        />
-                        <span className="ml-3 text-gray-900">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-
-              {wrongAnswer.question.type === '단답형' && (
-                <input
-                  type="text"
-                  value={studentAnswer}
-                  onChange={(e) => setStudentAnswer(e.target.value)}
-                  placeholder="답을 입력하세요..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                />
-              )}
-
-              {wrongAnswer.question.type === '서술형' && (
+              {wrongAnswer.questionType === '서술형' ? (
                 <textarea
                   value={studentAnswer}
                   onChange={(e) => setStudentAnswer(e.target.value)}
                   rows={6}
                   placeholder="답을 작성하세요..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={studentAnswer}
+                  onChange={(e) => setStudentAnswer(e.target.value)}
+                  placeholder="답을 입력하세요..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
               )}
@@ -291,15 +251,15 @@ export default function WrongAnswerReviewPage({
               {/* 이전 오답 */}
               <div className="p-4 bg-white rounded-lg border-2 border-gray-300">
                 <p className="text-sm font-bold text-gray-900 mb-2">
-                  내 답변 (틀림)
+                  원래 내 답변 (틀렸던 답)
                 </p>
-                <p className="text-gray-700">{wrongAnswer.wrongAnswer}</p>
+                <p className="text-gray-700">{wrongAnswer.studentAnswer.join(', ')}</p>
               </div>
 
               {/* 정답 */}
               <div className="p-4 bg-white rounded-lg border-2 border-gray-900">
                 <p className="text-sm font-bold text-gray-900 mb-2">정답</p>
-                <p className="text-gray-700">{wrongAnswer.correctAnswer}</p>
+                <p className="text-gray-700">{wrongAnswer.correctAnswer.join(', ')}</p>
               </div>
 
               {/* 해설 */}
