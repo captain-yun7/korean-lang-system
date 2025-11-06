@@ -178,7 +178,7 @@ export default async function StudentsPage({
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">전체</option>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                {[1, 2, 3, 4].map((num) => (
                   <option key={num} value={num}>
                     {num}반
                   </option>
