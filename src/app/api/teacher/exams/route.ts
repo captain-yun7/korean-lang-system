@@ -16,6 +16,7 @@ export const GET = auth(async function GET(request) {
     // 쿼리 파라미터
     const search = searchParams.get('search') || '';
     const category = searchParams.get('category') || '';
+    const examType = searchParams.get('examType') || '';
     const targetGrade = searchParams.get('targetGrade') || '';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -33,6 +34,10 @@ export const GET = auth(async function GET(request) {
 
     if (category) {
       where.category = category;
+    }
+
+    if (examType) {
+      where.examType = examType;
     }
 
     if (targetGrade) {
