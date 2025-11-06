@@ -9,10 +9,13 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    console.log('[UPDATE-GRADING] Starting update for result:', id);
+
     const session = await auth();
 
     // 교사 권한 확인
     if (!session || session.user.role !== 'TEACHER') {
+      console.log('[UPDATE-GRADING] Unauthorized access');
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
 
@@ -22,6 +25,8 @@ export async function PATCH(
       questionIndex: number;
       isCorrect: boolean;
     };
+
+    console.log('[UPDATE-GRADING] Request body:', { itemIndex, questionIndex, isCorrect });
 
     // 유효성 검사
     if (
@@ -81,17 +86,22 @@ export async function PATCH(
         },
       });
 
+      console.log('[UPDATE-GRADING] Existing wrong answer:', existingWrongAnswer?.id || 'none');
+
       if (isCorrect) {
         // 정답으로 변경 -> WrongAnswer 삭제
         if (existingWrongAnswer) {
           await tx.wrongAnswer.delete({
             where: { id: existingWrongAnswer.id },
           });
+          console.log('[UPDATE-GRADING] Deleted wrong answer:', existingWrongAnswer.id);
+        } else {
+          console.log('[UPDATE-GRADING] No wrong answer to delete (already correct)');
         }
       } else {
         // 오답으로 변경 -> WrongAnswer 추가
         if (!existingWrongAnswer) {
-          await tx.wrongAnswer.create({
+          const newWrongAnswer = await tx.wrongAnswer.create({
             data: {
               studentId: examResult.student.id,
               examResultId: id,
@@ -105,6 +115,9 @@ export async function PATCH(
               category: examResult.exam.category,
             },
           });
+          console.log('[UPDATE-GRADING] Created wrong answer:', newWrongAnswer.id);
+        } else {
+          console.log('[UPDATE-GRADING] Wrong answer already exists (already incorrect)');
         }
       }
 
@@ -125,10 +138,19 @@ export async function PATCH(
         ? Math.round((correctCount / totalQuestions) * 100)
         : 0;
 
+      console.log('[UPDATE-GRADING] Score calculation:', {
+        totalQuestions,
+        wrongCount,
+        correctCount,
+        newScore
+      });
+
       await tx.examResult.update({
         where: { id },
         data: { score: newScore },
       });
+
+      console.log('[UPDATE-GRADING] Updated score to:', newScore);
     });
 
     return NextResponse.json({
