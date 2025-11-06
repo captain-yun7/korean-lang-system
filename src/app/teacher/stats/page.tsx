@@ -18,9 +18,9 @@ import {
 interface Overview {
   totalStudents: number;
   totalPassages: number;
-  totalQuestions: number;
   totalExams: number;
   totalResults: number;
+  totalWrongAnswers: number;
   avgScore: number;
 }
 
@@ -136,9 +136,9 @@ export default function StatisticsPage() {
         <Card padding="md">
           <div className="text-center">
             <p className="text-3xl font-bold text-indigo-600">
-              {statistics.overview.totalQuestions}
+              {statistics.overview.totalExams}
             </p>
-            <p className="text-sm text-gray-500 mt-1">등록 문제</p>
+            <p className="text-sm text-gray-500 mt-1">등록 시험지</p>
           </div>
         </Card>
         <Card padding="md">

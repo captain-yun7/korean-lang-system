@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, Button } from '@/components/ui';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 
 // 영역 카테고리
@@ -33,7 +33,8 @@ interface ExamFormData {
   items: ExamItem[];
 }
 
-export default function EditExamPage({ params }: { params: { id: string } }) {
+export default function EditExamPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -64,7 +65,7 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchExam = async () => {
       try {
-        const response = await fetch(`/api/teacher/exams/${params.id}`);
+        const response = await fetch(`/api/teacher/exams/${id}`);
         const data = await response.json();
 
         if (response.ok) {
@@ -89,7 +90,7 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
     };
 
     fetchExam();
-  }, [params.id, router]);
+  }, [id, router]);
 
   // 문항 그룹 추가
   const addItemGroup = () => {
@@ -277,7 +278,7 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/teacher/exams/${params.id}`, {
+      const response = await fetch(`/api/teacher/exams/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -292,7 +293,7 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
       }
 
       alert('시험지가 수정되었습니다.');
-      router.push(`/teacher/exams/${params.id}`);
+      router.push(`/teacher/exams/${id}`);
       router.refresh();
     } catch (err: any) {
       setError(err.message || '시험지 수정에 실패했습니다.');

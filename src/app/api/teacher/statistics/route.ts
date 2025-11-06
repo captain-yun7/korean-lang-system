@@ -14,9 +14,9 @@ export const GET = auth(async function GET(request) {
     // 전체 통계
     const totalStudents = await prisma.student.count();
     const totalPassages = await prisma.passage.count();
-    const totalQuestions = await prisma.question.count();
     const totalExams = await prisma.exam.count();
     const totalResults = await prisma.examResult.count();
+    const totalWrongAnswers = await prisma.wrongAnswer.count();
 
     // 전체 평균 점수
     const avgScoreResult = await prisma.examResult.aggregate({
@@ -106,9 +106,9 @@ export const GET = auth(async function GET(request) {
       overview: {
         totalStudents,
         totalPassages,
-        totalQuestions,
         totalExams,
         totalResults,
+        totalWrongAnswers,
         avgScore: avgScoreResult._avg.score
           ? Math.round(avgScoreResult._avg.score * 10) / 10
           : 0,

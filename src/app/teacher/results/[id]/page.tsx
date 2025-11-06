@@ -11,6 +11,7 @@ import {
   UserIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/solid';
+import GradingToggleButton from '@/components/teacher/GradingToggleButton';
 
 async function getExamResult(resultId: string) {
   try {
@@ -67,11 +68,28 @@ async function getExamResult(resultId: string) {
             isCorrect = sortedCorrect.every((ans: string, idx: number) => ans === sortedStudent[idx]);
           }
         } else {
-          const normalizedStudentAnswer = studentAns[0]?.toLowerCase().replace(/\s+/g, '') || '';
-          isCorrect = correctAns.some((correctAnswer: string) => {
-            const normalizedCorrect = correctAnswer.toLowerCase().replace(/\s+/g, '');
-            return normalizedStudentAnswer === normalizedCorrect;
-          });
+          // 주관식/서술형/단답형
+
+          // 경우 1: 빈칸이 여러 개인데 학생이 콤마로 구분하여 하나의 문자열로 입력한 경우
+          if (correctAns.length > 1 && studentAns.length === 1) {
+            const studentInput = studentAns[0].trim();
+            const splitAnswers = studentInput.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+
+            if (splitAnswers.length === correctAns.length) {
+              isCorrect = splitAnswers.every((studentAnswer: string, idx: number) => {
+                const normalizedStudent = studentAnswer.toLowerCase().replace(/\s+/g, '');
+                const normalizedCorrect = correctAns[idx].toLowerCase().replace(/\s+/g, '');
+                return normalizedStudent === normalizedCorrect;
+              });
+            }
+          } else {
+            // 경우 2: 정답 중 하나라도 일치하면 정답
+            const normalizedStudentAnswer = studentAns[0]?.toLowerCase().replace(/\s+/g, '') || '';
+            isCorrect = correctAns.some((correctAnswer: string) => {
+              const normalizedCorrect = correctAnswer.toLowerCase().replace(/\s+/g, '');
+              return normalizedStudentAnswer === normalizedCorrect;
+            });
+          }
         }
 
         if (isCorrect) {
@@ -317,17 +335,13 @@ export default async function TeacherResultDetailPage({
                           {question.type}
                         </span>
                       </div>
-                      {result?.isCorrect ? (
-                        <div className="flex items-center gap-1 text-green-600 font-semibold">
-                          <CheckCircleIcon className="w-5 h-5" />
-                          정답
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1 text-red-600 font-semibold">
-                          <XCircleIcon className="w-5 h-5" />
-                          오답
-                        </div>
-                      )}
+                      <GradingToggleButton
+                        resultId={id}
+                        itemIndex={itemIndex}
+                        questionIndex={questionIndex}
+                        isCorrect={result?.isCorrect || false}
+                        questionNumber={globalQuestionNum}
+                      />
                     </div>
 
                     {/* 질문 텍스트 */}

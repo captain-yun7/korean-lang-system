@@ -192,7 +192,27 @@ function checkAnswer(
 
     return sortedCorrect.every((ans, idx) => ans === sortedStudent[idx]);
   } else {
-    // 주관식/서술형: 정답 중 하나라도 포함되면 정답 (대소문자 무시, 공백 제거)
+    // 주관식/서술형/단답형
+
+    // 경우 1: 빈칸이 여러 개인데 학생이 콤마로 구분하여 하나의 문자열로 입력한 경우
+    // 예: 정답 ["표준설", "과실"], 학생 답변 ["표준설, 과실"]
+    if (correctAnswers.length > 1 && studentAnswers.length === 1) {
+      const studentInput = studentAnswers[0].trim();
+
+      // 콤마로 분리 시도
+      const splitAnswers = studentInput.split(',').map(s => s.trim()).filter(s => s);
+
+      if (splitAnswers.length === correctAnswers.length) {
+        // 각 빈칸의 답을 순서대로 비교 (공백 제거, 대소문자 무시)
+        return splitAnswers.every((studentAns, idx) => {
+          const normalizedStudent = studentAns.toLowerCase().replace(/\s+/g, '');
+          const normalizedCorrect = correctAnswers[idx].toLowerCase().replace(/\s+/g, '');
+          return normalizedStudent === normalizedCorrect;
+        });
+      }
+    }
+
+    // 경우 2: 정답 중 하나라도 일치하면 정답 (대소문자 무시, 공백 제거)
     const normalizedStudentAnswer = studentAnswers[0]
       ?.toLowerCase()
       .replace(/\s+/g, '') || '';
