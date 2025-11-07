@@ -455,6 +455,11 @@ export default function NewExamPaperPage() {
                   자습용 (학생이 스스로 선택)
                 </label>
               </div>
+              {formData.examType === 'SELF_STUDY' && (
+                <p className="text-sm text-blue-600 mt-2">
+                  자습용 시험지는 모든 학생에게 공개됩니다.
+                </p>
+              )}
             </div>
 
             {/* 대상 설정 */}
@@ -599,20 +604,27 @@ export default function NewExamPaperPage() {
                         문제 유형
                       </label>
                       <div className="flex gap-4">
-                        {['객관식', '단답형', '서술형'].map((type) => (
+                        {['객관식', 'OX', '단답형', '서술형'].map((type) => (
                           <label key={type} className="flex items-center">
                             <input
                               type="radio"
                               value={type}
                               checked={question.type === type}
-                              onChange={(e) =>
+                              onChange={(e) => {
+                                const newType = e.target.value;
                                 handleQuestionChange(
                                   itemIndex,
                                   questionIndex,
                                   'type',
-                                  e.target.value
-                                )
-                              }
+                                  newType
+                                );
+                                // OX 문제로 변경 시 options를 ['O', 'X']로 설정
+                                if (newType === 'OX') {
+                                  const newItems = [...formData.items];
+                                  newItems[itemIndex].questions[questionIndex].options = ['O', 'X'];
+                                  setFormData({ ...formData, items: newItems });
+                                }
+                              }}
                               className="mr-2"
                             />
                             {type}
@@ -643,20 +655,25 @@ export default function NewExamPaperPage() {
                       />
                     </div>
 
-                    {/* 객관식 선택지 */}
-                    {question.type === '객관식' && (
+                    {/* 객관식/OX 선택지 */}
+                    {(question.type === '객관식' || question.type === 'OX') && (
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <label className="block text-sm font-medium text-gray-700">
                             선택지
+                            {question.type === 'OX' && (
+                              <span className="text-sm font-normal text-gray-500 ml-2">(OX 문제는 O와 X가 고정됩니다)</span>
+                            )}
                           </label>
-                          <button
-                            type="button"
-                            onClick={() => addOption(itemIndex, questionIndex)}
-                            className="text-sm text-indigo-600 hover:text-indigo-700"
-                          >
-                            + 선택지 추가
-                          </button>
+                          {question.type !== 'OX' && (
+                            <button
+                              type="button"
+                              onClick={() => addOption(itemIndex, questionIndex)}
+                              className="text-sm text-indigo-600 hover:text-indigo-700"
+                            >
+                              + 선택지 추가
+                            </button>
+                          )}
                         </div>
                         <div className="space-y-2">
                           {question.options.map((option, optionIndex) => (
@@ -677,8 +694,10 @@ export default function NewExamPaperPage() {
                                 }
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
                                 placeholder={`선택지 ${optionIndex + 1}`}
+                                readOnly={question.type === 'OX'}
+                                disabled={question.type === 'OX'}
                               />
-                              {question.options.length > 2 && (
+                              {question.type !== 'OX' && question.options.length > 2 && (
                                 <button
                                   type="button"
                                   onClick={() =>

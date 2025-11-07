@@ -86,7 +86,7 @@ export default function WrongAnswerReviewPage({
     let correct = false;
 
     // 채점
-    if (wrongAnswer.questionType === '객관식') {
+    if (wrongAnswer.questionType === '객관식' || wrongAnswer.questionType === 'OX') {
       correct = studentAnswer === wrongAnswer.correctAnswer[0];
     } else if (wrongAnswer.questionType === '단답형') {
       correct = wrongAnswer.correctAnswer.some(

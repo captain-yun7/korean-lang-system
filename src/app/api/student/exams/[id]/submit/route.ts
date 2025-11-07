@@ -181,7 +181,7 @@ function checkAnswer(
     return false;
   }
 
-  if (questionType === '객관식') {
+  if (questionType === '객관식' || questionType === 'OX') {
     // 객관식: 정답과 학생 답안이 정확히 일치해야 함
     if (correctAnswers.length !== studentAnswers.length) {
       return false;

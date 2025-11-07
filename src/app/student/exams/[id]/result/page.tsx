@@ -20,7 +20,7 @@ function checkAnswer(
     return false;
   }
 
-  if (questionType === '객관식') {
+  if (questionType === '객관식' || questionType === 'OX') {
     if (correctAnswers.length !== studentAnswers.length) {
       return false;
     }

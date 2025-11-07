@@ -149,6 +149,11 @@ export default function EditStudentPage() {
         throw new Error(data.error || '학생 정보 수정에 실패했습니다.');
       }
 
+      // 비밀번호 변경 시 안내 메시지
+      if (formData.password) {
+        alert('학생 정보가 수정되었습니다.\n\n비밀번호가 변경되었습니다. 해당 학생은 다음 번 로그인 시 새 비밀번호로 접속해야 합니다.');
+      }
+
       // 성공 시 상세 페이지로 이동
       router.push(`/teacher/students/${params.id}`);
       router.refresh();

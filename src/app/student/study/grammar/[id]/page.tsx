@@ -139,8 +139,8 @@ export default function GrammarQuestionPage({
 
           {!submitted ? (
             <div className="space-y-4">
-              {/* 객관식 */}
-              {question.type === '객관식' && question.options && (
+              {/* 객관식/OX */}
+              {(question.type === '객관식' || question.type === 'OX') && question.options && (
                 <div className="space-y-2">
                   {question.options.map((option, idx) => (
                     <label

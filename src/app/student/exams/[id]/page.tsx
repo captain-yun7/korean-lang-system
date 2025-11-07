@@ -277,7 +277,7 @@ export default function TakeExamPage() {
                     </div>
 
                     {/* 답안 입력 */}
-                    {question.type === '객관식' ? (
+                    {question.type === '객관식' || question.type === 'OX' ? (
                       <div className="space-y-2">
                         {question.options.map((option, optionIndex) => (
                           <label
