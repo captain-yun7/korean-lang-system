@@ -293,7 +293,7 @@ export default async function StudentDashboardPage() {
                     </div>
                     <p className="text-xs text-gray-500 flex items-center gap-1 justify-end">
                       <ClockIcon className="w-3 h-3" />
-                      {Math.floor(result.elapsedTime / 60)}분 {result.elapsedTime % 60}초
+                      {Math.floor(result.totalTime / 60)}분 {result.totalTime % 60}초
                     </p>
                   </div>
                 </div>
