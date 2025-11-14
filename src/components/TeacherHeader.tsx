@@ -17,7 +17,7 @@ export const TeacherHeader: React.FC<TeacherHeaderProps> = ({ user }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/login' });
+    await signOut({ callbackUrl: '/' });
   };
 
   return (

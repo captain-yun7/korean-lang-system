@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import Link from 'next/link';
+import StudentLogoutButton from '@/components/StudentLogoutButton';
 
 const navItems = [
   {
@@ -103,14 +104,7 @@ export default async function StudentLayout({
                     {session.user.grade}학년 {session.user.class}반 {session.user.number}번
                   </p>
                 </div>
-                <form action="/api/auth/signout" method="POST">
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    로그아웃
-                  </button>
-                </form>
+                <StudentLogoutButton />
               </div>
             </div>
           </div>

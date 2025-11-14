@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,9 +24,27 @@ type StudentLoginFormData = z.infer<typeof studentLoginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<'teacher' | 'student'>('student');
+  const [clearingSession, setClearingSession] = useState(false);
+
+  // 로그인 페이지 진입 시 기존 세션이 있으면 자동 로그아웃
+  useEffect(() => {
+    const clearExistingSession = async () => {
+      if (status === 'authenticated' && session) {
+        console.log('[Login] Clearing existing session before new login');
+        setClearingSession(true);
+        await signOut({ redirect: false });
+        // 세션 완전히 클리어 후 페이지 리프레시
+        router.refresh();
+        setClearingSession(false);
+      }
+    };
+
+    clearExistingSession();
+  }, [status, session, router]);
 
   const teacherForm = useForm<TeacherLoginFormData>({
     resolver: zodResolver(teacherLoginSchema),
@@ -198,10 +216,10 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || clearingSession}
                 className="w-full bg-purple-500 text-white py-3 px-4 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium border-2 border-gray-900"
               >
-                {loading ? '로그인 중...' : '학생 로그인'}
+                {clearingSession ? '세션 정리 중...' : loading ? '로그인 중...' : '학생 로그인'}
               </button>
             </form>
           )}
@@ -247,10 +265,10 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || clearingSession}
                 className="w-full bg-purple-500 text-white py-3 px-4 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium border-2 border-gray-900"
               >
-                {loading ? '로그인 중...' : '교사 로그인'}
+                {clearingSession ? '세션 정리 중...' : loading ? '로그인 중...' : '교사 로그인'}
               </button>
             </form>
           )}

@@ -145,9 +145,9 @@ export const authConfig: NextAuthConfig = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 7 * 24 * 60 * 60, // 7 days (보안 강화 및 세션 충돌 방지)
   },
   jwt: {
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 7 * 24 * 60 * 60, // 7 days
   },
 };
