@@ -17,7 +17,9 @@ export const TeacherHeader: React.FC<TeacherHeaderProps> = ({ user }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/' });
+    // 로그아웃 후 완전히 페이지 새로고침하여 세션 완전 클리어
+    await signOut({ redirect: false });
+    window.location.href = '/';
   };
 
   return (

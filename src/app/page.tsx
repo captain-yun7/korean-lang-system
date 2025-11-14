@@ -28,22 +28,17 @@ export default function LoginPage() {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<'teacher' | 'student'>('student');
-  const [clearingSession, setClearingSession] = useState(false);
 
-  // 로그인 페이지 진입 시 기존 세션이 있으면 자동 로그아웃
+  // 이미 로그인된 상태면 적절한 대시보드로 리디렉트
   useEffect(() => {
-    const clearExistingSession = async () => {
-      if (status === 'authenticated' && session) {
-        console.log('[Login] Clearing existing session before new login');
-        setClearingSession(true);
-        await signOut({ redirect: false });
-        // 세션 완전히 클리어 후 페이지 리프레시
-        router.refresh();
-        setClearingSession(false);
+    if (status === 'authenticated' && session?.user) {
+      const role = session.user.role;
+      if (role === 'TEACHER') {
+        router.replace('/teacher/dashboard');
+      } else if (role === 'STUDENT') {
+        router.replace('/student/dashboard');
       }
-    };
-
-    clearExistingSession();
+    }
   }, [status, session, router]);
 
   const teacherForm = useForm<TeacherLoginFormData>({
@@ -59,6 +54,13 @@ export default function LoginPage() {
     setError('');
 
     try {
+      // 기존 세션이 있다면 먼저 로그아웃
+      if (session) {
+        console.log('[Login] Clearing existing session before new login');
+        await signOut({ redirect: false });
+        await new Promise(resolve => setTimeout(resolve, 500)); // 세션 클리어 대기
+      }
+
       const result = await signIn('credentials', {
         userId: data.teacherId,
         password: data.password,
@@ -72,8 +74,8 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/teacher/dashboard');
-      router.refresh();
+      // 로그인 성공 후 완전히 새로고침하여 세션 동기화
+      window.location.href = '/teacher/dashboard';
     } catch (err) {
       setError('로그인 중 오류가 발생했습니다');
       setLoading(false);
@@ -85,6 +87,13 @@ export default function LoginPage() {
     setError('');
 
     try {
+      // 기존 세션이 있다면 먼저 로그아웃
+      if (session) {
+        console.log('[Login] Clearing existing session before new login');
+        await signOut({ redirect: false });
+        await new Promise(resolve => setTimeout(resolve, 500)); // 세션 클리어 대기
+      }
+
       const result = await signIn('credentials', {
         userId: data.userId,
         password: data.password,
@@ -99,8 +108,8 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/student/dashboard');
-      router.refresh();
+      // 로그인 성공 후 완전히 새로고침하여 세션 동기화
+      window.location.href = '/student/dashboard';
     } catch (err) {
       setError('로그인 중 오류가 발생했습니다');
       setLoading(false);
@@ -216,10 +225,10 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={loading || clearingSession}
+                disabled={loading}
                 className="w-full bg-purple-500 text-white py-3 px-4 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium border-2 border-gray-900"
               >
-                {clearingSession ? '세션 정리 중...' : loading ? '로그인 중...' : '학생 로그인'}
+                {loading ? '로그인 중...' : '학생 로그인'}
               </button>
             </form>
           )}
@@ -265,10 +274,10 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={loading || clearingSession}
+                disabled={loading}
                 className="w-full bg-purple-500 text-white py-3 px-4 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium border-2 border-gray-900"
               >
-                {clearingSession ? '세션 정리 중...' : loading ? '로그인 중...' : '교사 로그인'}
+                {loading ? '로그인 중...' : '교사 로그인'}
               </button>
             </form>
           )}

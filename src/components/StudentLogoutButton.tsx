@@ -1,18 +1,12 @@
 'use client';
 
 import { signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
 export default function StudentLogoutButton() {
-  const router = useRouter();
-
   const handleLogout = async () => {
-    await signOut({
-      callbackUrl: '/',
-      redirect: true
-    });
-    // 로그아웃 후 상태 클리어
-    router.refresh();
+    // 로그아웃 후 완전히 페이지 새로고침하여 세션 완전 클리어
+    await signOut({ redirect: false });
+    window.location.href = '/';
   };
 
   return (

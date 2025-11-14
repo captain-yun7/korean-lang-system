@@ -10,7 +10,9 @@ export default function Header() {
   const { data: session, status } = useSession();
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
+    // 로그아웃 후 완전히 페이지 새로고침하여 세션 완전 클리어
+    await signOut({ redirect: false });
+    window.location.href = '/';
   };
 
   return (
