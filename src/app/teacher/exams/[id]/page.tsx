@@ -137,7 +137,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
       </div>
 
       {/* 통계 */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <Card padding="md">
           <div className="text-sm text-gray-600">배정 횟수</div>
           <div className="text-2xl font-bold text-gray-900 mt-1">
@@ -149,6 +149,17 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
           <div className="text-2xl font-bold text-gray-900 mt-1">
             {exam._count.examResults}건
           </div>
+        </Card>
+        <Card padding="md">
+          <div className="text-sm text-gray-600">응시 현황</div>
+          <Link href={`/teacher/exams/${resolvedParams.id}/status`}>
+            <Button
+              variant="secondary"
+              className="mt-2 w-full"
+            >
+              응시 현황 보기
+            </Button>
+          </Link>
         </Card>
       </div>
 
