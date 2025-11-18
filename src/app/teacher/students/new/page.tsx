@@ -83,9 +83,8 @@ export default function NewStudentPage() {
         throw new Error(data.error || '학생 등록에 실패했습니다.');
       }
 
-      // 성공 시 학생 목록으로 이동
-      router.push('/teacher/students');
-      router.refresh();
+      // 성공 시 학생 목록으로 이동 (완전 새로고침으로 라우팅 충돌 방지)
+      window.location.href = '/teacher/students';
     } catch (err: any) {
       setError(err.message || '학생 등록에 실패했습니다.');
     } finally {

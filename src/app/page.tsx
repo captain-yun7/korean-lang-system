@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { signIn, useSession, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -24,14 +24,16 @@ type StudentLoginFormData = z.infer<typeof studentLoginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session, status } = useSession();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<'teacher' | 'student'>('student');
 
-  // 이미 로그인된 상태면 적절한 대시보드로 리디렉트
+  // 이미 로그인된 상태면 적절한 대시보드로 리디렉트 (로그인 페이지에서만)
   useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
+    // 현재 경로가 정확히 로그인 페이지('/')일 때만 리디렉트
+    if (pathname === '/' && status === 'authenticated' && session?.user) {
       const role = session.user.role;
       if (role === 'TEACHER') {
         router.replace('/teacher/dashboard');
@@ -39,7 +41,7 @@ export default function LoginPage() {
         router.replace('/student/dashboard');
       }
     }
-  }, [status, session, router]);
+  }, [pathname, status, session, router]);
 
   const teacherForm = useForm<TeacherLoginFormData>({
     resolver: zodResolver(teacherLoginSchema),
