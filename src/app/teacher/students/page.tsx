@@ -93,7 +93,7 @@ async function getStudents(params: SearchParams): Promise<StudentListItem[]> {
 export default async function StudentsPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
   // 인증 확인
   const session = await auth();
@@ -101,7 +101,8 @@ export default async function StudentsPage({
     redirect('/');
   }
 
-  const students = await getStudents(searchParams);
+  const params = await searchParams;
+  const students = await getStudents(params);
 
   return (
     <div className="space-y-6">
@@ -139,7 +140,7 @@ export default async function StudentsPage({
               <select
                 id="schoolLevel"
                 name="schoolLevel"
-                defaultValue={searchParams.schoolLevel || ''}
+                defaultValue={params.schoolLevel || ''}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">전체</option>
@@ -156,7 +157,7 @@ export default async function StudentsPage({
               <select
                 id="grade"
                 name="grade"
-                defaultValue={searchParams.grade || ''}
+                defaultValue={params.grade || ''}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">전체</option>
@@ -174,7 +175,7 @@ export default async function StudentsPage({
               <select
                 id="class"
                 name="class"
-                defaultValue={searchParams.class || ''}
+                defaultValue={params.class || ''}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">전체</option>
@@ -194,7 +195,7 @@ export default async function StudentsPage({
               <select
                 id="status"
                 name="status"
-                defaultValue={searchParams.status || ''}
+                defaultValue={params.status || ''}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">전체</option>
@@ -212,7 +213,7 @@ export default async function StudentsPage({
                 type="text"
                 id="search"
                 name="search"
-                defaultValue={searchParams.search || ''}
+                defaultValue={params.search || ''}
                 placeholder="이름 또는 학번 검색"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />

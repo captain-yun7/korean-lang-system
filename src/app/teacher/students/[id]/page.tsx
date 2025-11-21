@@ -5,6 +5,35 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 
+interface ExamInfo {
+  id: string;
+  title: string;
+  category: string;
+  examType: string;
+}
+
+interface AssignedExam {
+  id: string;
+  examId: string;
+  dueDate: string | null;
+  createdAt: string;
+  exam: ExamInfo;
+  isCompleted: boolean;
+  result: {
+    id: string;
+    score: number;
+    submittedAt: string;
+  } | null;
+}
+
+interface ExamResult {
+  id: string;
+  score: number;
+  totalTime: number;
+  submittedAt: string;
+  exam: ExamInfo;
+}
+
 interface StudentData {
   id: string;
   studentId: string;
@@ -23,17 +52,9 @@ interface StudentData {
     role: string;
     createdAt: string;
   };
-  examResults: Array<{
-    id: string;
-    score: number;
-    totalTime: number;
-    submittedAt: string;
-    exam: {
-      id: string;
-      title: string;
-      category: string;
-    };
-  }>;
+  examResults: ExamResult[];
+  assignedExams: AssignedExam[];
+  selfStudyResults: ExamResult[];
 }
 
 export default function StudentDetailPage() {
@@ -115,6 +136,8 @@ export default function StudentDetailPage() {
         ) / 10
       : 0,
     totalTime: student.examResults?.reduce((sum, r) => sum + r.totalTime, 0) || 0,
+    assignedTotal: student.assignedExams?.length || 0,
+    assignedCompleted: student.assignedExams?.filter((a) => a.isCompleted).length || 0,
   };
 
   return (
@@ -161,7 +184,7 @@ export default function StudentDetailPage() {
       </div>
 
       {/* Student Info */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <Card.Body className="p-6">
             <div className="text-center">
@@ -188,6 +211,17 @@ export default function StudentDetailPage() {
               <p className="text-sm font-medium text-gray-600">총 학습 시간</p>
               <p className="text-3xl font-bold text-gray-900 mt-2">
                 {Math.floor(stats.totalTime / 60)}분
+              </p>
+            </div>
+          </Card.Body>
+        </Card>
+
+        <Card>
+          <Card.Body className="p-6">
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-600">배정 시험 완료</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">
+                {stats.assignedCompleted}/{stats.assignedTotal}
               </p>
             </div>
           </Card.Body>
@@ -255,21 +289,105 @@ export default function StudentDetailPage() {
         </Card.Body>
       </Card>
 
-      {/* Recent Learning History */}
+      {/* 배정된 시험지 */}
       <Card>
         <Card.Header className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">최근 학습 기록</h2>
-            <Link
-              href={`/teacher/students/${student.id}/results`}
-              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-            >
-              전체 보기 →
-            </Link>
-          </div>
+          <h2 className="text-lg font-semibold text-gray-900">배정된 시험지</h2>
         </Card.Header>
         <Card.Body className="p-0">
-          {student.examResults.length > 0 ? (
+          {student.assignedExams && student.assignedExams.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      시험 제목
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      카테고리
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      마감일
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      상태
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      점수
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      작업
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {student.assignedExams.map((assignment) => (
+                    <tr key={assignment.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {assignment.exam.title}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {assignment.exam.category}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {assignment.dueDate
+                            ? new Date(assignment.dueDate).toLocaleDateString('ko-KR')
+                            : '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            assignment.isCompleted
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}
+                        >
+                          {assignment.isCompleted ? '완료' : '미완료'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-bold text-gray-900">
+                          {assignment.result ? `${assignment.result.score}점` : '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        {assignment.result ? (
+                          <Link
+                            href={`/teacher/results/${assignment.result.id}`}
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
+                            상세
+                          </Link>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-lg">배정된 시험지가 없습니다.</p>
+            </div>
+          )}
+        </Card.Body>
+      </Card>
+
+      {/* 자습용 시험지 응시 기록 */}
+      <Card>
+        <Card.Header className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">자습용 시험지 응시 기록</h2>
+        </Card.Header>
+        <Card.Body className="p-0">
+          {student.selfStudyResults && student.selfStudyResults.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
@@ -295,7 +413,7 @@ export default function StudentDetailPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {student.examResults.map((result) => (
+                  {student.selfStudyResults.map((result) => (
                     <tr key={result.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
@@ -335,7 +453,7 @@ export default function StudentDetailPage() {
             </div>
           ) : (
             <div className="text-center py-12 text-gray-500">
-              <p className="text-lg">아직 학습 기록이 없습니다.</p>
+              <p className="text-lg">자습용 시험지 응시 기록이 없습니다.</p>
             </div>
           )}
         </Card.Body>

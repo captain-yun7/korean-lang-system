@@ -31,13 +31,26 @@ export async function GET(
         },
         examResults: {
           orderBy: { submittedAt: 'desc' },
-          take: 10,
           include: {
             exam: {
               select: {
                 id: true,
                 title: true,
                 category: true,
+                examType: true,
+              },
+            },
+          },
+        },
+        assignedExams: {
+          orderBy: { createdAt: 'desc' },
+          include: {
+            exam: {
+              select: {
+                id: true,
+                title: true,
+                category: true,
+                examType: true,
               },
             },
           },
@@ -52,7 +65,37 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ student });
+    // 배정된 시험지에 응시 여부 추가
+    const assignedExamsWithStatus = student.assignedExams.map((assignment) => {
+      const result = student.examResults.find(
+        (r) => r.exam.id === assignment.exam.id
+      );
+      return {
+        ...assignment,
+        isCompleted: !!result,
+        result: result
+          ? {
+              id: result.id,
+              score: result.score,
+              submittedAt: result.submittedAt,
+            }
+          : null,
+      };
+    });
+
+    // 자습용 시험지 응시 결과 (배정되지 않은 시험지 중 응시한 것)
+    const assignedExamIds = student.assignedExams.map((a) => a.exam.id);
+    const selfStudyResults = student.examResults.filter(
+      (r) => !assignedExamIds.includes(r.exam.id)
+    );
+
+    return NextResponse.json({
+      student: {
+        ...student,
+        assignedExams: assignedExamsWithStatus,
+        selfStudyResults,
+      },
+    });
   } catch (error) {
     console.error('Failed to fetch student:', error);
     return NextResponse.json(
