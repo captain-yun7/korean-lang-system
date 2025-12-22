@@ -138,35 +138,36 @@ export default async function StudentDashboardPage() {
   const ScoreIcon = scoreInfo.Icon;
 
   return (
-    <div className="space-y-20 pb-16 mt-8">
+    <div className="space-y-6 sm:space-y-12 lg:space-y-20 pb-8 sm:pb-16">
       {/* Page Header */}
-      <div className="relative rounded-lg bg-white p-8 border-2 border-gray-200">
-        <h1 className="text-4xl font-bold text-gray-900">
+      <div className="relative rounded-lg bg-white p-4 sm:p-6 lg:p-8 border-2 border-gray-200">
+        <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-gray-900">
           안녕하세요, <span className="text-purple-500">{session.user.name}</span>님!
         </h1>
-        <p className="text-gray-600 text-lg mt-2">
-          {stats.student.grade}학년 {stats.student.class}반 {stats.student.number}번 · 오늘도 열심히 공부해봐요!
+        <p className="text-gray-600 text-sm sm:text-base lg:text-lg mt-1 sm:mt-2">
+          {stats.student.grade}학년 {stats.student.class}반 {stats.student.number}번
+          <span className="hidden sm:inline"> · 오늘도 열심히 공부해봐요!</span>
         </p>
       </div>
 
       {/* 학습 현황 통계 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-20">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         {/* 평균 점수 */}
         <div className="relative group">
           <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
-          <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <ScoreIcon className={`w-10 h-10 ${scoreInfo.color}`} />
-              <div className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
+          <div className="relative bg-white rounded-lg p-3 sm:p-4 lg:p-6 m-0.5 sm:m-1 border border-gray-200">
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
+              <ScoreIcon className={`w-6 h-6 sm:w-8 lg:w-10 sm:h-8 lg:h-10 ${scoreInfo.color}`} />
+              <div className="text-[10px] sm:text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full hidden sm:block">
                 {scoreInfo.message}
               </div>
             </div>
-            <p className="text-sm font-semibold text-gray-900 mb-1">평균 점수</p>
-            <p className="text-5xl font-black text-gray-900">
+            <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">평균 점수</p>
+            <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-gray-900">
               {stats.averageScore}
-              <span className="text-2xl ml-1 text-gray-700">점</span>
+              <span className="text-sm sm:text-lg lg:text-2xl ml-0.5 sm:ml-1 text-gray-700">점</span>
             </p>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-[10px] sm:text-xs text-gray-600 mt-1 sm:mt-2 hidden sm:block">
               {stats.totalResults > 0 ? `총 ${stats.totalResults}회 학습` : '학습을 시작해보세요'}
             </p>
           </div>
@@ -175,19 +176,19 @@ export default async function StudentDashboardPage() {
         {/* 학습 횟수 */}
         <div className="relative group">
           <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
-          <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <CheckCircleIcon className="w-10 h-10 text-purple-500" />
-              <div className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
+          <div className="relative bg-white rounded-lg p-3 sm:p-4 lg:p-6 m-0.5 sm:m-1 border border-gray-200">
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
+              <CheckCircleIcon className="w-6 h-6 sm:w-8 lg:w-10 sm:h-8 lg:h-10 text-purple-500" />
+              <div className="text-[10px] sm:text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full hidden sm:block">
                 누적 학습
               </div>
             </div>
-            <p className="text-sm font-semibold text-gray-900 mb-1">학습 횟수</p>
-            <p className="text-5xl font-black text-gray-900">
+            <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">학습 횟수</p>
+            <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-gray-900">
               {stats.totalResults}
-              <span className="text-2xl ml-1 text-gray-700">회</span>
+              <span className="text-sm sm:text-lg lg:text-2xl ml-0.5 sm:ml-1 text-gray-700">회</span>
             </p>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-[10px] sm:text-xs text-gray-600 mt-1 sm:mt-2 hidden sm:block">
               {stats.totalResults > 0 ? '꾸준히 하고 있어요' : '첫 학습을 시작해보세요'}
             </p>
           </div>
@@ -196,19 +197,19 @@ export default async function StudentDashboardPage() {
         {/* 총 학습 시간 */}
         <div className="relative group">
           <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
-          <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <ClockIcon className="w-10 h-10 text-purple-500" />
-              <div className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
+          <div className="relative bg-white rounded-lg p-3 sm:p-4 lg:p-6 m-0.5 sm:m-1 border border-gray-200">
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
+              <ClockIcon className="w-6 h-6 sm:w-8 lg:w-10 sm:h-8 lg:h-10 text-purple-500" />
+              <div className="text-[10px] sm:text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full hidden sm:block">
                 집중 시간
               </div>
             </div>
-            <p className="text-sm font-semibold text-gray-900 mb-1">총 학습 시간</p>
-            <p className="text-5xl font-black text-gray-900">
+            <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">총 학습 시간</p>
+            <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-gray-900">
               {Math.floor(stats.totalElapsedTime / 60)}
-              <span className="text-2xl ml-1 text-gray-700">분</span>
+              <span className="text-sm sm:text-lg lg:text-2xl ml-0.5 sm:ml-1 text-gray-700">분</span>
             </p>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-[10px] sm:text-xs text-gray-600 mt-1 sm:mt-2 hidden sm:block">
               {stats.totalElapsedTime > 0 ? `${Math.floor(stats.totalElapsedTime / 3600)}시간 ${Math.floor((stats.totalElapsedTime % 3600) / 60)}분` : '시작이 반이에요'}
             </p>
           </div>
@@ -217,19 +218,19 @@ export default async function StudentDashboardPage() {
         {/* 과제 */}
         <div className="relative group">
           <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
-          <div className="relative bg-white rounded-lg p-6 m-1 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <DocumentTextIcon className="w-10 h-10 text-purple-500" />
-              <div className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
+          <div className="relative bg-white rounded-lg p-3 sm:p-4 lg:p-6 m-0.5 sm:m-1 border border-gray-200">
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
+              <DocumentTextIcon className="w-6 h-6 sm:w-8 lg:w-10 sm:h-8 lg:h-10 text-purple-500" />
+              <div className="text-[10px] sm:text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full hidden sm:block">
                 미완료
               </div>
             </div>
-            <p className="text-sm font-semibold text-gray-900 mb-1">과제</p>
-            <p className="text-5xl font-black text-gray-900">
+            <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">과제</p>
+            <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-gray-900">
               {stats.assignedCount}
-              <span className="text-2xl ml-1 text-gray-700">개</span>
+              <span className="text-sm sm:text-lg lg:text-2xl ml-0.5 sm:ml-1 text-gray-700">개</span>
             </p>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-[10px] sm:text-xs text-gray-600 mt-1 sm:mt-2 hidden sm:block">
               {stats.assignedCount > 0 ? '얼른 완료하세요' : '과제가 없어요'}
             </p>
           </div>
@@ -238,13 +239,13 @@ export default async function StudentDashboardPage() {
 
       {/* 최근 학습 기록 */}
       {stats.recentResults.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
+          <div className="px-4 sm:px-6 py-3 sm:py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">최근 학습 기록</h2>
+              <h2 className="text-base sm:text-xl font-bold text-gray-900">최근 학습 기록</h2>
               <Link
                 href="/student/results"
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1 hover:gap-2 transition-all"
+                className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1 hover:gap-2 transition-all"
               >
                 전체 보기
               </Link>
@@ -255,33 +256,33 @@ export default async function StudentDashboardPage() {
               <Link
                 key={result.id}
                 href={`/student/exams/${result.examId}/result`}
-                className="block p-6 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all group"
+                className="block p-3 sm:p-6 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all group active:bg-indigo-100"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="flex-shrink-0 w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                    <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-gray-900 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm">
                       {index + 1}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-gray-900 text-sm sm:text-lg group-hover:text-indigo-600 transition-colors truncate">
                         {result.exam.title}
                       </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full font-medium">
+                      <div className="flex items-center gap-1 sm:gap-2 mt-0.5 sm:mt-1 flex-wrap">
+                        <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs bg-blue-100 text-blue-700 rounded-full font-medium">
                           {result.exam.category}
                         </span>
-                        <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded-full font-medium">
+                        <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs bg-purple-100 text-purple-700 rounded-full font-medium hidden sm:inline-block">
                           {result.exam.targetSchool} {result.exam.targetGrade}학년
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-[10px] sm:text-xs text-gray-500 mt-1 sm:mt-2 hidden sm:block">
                         {new Date(result.submittedAt).toLocaleString('ko-KR')}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right ml-6">
-                    <div className="flex items-center justify-end gap-2 mb-1">
-                      <div className={`text-4xl font-black ${
+                  <div className="text-right flex-shrink-0">
+                    <div className="flex items-center justify-end gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+                      <div className={`text-xl sm:text-2xl lg:text-4xl font-black ${
                         result.score >= 90 ? 'text-red-500' :
                         result.score >= 80 ? 'text-orange-500' :
                         result.score >= 70 ? 'text-green-500' :
@@ -289,9 +290,9 @@ export default async function StudentDashboardPage() {
                       }`}>
                         {result.score}
                       </div>
-                      <span className="text-lg text-gray-500">점</span>
+                      <span className="text-sm sm:text-lg text-gray-500">점</span>
                     </div>
-                    <p className="text-xs text-gray-500 flex items-center gap-1 justify-end">
+                    <p className="text-[10px] sm:text-xs text-gray-500 flex items-center gap-1 justify-end">
                       <ClockIcon className="w-3 h-3" />
                       {Math.floor(result.totalTime / 60)}분 {result.totalTime % 60}초
                     </p>
@@ -305,17 +306,17 @@ export default async function StudentDashboardPage() {
 
       {/* 학습이 없는 경우 */}
       {stats.recentResults.length === 0 && (
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-12 text-center">
-          <BookOpenIcon className="w-24 h-24 mx-auto mb-6 text-indigo-300" />
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+        <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-6 sm:p-12 text-center">
+          <BookOpenIcon className="w-16 sm:w-24 h-16 sm:h-24 mx-auto mb-4 sm:mb-6 text-indigo-300" />
+          <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">
             아직 시험 기록이 없습니다
           </h3>
-          <p className="text-gray-600 mb-8 text-lg">
+          <p className="text-sm sm:text-lg text-gray-600 mb-6 sm:mb-8">
             첫 시험을 응시하고 실력을 향상시켜보세요
           </p>
           <Link
             href="/student/exams"
-            className="inline-block px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-bold text-sm sm:text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             시험지 보기
           </Link>

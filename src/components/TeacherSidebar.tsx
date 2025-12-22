@@ -67,7 +67,12 @@ const navItems: NavItem[] = [
   },
 ];
 
-export const TeacherSidebar: React.FC = () => {
+interface TeacherSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
@@ -78,39 +83,72 @@ export const TeacherSidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
-      <div className="p-6">
-        <Link href="/teacher" className="block">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            국어 학습 시스템
-          </h1>
-          <p className="text-sm text-gray-600 mt-1">교사 관리</p>
-        </Link>
-      </div>
+    <>
+      {/* 모바일 오버레이 */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      <nav className="px-3">
-        <ul className="space-y-1">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-lg
-                  transition-colors duration-200
-                  ${
-                    isActive(item.href)
-                      ? 'bg-indigo-50 text-indigo-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }
-                `}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </aside>
+      {/* 사이드바 */}
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50
+          w-64 bg-white border-r border-gray-200
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        <div className="flex flex-col h-full">
+          {/* 헤더 */}
+          <div className="p-4 lg:p-6 flex items-center justify-between border-b border-gray-100 lg:border-0">
+            <Link href="/teacher" className="block" onClick={onClose}>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                국어 학습 시스템
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">교사 관리</p>
+            </Link>
+
+            {/* 모바일 닫기 버튼 */}
+            <button
+              onClick={onClose}
+              className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* 네비게이션 */}
+          <nav className="flex-1 px-3 py-4 overflow-y-auto">
+            <ul className="space-y-1">
+              {navItems.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={onClose}
+                    className={`
+                      flex items-center gap-3 px-3 py-2.5 rounded-lg
+                      transition-colors duration-200
+                      ${
+                        isActive(item.href)
+                          ? 'bg-indigo-50 text-indigo-700 font-medium'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </aside>
+    </>
   );
 };

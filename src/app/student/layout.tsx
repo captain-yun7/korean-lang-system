@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import Link from 'next/link';
 import StudentLogoutButton from '@/components/StudentLogoutButton';
+import StudentMobileNav from '@/components/StudentMobileNav';
 
 const navItems = [
   {
@@ -23,7 +24,7 @@ const navItems = [
     ),
   },
   {
-    label: '학습하기',
+    label: '학습',
     href: '/student/study',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,7 +33,7 @@ const navItems = [
     ),
   },
   {
-    label: '내 성적',
+    label: '성적',
     href: '/student/results',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,11 +42,11 @@ const navItems = [
     ),
   },
   {
-    label: '오답 노트',
+    label: '오답',
     href: '/student/wrong-answers',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
     ),
   },
@@ -67,54 +68,62 @@ export default async function StudentLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+        <div className="px-4 sm:container sm:mx-auto">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Left: Logo */}
             <Link href="/student/dashboard" className="flex items-center">
-              <span className="text-xl font-bold">
+              <span className="text-lg sm:text-xl font-bold">
                 <span className="text-purple-500">국어 학습</span>
-                <span className="text-gray-900"> 시스템</span>
+                <span className="text-gray-900 hidden sm:inline"> 시스템</span>
               </span>
             </Link>
 
-            {/* Right: Navigation + User Info */}
-            <div className="flex items-center gap-6">
-              <nav className="hidden md:flex items-center gap-1">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                  >
-                    {item.icon}
-                    <span className="font-medium">{item.label}</span>
-                  </Link>
-                ))}
-              </nav>
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                >
+                  {item.icon}
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              ))}
+            </nav>
 
-              <div className="flex items-center gap-4 border-l border-gray-200 pl-6">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">
-                    {session.user.name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {session.user.grade}학년 {session.user.class}반 {session.user.number}번
-                  </p>
-                </div>
-                <StudentLogoutButton />
+            {/* User Info */}
+            <div className="flex items-center gap-2 sm:gap-4 sm:border-l sm:border-gray-200 sm:pl-6">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium text-gray-900">
+                  {session.user.name}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {session.user.grade}학년 {session.user.class}반 {session.user.number}번
+                </p>
               </div>
+              {/* Mobile: 이름만 표시 */}
+              <div className="sm:hidden">
+                <p className="text-sm font-medium text-gray-900">
+                  {session.user.name}
+                </p>
+              </div>
+              <StudentLogoutButton />
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-12">
+      {/* Main Content - 하단 네비게이션 공간 확보 */}
+      <main className="flex-1 px-4 py-4 sm:py-8 pb-20 md:pb-8 sm:container sm:mx-auto">
         {children}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <StudentMobileNav navItems={navItems} />
     </div>
   );
 }

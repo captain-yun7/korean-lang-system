@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon,
 } from '@heroicons/react/24/solid';
 
 interface Question {
@@ -198,49 +196,49 @@ export default function TakeExamPage() {
   const answeredCount = answers.filter((a) => a.answer.length > 0).length;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* 헤더 */}
-      <div className="bg-white rounded-lg shadow-md p-6 sticky top-0 z-10">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{exam.title}</h1>
-            <div className="flex items-center gap-3 mt-2 text-sm text-gray-600">
-              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 pb-24 sm:pb-28">
+      {/* 헤더 - 모바일에서 더 컴팩트하게 */}
+      <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 sticky top-14 sm:top-16 z-10">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{exam.title}</h1>
+            <div className="flex flex-wrap items-center gap-2 mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
+              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded whitespace-nowrap">
                 {exam.category}
               </span>
-              <span>{exam.targetSchool} {exam.targetGrade}학년</span>
+              <span className="whitespace-nowrap">{exam.targetSchool} {exam.targetGrade}학년</span>
             </div>
           </div>
 
-          <div className="text-right">
-            <div className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-              <ClockIcon className="w-5 h-5" />
-              {formatTime(elapsedTime)}
+          <div className="text-right flex-shrink-0">
+            <div className="flex items-center gap-1 sm:gap-2 text-base sm:text-lg font-semibold text-gray-900">
+              <ClockIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span>{formatTime(elapsedTime)}</span>
             </div>
-            <div className="text-sm text-gray-600 mt-1">
-              답변: {answeredCount}/{totalQuestions}
+            <div className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
+              {answeredCount}/{totalQuestions}
             </div>
           </div>
         </div>
       </div>
 
       {/* 시험 문제 */}
-      <div className="space-y-8">
+      <div className="space-y-4 sm:space-y-8">
         {exam.items.map((item, itemIndex) => (
-          <Card key={itemIndex} padding="lg">
-            <div className="space-y-6">
+          <Card key={itemIndex} padding="lg" className="!p-3 sm:!p-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* 문항 그룹 헤더 */}
-              <div className="border-b pb-3">
-                <h2 className="text-lg font-bold text-gray-900">
+              <div className="border-b pb-2 sm:pb-3">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900">
                   문항 그룹 {itemIndex + 1}
                 </h2>
               </div>
 
               {/* 제시문 */}
               {item.passage && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="text-sm font-medium text-gray-700 mb-2">제시문</div>
-                  <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">
+                <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+                  <div className="text-xs sm:text-sm font-medium text-gray-700 mb-2">제시문</div>
+                  <div className="text-sm sm:text-base text-gray-900 whitespace-pre-wrap leading-relaxed">
                     {item.passage}
                   </div>
                 </div>
@@ -259,11 +257,11 @@ export default function TakeExamPage() {
                 return (
                   <div
                     key={questionIndex}
-                    className="border-l-4 border-indigo-500 pl-4 space-y-3"
+                    className="border-l-4 border-indigo-500 pl-3 sm:pl-4 space-y-2 sm:space-y-3"
                   >
                     {/* 질문 번호 및 유형 */}
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-gray-900">
+                      <span className="text-base sm:text-lg font-bold text-gray-900">
                         {globalQuestionNum}.
                       </span>
                       <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
@@ -272,7 +270,7 @@ export default function TakeExamPage() {
                     </div>
 
                     {/* 질문 텍스트 */}
-                    <div className="text-gray-900 whitespace-pre-wrap">
+                    <div className="text-sm sm:text-base text-gray-900 whitespace-pre-wrap">
                       {question.text}
                     </div>
 
@@ -282,10 +280,10 @@ export default function TakeExamPage() {
                         {question.options.map((option, optionIndex) => (
                           <label
                             key={optionIndex}
-                            className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                            className={`flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border-2 cursor-pointer transition-colors touch-manipulation ${
                               currentAnswer.includes(String(optionIndex + 1))
                                 ? 'border-indigo-500 bg-indigo-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                                : 'border-gray-200 hover:border-gray-300 active:border-gray-400'
                             }`}
                           >
                             <input
@@ -301,10 +299,10 @@ export default function TakeExamPage() {
                                   false
                                 )
                               }
-                              className="mt-1 w-4 h-4 text-indigo-600"
+                              className="mt-0.5 sm:mt-1 w-4 h-4 text-indigo-600 flex-shrink-0"
                             />
-                            <span className="flex-1 text-gray-900">
-                              <span className="font-medium mr-2">{optionIndex + 1}.</span>
+                            <span className="flex-1 text-sm sm:text-base text-gray-900">
+                              <span className="font-medium mr-1 sm:mr-2">{optionIndex + 1}.</span>
                               {option}
                             </span>
                           </label>
@@ -318,7 +316,7 @@ export default function TakeExamPage() {
                             handleAnswerChange(itemIndex, questionIndex, e.target.value)
                           }
                           placeholder="답안을 입력하세요"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none text-sm sm:text-base"
                           rows={question.type === '서술형' ? 5 : 2}
                         />
                       </div>
@@ -331,39 +329,42 @@ export default function TakeExamPage() {
         ))}
       </div>
 
-      {/* 제출 버튼 */}
-      <div className="bg-white rounded-lg shadow-md p-6 sticky bottom-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-sm text-gray-600">
-              총 {totalQuestions}문제 중 {answeredCount}문제 답변 완료
-            </div>
-            {answeredCount < totalQuestions && (
-              <div className="text-sm text-orange-600 mt-1">
-                {totalQuestions - answeredCount}개의 문제에 답하지 않았습니다
+      {/* 제출 버튼 - 모바일에서 고정 하단 바 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 sm:p-4 z-20 shadow-lg">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="text-xs sm:text-sm text-gray-600">
+                {answeredCount}/{totalQuestions}문제 완료
               </div>
-            )}
-          </div>
+              {answeredCount < totalQuestions && (
+                <div className="text-xs text-orange-600 mt-0.5 truncate">
+                  {totalQuestions - answeredCount}개 미답변
+                </div>
+              )}
+            </div>
 
-          <div className="flex items-center gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                if (confirm('시험을 취소하고 나가시겠습니까?\n작성한 답안은 저장되지 않습니다.')) {
-                  router.push('/student/exams');
-                }
-              }}
-            >
-              취소
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="min-w-[120px]"
-            >
-              {submitting ? '제출 중...' : '시험 제출'}
-            </Button>
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  if (confirm('시험을 취소하고 나가시겠습니까?\n작성한 답안은 저장되지 않습니다.')) {
+                    router.push('/student/exams');
+                  }
+                }}
+                className="!px-3 sm:!px-4 !py-2 text-sm"
+              >
+                취소
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="!px-4 sm:!px-6 !py-2 text-sm sm:text-base min-w-[80px] sm:min-w-[120px]"
+              >
+                {submitting ? '제출 중...' : '제출'}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
