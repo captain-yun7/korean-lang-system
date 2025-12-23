@@ -153,7 +153,7 @@ export default async function StudentDashboardPage() {
       {/* 학습 현황 통계 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         {/* 평균 점수 */}
-        <div className="relative group">
+        <Link href="/student/results" className="relative group block active:scale-95 transition-transform">
           <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
           <div className="relative bg-white rounded-lg p-3 sm:p-4 lg:p-6 m-0.5 sm:m-1 border border-gray-200">
             <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -171,10 +171,10 @@ export default async function StudentDashboardPage() {
               {stats.totalResults > 0 ? `총 ${stats.totalResults}회 학습` : '학습을 시작해보세요'}
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* 학습 횟수 */}
-        <div className="relative group">
+        <Link href="/student/results" className="relative group block active:scale-95 transition-transform">
           <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
           <div className="relative bg-white rounded-lg p-3 sm:p-4 lg:p-6 m-0.5 sm:m-1 border border-gray-200">
             <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -192,10 +192,10 @@ export default async function StudentDashboardPage() {
               {stats.totalResults > 0 ? '꾸준히 하고 있어요' : '첫 학습을 시작해보세요'}
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* 총 학습 시간 */}
-        <div className="relative group">
+        <Link href="/student/results" className="relative group block active:scale-95 transition-transform">
           <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
           <div className="relative bg-white rounded-lg p-3 sm:p-4 lg:p-6 m-0.5 sm:m-1 border border-gray-200">
             <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -213,10 +213,10 @@ export default async function StudentDashboardPage() {
               {stats.totalElapsedTime > 0 ? `${Math.floor(stats.totalElapsedTime / 3600)}시간 ${Math.floor((stats.totalElapsedTime % 3600) / 60)}분` : '시작이 반이에요'}
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* 과제 */}
-        <div className="relative group">
+        <Link href="/student/exams" className="relative group block active:scale-95 transition-transform">
           <div className="absolute inset-0 bg-purple-500 rounded-lg transform group-hover:scale-105 transition-transform"></div>
           <div className="relative bg-white rounded-lg p-3 sm:p-4 lg:p-6 m-0.5 sm:m-1 border border-gray-200">
             <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -234,7 +234,7 @@ export default async function StudentDashboardPage() {
               {stats.assignedCount > 0 ? '얼른 완료하세요' : '과제가 없어요'}
             </p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* 최근 학습 기록 */}
