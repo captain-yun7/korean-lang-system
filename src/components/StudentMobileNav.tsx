@@ -24,6 +24,14 @@ export default function StudentMobileNav({ navItems }: StudentMobileNavProps) {
     return pathname.startsWith(href);
   };
 
+  // 시험 응시 중에는 하단 네비게이션 숨김
+  const isExamInProgress = /^\/student\/exams\/[^/]+$/.test(pathname) &&
+    !pathname.endsWith('/result');
+
+  if (isExamInProgress) {
+    return null;
+  }
+
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
       <div className="flex items-center justify-around h-16">
