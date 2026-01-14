@@ -18,6 +18,13 @@ interface ExamPaper {
   };
 }
 
+interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export default function ExamPapersPage() {
   const [examPapers, setExamPapers] = useState<ExamPaper[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,24 +33,35 @@ export default function ExamPapersPage() {
   const [examType, setExamType] = useState('');
   const [targetGrade, setTargetGrade] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
 
   useEffect(() => {
     fetchExamPapers();
+  }, [search, category, examType, targetGrade, page]);
+
+  // 필터 변경 시 페이지를 1로 리셋
+  useEffect(() => {
+    setPage(1);
   }, [search, category, examType, targetGrade]);
 
   const fetchExamPapers = async () => {
     try {
+      setLoading(true);
       const params = new URLSearchParams();
       if (search) params.append('search', search);
       if (category) params.append('category', category);
       if (examType) params.append('examType', examType);
       if (targetGrade) params.append('targetGrade', targetGrade);
+      params.append('page', page.toString());
+      params.append('limit', '10');
 
       const response = await fetch(`/api/teacher/exams?${params}`);
       const data = await response.json();
 
       if (response.ok) {
         setExamPapers(data.examPapers);
+        setPagination(data.pagination);
       }
     } catch (error) {
       console.error('Error fetching exam papers:', error);
@@ -185,58 +203,129 @@ export default function ExamPapersPage() {
           </div>
         </Card>
       ) : (
-        <div className="grid gap-3 sm:gap-4">
-          {examPapers.map((examPaper) => (
-            <Card key={examPaper.id} padding="md" hover className="!p-3 sm:!p-4">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/teacher/exams/${examPaper.id}`}
-                    className="group"
-                  >
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
-                      {examPaper.title}
-                    </h3>
-                  </Link>
-                  <div className="flex items-center gap-2 mt-2 text-xs sm:text-sm text-gray-600 flex-wrap">
-                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 rounded">
-                      {examPaper.category}
-                    </span>
-                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded ${
-                      examPaper.examType === 'SELF_STUDY'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-indigo-100 text-indigo-700'
-                    }`}>
-                      {examPaper.examType === 'SELF_STUDY' ? '자습용' : '배정용'}
-                    </span>
-                    <span>{examPaper.targetGrade}학년</span>
-                  </div>
-                  <div className="flex items-center gap-3 sm:gap-4 mt-2 text-xs sm:text-sm text-gray-500">
-                    <span>배정: {examPaper._count.assignedExams}건</span>
-                    <span>완료: {examPaper._count.examResults}건</span>
-                    <span className="hidden sm:inline">
-                      {new Date(examPaper.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
+        <>
+          {/* 시험지 개수 표시 */}
+          {pagination && (
+            <div className="text-sm text-gray-600">
+              전체 {pagination.total}개 중 {(page - 1) * pagination.limit + 1}-{Math.min(page * pagination.limit, pagination.total)}개 표시
+            </div>
+          )}
 
-                <div className="flex items-center gap-2 sm:ml-4 justify-end sm:justify-start">
-                  <Link href={`/teacher/exams/${examPaper.id}`}>
-                    <Button variant="secondary" size="sm" className="text-xs sm:text-sm !px-2 sm:!px-3 !py-1 sm:!py-1.5">
-                      상세
-                    </Button>
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(examPaper.id, examPaper.title)}
-                    className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                  >
-                    삭제
-                  </button>
+          <div className="grid gap-3 sm:gap-4">
+            {examPapers.map((examPaper) => (
+              <Card key={examPaper.id} padding="md" hover className="!p-3 sm:!p-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <Link
+                      href={`/teacher/exams/${examPaper.id}`}
+                      className="group"
+                    >
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+                        {examPaper.title}
+                      </h3>
+                    </Link>
+                    <div className="flex items-center gap-2 mt-2 text-xs sm:text-sm text-gray-600 flex-wrap">
+                      <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 rounded">
+                        {examPaper.category}
+                      </span>
+                      <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded ${
+                        examPaper.examType === 'SELF_STUDY'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-indigo-100 text-indigo-700'
+                      }`}>
+                        {examPaper.examType === 'SELF_STUDY' ? '자습용' : '배정용'}
+                      </span>
+                      <span>{examPaper.targetGrade}학년</span>
+                    </div>
+                    <div className="flex items-center gap-3 sm:gap-4 mt-2 text-xs sm:text-sm text-gray-500">
+                      <span>배정: {examPaper._count.assignedExams}건</span>
+                      <span>완료: {examPaper._count.examResults}건</span>
+                      <span className="hidden sm:inline">
+                        {new Date(examPaper.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 sm:ml-4 justify-end sm:justify-start">
+                    <Link href={`/teacher/exams/${examPaper.id}`}>
+                      <Button variant="secondary" size="sm" className="text-xs sm:text-sm !px-2 sm:!px-3 !py-1 sm:!py-1.5">
+                        상세
+                      </Button>
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(examPaper.id, examPaper.title)}
+                      className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                    >
+                      삭제
+                    </button>
+                  </div>
                 </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* 페이지네이션 */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <button
+                onClick={() => setPage(1)}
+                disabled={page === 1}
+                className="px-3 py-2 text-sm rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                처음
+              </button>
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+                className="px-3 py-2 text-sm rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                이전
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                  .filter(p => {
+                    // 현재 페이지 주변 2페이지만 표시
+                    return Math.abs(p - page) <= 2 || p === 1 || p === pagination.totalPages;
+                  })
+                  .map((p, idx, arr) => {
+                    // 생략 표시 추가
+                    const showEllipsis = idx > 0 && p - arr[idx - 1] > 1;
+                    return (
+                      <span key={p} className="flex items-center">
+                        {showEllipsis && <span className="px-2 text-gray-400">...</span>}
+                        <button
+                          onClick={() => setPage(p)}
+                          className={`w-8 h-8 text-sm rounded-md ${
+                            p === page
+                              ? 'bg-indigo-600 text-white'
+                              : 'border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      </span>
+                    );
+                  })}
               </div>
-            </Card>
-          ))}
-        </div>
+
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page === pagination.totalPages}
+                className="px-3 py-2 text-sm rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                다음
+              </button>
+              <button
+                onClick={() => setPage(pagination.totalPages)}
+                disabled={page === pagination.totalPages}
+                className="px-3 py-2 text-sm rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                마지막
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
