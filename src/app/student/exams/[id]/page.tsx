@@ -139,31 +139,66 @@ export default function TakeExamPage() {
 
     setSubmitting(true);
 
-    try {
-      const response = await fetch(`/api/student/exams/${examId}/submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          answers,
-          elapsedTime,
-        }),
-      });
+    const maxRetries = 3;
+    let lastError: Error | null = null;
 
-      const data = await response.json();
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
 
-      if (!response.ok) {
-        throw new Error(data.error || '시험 제출에 실패했습니다.');
+        const response = await fetch(`/api/student/exams/${examId}/submit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            answers,
+            elapsedTime,
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // 이미 제출된 경우 재시도하지 않음
+          if (response.status === 400 && data.error?.includes('이미 완료한 시험')) {
+            alert('이미 제출된 시험입니다. 결과 페이지로 이동합니다.');
+            router.push(`/student/exams/${examId}/result`);
+            return;
+          }
+          throw new Error(data.error || '시험 제출에 실패했습니다.');
+        }
+
+        alert(`시험이 제출되었습니다!\n점수: ${data.score}점`);
+        router.push(`/student/exams/${examId}/result`);
+        return; // 성공 시 함수 종료
+      } catch (error: any) {
+        lastError = error;
+
+        // AbortError (타임아웃) 또는 네트워크 오류인 경우에만 재시도
+        const isRetryable = error.name === 'AbortError' || error.message === 'Failed to fetch';
+
+        if (isRetryable && attempt < maxRetries) {
+          // 재시도 전 잠시 대기 (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          continue;
+        }
+
+        break; // 재시도 불가능한 오류이거나 마지막 시도인 경우 루프 종료
       }
-
-      alert(`시험이 제출되었습니다!\n점수: ${data.score}점`);
-      router.push(`/student/exams/${examId}/result`);
-    } catch (error: any) {
-      alert(error.message || '시험 제출에 실패했습니다.');
-    } finally {
-      setSubmitting(false);
     }
+
+    // 모든 재시도 실패
+    if (lastError?.name === 'AbortError') {
+      alert('네트워크 연결이 느립니다. 인터넷 연결을 확인하고 다시 시도해주세요.');
+    } else {
+      alert(lastError?.message || '시험 제출에 실패했습니다. 다시 시도해주세요.');
+    }
+    setSubmitting(false);
   };
 
   if (loading) {

@@ -276,7 +276,9 @@ export default async function StudentDashboardPage() {
                         </span>
                       </div>
                       <p className="text-[10px] sm:text-xs text-gray-500 mt-1 sm:mt-2 hidden sm:block">
-                        {new Date(result.submittedAt).toLocaleString('ko-KR')}
+                        {new Date(result.submittedAt).toLocaleString('ko-KR', {
+                          hour12: false,
+                        })}
                       </p>
                     </div>
                   </div>

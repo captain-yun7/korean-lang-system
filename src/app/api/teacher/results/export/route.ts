@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       점수: result.score,
       독해시간_초: result.readingTime,
       문제수: result._count.questionAnswers,
-      제출일시: new Date(result.submittedAt).toLocaleString('ko-KR'),
+      제출일시: new Date(result.submittedAt).toLocaleString('ko-KR', { hour12: false }),
     }));
 
     // 워크북 생성

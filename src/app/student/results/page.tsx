@@ -295,6 +295,7 @@ export default function StudentResultsPage() {
                             {new Date(result.submittedAt).toLocaleTimeString('ko-KR', {
                               hour: '2-digit',
                               minute: '2-digit',
+                              hour12: false,
                             })}
                           </div>
                         </td>

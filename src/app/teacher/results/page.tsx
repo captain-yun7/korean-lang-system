@@ -381,7 +381,9 @@ export default function ResultsPage() {
                           {formatTime(result.elapsedTime)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(result.submittedAt).toLocaleString('ko-KR')}
+                          {new Date(result.submittedAt).toLocaleString('ko-KR', {
+                            hour12: false,
+                          })}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <Link
