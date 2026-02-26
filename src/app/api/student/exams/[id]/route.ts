@@ -39,18 +39,35 @@ export async function GET(
     }
 
     // 이미 완료한 시험인지 확인
-    const existingResult = await prisma.examResult.findFirst({
+    const existingResults = await prisma.examResult.findMany({
       where: {
         examId: params.id,
         studentId: student.id,
       },
+      orderBy: { attemptNumber: 'desc' },
     });
 
-    if (existingResult) {
-      return NextResponse.json(
-        { error: '이미 완료한 시험입니다.' },
-        { status: 400 }
-      );
+    if (existingResults.length > 0) {
+      // 배정 정보에서 재응시 허용 여부 확인
+      const assignment = await prisma.assignedExam.findFirst({
+        where: {
+          examId: params.id,
+          assignedTo: student.id,
+        },
+      });
+
+      const allowRetake = assignment?.allowRetake ?? false;
+      const maxAttempts = assignment?.maxAttempts ?? 1;
+      const currentAttempts = existingResults.length;
+
+      if (!allowRetake || currentAttempts >= maxAttempts) {
+        return NextResponse.json(
+          { error: '이미 완료한 시험입니다.' },
+          { status: 400 }
+        );
+      }
+
+      // 재응시 허용 - 다음 회차 정보 포함
     }
 
     // 정답은 제거하고 반환 (보안)
@@ -60,6 +77,7 @@ export async function GET(
       category: exam.category,
       targetSchool: exam.targetSchool,
       targetGrade: exam.targetGrade,
+      attemptNumber: existingResults.length + 1,
       items: (exam.items as any[]).map((item) => ({
         passage: item.passage,
         questions: item.questions.map((q: any) => ({

@@ -57,18 +57,36 @@ export async function POST(
     }
 
     // 이미 완료한 시험인지 확인
-    const existingResult = await prisma.examResult.findFirst({
+    const existingResults = await prisma.examResult.findMany({
       where: {
         examId: id,
         studentId: student.id,
       },
+      orderBy: { attemptNumber: 'desc' },
     });
 
-    if (existingResult) {
-      return NextResponse.json(
-        { error: '이미 완료한 시험입니다.' },
-        { status: 400 }
-      );
+    let nextAttemptNumber = 1;
+
+    if (existingResults.length > 0) {
+      // 배정 정보에서 재응시 허용 여부 확인
+      const assignment = await prisma.assignedExam.findFirst({
+        where: {
+          examId: id,
+          assignedTo: student.id,
+        },
+      });
+
+      const allowRetake = assignment?.allowRetake ?? false;
+      const maxAttempts = assignment?.maxAttempts ?? 1;
+
+      if (!allowRetake || existingResults.length >= maxAttempts) {
+        return NextResponse.json(
+          { error: '이미 완료한 시험입니다.' },
+          { status: 400 }
+        );
+      }
+
+      nextAttemptNumber = existingResults[0].attemptNumber + 1;
     }
 
     // 채점
@@ -121,6 +139,7 @@ export async function POST(
           score,
           answers: answers,
           totalTime: elapsedTime || 0,
+          attemptNumber: nextAttemptNumber,
         },
       });
 

@@ -102,6 +102,66 @@ export const GET = auth(async function GET(request) {
       ORDER BY date
     `;
 
+    // 개인별 성적 추이 (학생 목록 + 각 학생의 시험 결과)
+    const studentList = await prisma.student.findMany({
+      select: {
+        id: true,
+        studentId: true,
+        name: true,
+        grade: true,
+        class: true,
+        number: true,
+      },
+      orderBy: [{ grade: 'asc' }, { class: 'asc' }, { number: 'asc' }],
+    });
+
+    // 시험지별 통계 (최고점, 평균, 최저점)
+    const examStats = await prisma.$queryRaw<
+      Array<{
+        examId: string;
+        title: string;
+        category: string;
+        maxScore: number;
+        avgScore: number;
+        minScore: number;
+        count: number;
+      }>
+    >`
+      SELECT
+        e.id as "examId",
+        e.title,
+        e.category,
+        MAX(r.score)::int as "maxScore",
+        ROUND(AVG(r.score)::numeric, 1) as "avgScore",
+        MIN(r.score)::int as "minScore",
+        COUNT(r.id)::int as count
+      FROM exam_results r
+      JOIN exams e ON r."examId" = e.id
+      GROUP BY e.id, e.title, e.category
+      ORDER BY e.title
+    `;
+
+    // 비문학 파트별 세분화 통계 (subcategory 기반)
+    const subcategoryStats = await prisma.$queryRaw<
+      Array<{ category: string; subcategory: string; avgScore: number; count: number }>
+    >`
+      SELECT
+        e.category,
+        p.subcategory,
+        ROUND(AVG(r.score)::numeric, 1) as "avgScore",
+        COUNT(r.id)::int as count
+      FROM exam_results r
+      JOIN exams e ON r."examId" = e.id
+      JOIN passages p ON p.id = ANY(
+        SELECT jsonb_array_elements_text(
+          jsonb_path_query_array(e.items::jsonb, '$[*].passageId')
+        )
+      )
+      WHERE p.subcategory IS NOT NULL
+      GROUP BY e.category, p.subcategory
+      ORDER BY e.category, p.subcategory
+    `;
+
     return NextResponse.json({
       overview: {
         totalStudents,
@@ -118,6 +178,9 @@ export const GET = auth(async function GET(request) {
       categoryStats,
       targetGradeStats,
       recentTrend,
+      studentList,
+      examStats,
+      subcategoryStats,
     });
   } catch (error) {
     console.error('Error fetching statistics:', error);

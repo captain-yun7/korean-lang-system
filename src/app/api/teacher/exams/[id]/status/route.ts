@@ -61,7 +61,7 @@ export async function GET(
       ],
     });
 
-    // 각 학생의 응시 결과 조회
+    // 각 학생의 응시 결과 조회 (모든 회차)
     const studentIds = assignments
       .map((a) => a.assignedTo)
       .filter((id): id is string => id !== null);
@@ -75,29 +75,47 @@ export async function GET(
         id: true,
         studentId: true,
         score: true,
+        attemptNumber: true,
         submittedAt: true,
       },
+      orderBy: { attemptNumber: 'desc' },
     });
 
-    // 결과를 학생별로 매핑
-    const resultsByStudent = new Map(
-      results.map((r) => [r.studentId, r])
-    );
+    // 결과를 학생별로 매핑 (최신 결과)
+    const latestResultByStudent = new Map<string, typeof results[0]>();
+    const attemptCountByStudent = new Map<string, number>();
+
+    for (const r of results) {
+      if (!latestResultByStudent.has(r.studentId)) {
+        latestResultByStudent.set(r.studentId, r);
+      }
+      attemptCountByStudent.set(
+        r.studentId,
+        (attemptCountByStudent.get(r.studentId) || 0) + 1
+      );
+    }
 
     // 응시 현황 데이터 생성
     const statusData = assignments.map((assignment) => {
       const studentId = assignment.assignedTo;
-      const result = studentId ? resultsByStudent.get(studentId) : null;
+      const result = studentId ? latestResultByStudent.get(studentId) : null;
+      const attemptCount = studentId
+        ? attemptCountByStudent.get(studentId) || 0
+        : 0;
 
       return {
         assignmentId: assignment.id,
         dueDate: assignment.dueDate,
+        allowRetake: assignment.allowRetake,
+        maxAttempts: assignment.maxAttempts,
         student: assignment.student,
         isCompleted: !!result,
+        attemptCount,
         result: result
           ? {
               id: result.id,
               score: result.score,
+              attemptNumber: result.attemptNumber,
               submittedAt: result.submittedAt,
             }
           : null,

@@ -18,11 +18,15 @@ interface Student {
 interface StudentStatus {
   assignmentId: string;
   dueDate: string | null;
+  allowRetake: boolean;
+  maxAttempts: number;
   student: Student;
   isCompleted: boolean;
+  attemptCount: number;
   result: {
     id: string;
     score: number;
+    attemptNumber: number;
     submittedAt: string;
   } | null;
 }
@@ -56,6 +60,7 @@ export default function ExamStatusPage() {
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
   const [cancelingId, setCancelingId] = useState<string | null>(null);
+  const [retakeLoadingId, setRetakeLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchExamStatus();
@@ -102,6 +107,36 @@ export default function ExamStatusPage() {
       alert(err.message);
     } finally {
       setCancelingId(null);
+    }
+  };
+
+  const handleToggleRetake = async (assignmentId: string, studentName: string, currentAllow: boolean) => {
+    const action = currentAllow ? '재응시를 취소' : '재응시를 허용';
+    if (!confirm(`${studentName} 학생의 ${action}하시겠습니까?`)) return;
+
+    try {
+      setRetakeLoadingId(assignmentId);
+      const response = await fetch(`/api/teacher/exams/${examId}/assign`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          assignmentId,
+          allowRetake: !currentAllow,
+          maxAttempts: !currentAllow ? 2 : 1,
+        }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || '재응시 설정에 실패했습니다.');
+      }
+
+      alert(result.message);
+      fetchExamStatus();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setRetakeLoadingId(null);
     }
   };
 
@@ -303,6 +338,9 @@ export default function ExamStatusPage() {
                       제출일/마감일
                     </th>
                     <th className="text-center py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700">
+                      응시
+                    </th>
+                    <th className="text-center py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700">
                       작업
                     </th>
                   </tr>
@@ -383,23 +421,54 @@ export default function ExamStatusPage() {
                             <span className="text-gray-400">기한 없음</span>
                           )}
                         </td>
-                        <td className="py-2 sm:py-3 px-2 sm:px-4 text-center">
-                          {student.result ? (
-                            <Link
-                              href={`/teacher/results/${student.result.id}`}
-                              className="text-indigo-600 hover:text-indigo-800 text-xs sm:text-sm font-medium whitespace-nowrap"
-                            >
-                              상세보기
-                            </Link>
+                        <td className="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs sm:text-sm text-gray-600">
+                          {student.attemptCount > 0 ? (
+                            <span>
+                              {student.attemptCount}회
+                              {student.allowRetake && (
+                                <span className="text-blue-500 ml-1">/{student.maxAttempts}</span>
+                              )}
+                            </span>
                           ) : (
-                            <button
-                              onClick={() => handleCancelAssignment(student.assignmentId, student.student.name)}
-                              disabled={cancelingId === student.assignmentId}
-                              className="text-red-600 hover:text-red-800 text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                            >
-                              {cancelingId === student.assignmentId ? '취소 중...' : '배정취소'}
-                            </button>
+                            <span className="text-gray-400">-</span>
                           )}
+                        </td>
+                        <td className="py-2 sm:py-3 px-2 sm:px-4 text-center">
+                          <div className="flex items-center justify-center gap-1 sm:gap-2">
+                            {student.result ? (
+                              <>
+                                <Link
+                                  href={`/teacher/results/${student.result.id}`}
+                                  className="text-indigo-600 hover:text-indigo-800 text-xs sm:text-sm font-medium whitespace-nowrap"
+                                >
+                                  상세보기
+                                </Link>
+                                <button
+                                  onClick={() => handleToggleRetake(student.assignmentId, student.student.name, student.allowRetake)}
+                                  disabled={retakeLoadingId === student.assignmentId}
+                                  className={`text-xs sm:text-sm font-medium whitespace-nowrap disabled:opacity-50 ${
+                                    student.allowRetake
+                                      ? 'text-orange-600 hover:text-orange-800'
+                                      : 'text-blue-600 hover:text-blue-800'
+                                  }`}
+                                >
+                                  {retakeLoadingId === student.assignmentId
+                                    ? '...'
+                                    : student.allowRetake
+                                    ? '재응시취소'
+                                    : '재응시허용'}
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleCancelAssignment(student.assignmentId, student.student.name)}
+                                disabled={cancelingId === student.assignmentId}
+                                className="text-red-600 hover:text-red-800 text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                              >
+                                {cancelingId === student.assignmentId ? '취소 중...' : '배정취소'}
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );

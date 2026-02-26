@@ -21,6 +21,10 @@ interface ExamWithStatus {
   isCompleted: boolean;
   completedAt: Date | null;
   score: number | null;
+  allowRetake: boolean;
+  maxAttempts: number;
+  attemptCount: number;
+  canRetake: boolean;
 }
 
 // 학생이 볼 수 있는 시험지 목록 가져오기
@@ -48,10 +52,25 @@ async function getStudentExams(studentId: string): Promise<ExamWithStatus[]> {
       },
     });
 
+    // 각 시험의 전체 응시 횟수 조회
+    const examIds = exams.map((e) => e.id);
+    const allResults = await prisma.examResult.findMany({
+      where: { examId: { in: examIds }, studentId },
+      select: { examId: true, id: true },
+    });
+    const attemptCountMap = new Map<string, number>();
+    for (const r of allResults) {
+      attemptCountMap.set(r.examId, (attemptCountMap.get(r.examId) || 0) + 1);
+    }
+
     // 시험지 상태 정보 추가
     const examsWithStatus: ExamWithStatus[] = exams.map((exam) => {
       const assignment = exam.assignedExams[0];
       const result = exam.examResults[0];
+      const allowRetake = assignment?.allowRetake ?? false;
+      const maxAttempts = assignment?.maxAttempts ?? 1;
+      const attemptCount = attemptCountMap.get(exam.id) || 0;
+      const canRetake = allowRetake && attemptCount < maxAttempts && !!result;
 
       return {
         id: exam.id,
@@ -65,6 +84,10 @@ async function getStudentExams(studentId: string): Promise<ExamWithStatus[]> {
         isCompleted: !!result,
         completedAt: result?.submittedAt || null,
         score: result?.score || null,
+        allowRetake,
+        maxAttempts,
+        attemptCount,
+        canRetake,
       };
     });
 
@@ -102,8 +125,9 @@ export default async function StudentExamsPage() {
   // 배정된 시험지만 필터링
   const assignedExams = exams.filter((exam) => exam.isAssigned);
 
-  // 배정된 시험지를 완료/미완료로 분류
-  const completedAssignedExams = assignedExams.filter((exam) => exam.isCompleted);
+  // 배정된 시험지를 완료/미완료/재응시가능으로 분류
+  const retakeableExams = assignedExams.filter((exam) => exam.canRetake);
+  const completedAssignedExams = assignedExams.filter((exam) => exam.isCompleted && !exam.canRetake);
   const incompleteAssignedExams = assignedExams.filter((exam) => !exam.isCompleted);
 
   return (
@@ -207,6 +231,56 @@ export default async function StudentExamsPage() {
                 </Link>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* 재응시 가능한 시험지 */}
+      {retakeableExams.length > 0 && (
+        <div>
+          <h2 className="text-base sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+            <AcademicCapIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+            재응시 가능
+            <span className="text-xs sm:text-sm font-normal text-gray-500">
+              ({retakeableExams.length}개)
+            </span>
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {retakeableExams.map((exam) => (
+              <Link key={exam.id} href={`/student/exams/${exam.id}`}>
+                <Card
+                  padding="md"
+                  className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 !p-3 sm:!p-4 active:bg-blue-50"
+                >
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-bold text-gray-900 text-sm sm:text-lg line-clamp-2">
+                        {exam.title}
+                      </h3>
+                      <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 text-[10px] sm:text-xs rounded-full font-medium flex-shrink-0">
+                        재응시
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                      <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 text-[10px] sm:text-xs rounded">
+                        {exam.category}
+                      </span>
+                      <span className="text-xs sm:text-sm text-gray-600">
+                        {exam.attemptCount}/{exam.maxAttempts}회 응시
+                      </span>
+                    </div>
+                    {exam.score !== null && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs sm:text-sm text-gray-600">이전 점수</span>
+                        <span className="text-lg sm:text-2xl font-bold text-blue-600">
+                          {exam.score}점
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              </Link>
+            ))}
           </div>
         </div>
       )}

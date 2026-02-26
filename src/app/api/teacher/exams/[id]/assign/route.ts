@@ -151,6 +151,64 @@ export const GET = auth(async function GET(
   }
 }) as any;
 
+// PATCH /api/teacher/exams/[id]/assign - 재응시 허용/취소
+export const PATCH = auth(async function PATCH(
+  request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = request.auth;
+
+    if (!session || session.user.role !== 'TEACHER') {
+      return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const { assignmentId, allowRetake, maxAttempts } = body;
+
+    if (!assignmentId) {
+      return NextResponse.json(
+        { error: '배정 ID가 필요합니다.' },
+        { status: 400 }
+      );
+    }
+
+    const assignment = await prisma.assignedExam.findFirst({
+      where: { id: assignmentId, examId: id },
+      include: { student: true },
+    });
+
+    if (!assignment) {
+      return NextResponse.json(
+        { error: '배정을 찾을 수 없습니다.' },
+        { status: 404 }
+      );
+    }
+
+    const updated = await prisma.assignedExam.update({
+      where: { id: assignmentId },
+      data: {
+        allowRetake: allowRetake ?? assignment.allowRetake,
+        maxAttempts: maxAttempts ?? assignment.maxAttempts,
+      },
+    });
+
+    return NextResponse.json({
+      message: allowRetake
+        ? `${assignment.student?.name} 학생의 재응시가 허용되었습니다.`
+        : `${assignment.student?.name} 학생의 재응시가 취소되었습니다.`,
+      assignment: updated,
+    });
+  } catch (error) {
+    console.error('Error updating assignment:', error);
+    return NextResponse.json(
+      { error: '배정 수정에 실패했습니다.' },
+      { status: 500 }
+    );
+  }
+}) as any;
+
 // DELETE /api/teacher/exams/[id]/assign - 시험지 배정 취소
 export const DELETE = auth(async function DELETE(
   request,

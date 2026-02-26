@@ -162,13 +162,14 @@ model Exam {
 
 // 시험 결과
 model ExamResult {
-  id          String   @id @default(cuid())
-  examId      String
-  studentId   String
-  answers     Json // 학생 답변 배열
-  score       Int // 점수
-  totalTime   Int // 총 소요 시간 (초)
-  submittedAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  examId        String
+  studentId     String
+  answers       Json // 학생 답변 배열
+  score         Int // 점수
+  totalTime     Int // 총 소요 시간 (초)
+  attemptNumber Int      @default(1) // 응시 회차
+  submittedAt   DateTime @default(now())
 
   exam         Exam          @relation(fields: [examId], references: [id], onDelete: Cascade)
   student      Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -188,6 +189,8 @@ model AssignedExam {
   targetSchool String? // 중등, 고등
   targetGrade  Int? // 1, 2, 3
   dueDate      DateTime? // 완료 기한
+  allowRetake  Boolean   @default(false) // 재응시 허용 여부
+  maxAttempts  Int       @default(1) // 최대 응시 횟수 (1 = 재응시 불가)
   createdAt    DateTime  @default(now())
 
   exam    Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
