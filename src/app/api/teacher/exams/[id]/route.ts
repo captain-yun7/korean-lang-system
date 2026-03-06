@@ -98,7 +98,7 @@ export const PUT = auth(async function PUT(
     }
 
     const body = await request.json();
-    const { title, category, targetSchool, targetGrade, items } = body;
+    const { title, category, subcategory, targetSchool, targetGrade, items } = body;
 
     // 유효성 검사
     if (!title || !category || !targetSchool || !targetGrade || !items || items.length === 0) {
@@ -165,6 +165,7 @@ export const PUT = auth(async function PUT(
       data: {
         title,
         category,
+        subcategory: subcategory || null,
         targetSchool,
         targetGrade,
         items,

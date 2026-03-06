@@ -99,8 +99,15 @@ interface StudentTrendItem {
   date: string;
   examTitle: string;
   category: string;
+  subcategory: string | null;
   score: number;
   attemptNumber: number;
+}
+
+interface StudentSubcategoryAvg {
+  label: string;
+  avgScore: number;
+  count: number;
 }
 
 interface StudentStatData {
@@ -113,6 +120,7 @@ interface StudentStatData {
   };
   trendData: StudentTrendItem[];
   categoryAvg: CategoryStat[];
+  subcategoryAvg: StudentSubcategoryAvg[];
 }
 
 type TabType = 'overview' | 'student' | 'exam' | 'subcategory';
@@ -540,7 +548,7 @@ export default function StatisticsPage() {
                               <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
                                 <p className="font-semibold text-gray-900">{data.examTitle}</p>
                                 <p className="text-sm text-gray-600">{data.date}</p>
-                                <p className="text-sm text-gray-600">{data.category}</p>
+                                <p className="text-sm text-gray-600">{data.category}{data.subcategory ? ` - ${data.subcategory}` : ''}</p>
                                 <p className="text-lg font-bold text-indigo-600">{data.score}점</p>
                                 {data.attemptNumber > 1 && (
                                   <p className="text-xs text-blue-500">{data.attemptNumber}회차</p>
@@ -580,6 +588,27 @@ export default function StatisticsPage() {
                       <Tooltip formatter={(value: any) => [`${value}점`, '평균 점수']} />
                       <Legend formatter={() => '평균 점수'} />
                       <Bar dataKey="avgScore" fill="#8b5cf6" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Card>
+              )}
+
+              {/* 개인 세부 카테고리별 평균 */}
+              {studentStat.subcategoryAvg && studentStat.subcategoryAvg.length > 0 && (
+                <Card padding="md">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                    세부 영역별 평균 점수
+                  </h2>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={studentStat.subcategoryAvg}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                      <YAxis domain={[0, 100]} />
+                      <Tooltip
+                        formatter={(value: any) => [`${value}점`, '평균 점수']}
+                      />
+                      <Legend formatter={() => '평균 점수'} />
+                      <Bar dataKey="avgScore" fill="#ec4899" />
                     </BarChart>
                   </ResponsiveContainer>
                 </Card>

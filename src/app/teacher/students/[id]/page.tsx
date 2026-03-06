@@ -5,6 +5,14 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 
+interface ExamListItem {
+  id: string;
+  title: string;
+  category: string;
+  targetSchool: string;
+  targetGrade: number;
+}
+
 interface ExamInfo {
   id: string;
   title: string;
@@ -65,6 +73,14 @@ export default function StudentDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // 시험지 배정 모달
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [availableExams, setAvailableExams] = useState<ExamListItem[]>([]);
+  const [selectedExamId, setSelectedExamId] = useState('');
+  const [assignDueDate, setAssignDueDate] = useState('');
+  const [assignMaxAttempts, setAssignMaxAttempts] = useState(1);
+  const [isAssigning, setIsAssigning] = useState(false);
+
   useEffect(() => {
     const fetchStudent = async () => {
       try {
@@ -83,6 +99,58 @@ export default function StudentDetailPage() {
 
     fetchStudent();
   }, [params.id]);
+
+  const openAssignModal = async () => {
+    try {
+      const res = await fetch('/api/teacher/exams?limit=100');
+      const data = await res.json();
+      if (res.ok) {
+        setAvailableExams(data.examPapers || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch exams:', error);
+    }
+    setShowAssignModal(true);
+  };
+
+  const handleAssign = async () => {
+    if (!selectedExamId || !assignDueDate) {
+      alert('시험지와 마감일을 선택해주세요.');
+      return;
+    }
+
+    setIsAssigning(true);
+    try {
+      const res = await fetch(`/api/teacher/exams/${selectedExamId}/assign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentIds: [student!.id],
+          dueDate: new Date(assignDueDate).toISOString(),
+          maxAttempts: assignMaxAttempts,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || '시험지 배정에 실패했습니다.');
+      }
+
+      alert('시험지가 배정되었습니다.');
+      setShowAssignModal(false);
+      setSelectedExamId('');
+      setAssignDueDate('');
+      setAssignMaxAttempts(1);
+      // 학생 데이터 새로고침
+      const response = await fetch(`/api/teacher/students/${params.id}`);
+      const refreshed = await response.json();
+      setStudent(refreshed.student);
+    } catch (error: any) {
+      alert(error.message || '시험지 배정에 실패했습니다.');
+    } finally {
+      setIsAssigning(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!student) return;
@@ -162,6 +230,12 @@ export default function StudentDetailPage() {
           </p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={openAssignModal}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            시험지 배정
+          </button>
           <Link
             href={`/teacher/students/${student.id}/edit`}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
@@ -458,6 +532,85 @@ export default function StudentDetailPage() {
           )}
         </Card.Body>
       </Card>
+
+      {/* 시험지 배정 모달 */}
+      {showAssignModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">시험지 배정</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              <span className="font-medium">{student.name}</span> 학생에게 시험지를 배정합니다.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  시험지 선택 <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={selectedExamId}
+                  onChange={(e) => setSelectedExamId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                >
+                  <option value="">시험지를 선택하세요</option>
+                  {availableExams.map((exam) => (
+                    <option key={exam.id} value={exam.id}>
+                      {exam.title} ({exam.category} · {exam.targetSchool} {exam.targetGrade}학년)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  마감일 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={assignDueDate}
+                  onChange={(e) => setAssignDueDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  최대 응시 횟수
+                </label>
+                <select
+                  value={assignMaxAttempts}
+                  onChange={(e) => setAssignMaxAttempts(parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                >
+                  <option value={1}>1회 (재응시 불가)</option>
+                  <option value={2}>2회</option>
+                  <option value={3}>3회</option>
+                  <option value={5}>5회</option>
+                  <option value={99}>무제한</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={handleAssign}
+                disabled={isAssigning || !selectedExamId || !assignDueDate}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isAssigning ? '배정 중...' : '배정'}
+              </button>
+              <button
+                onClick={() => setShowAssignModal(false)}
+                disabled={isAssigning}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 삭제 확인 모달 */}
       {showDeleteModal && (

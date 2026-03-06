@@ -93,7 +93,7 @@ export const POST = auth(async function POST(request) {
     }
 
     const body = await request.json();
-    const { title, category, examType, isPublic, targetSchool, targetGrade, items } = body;
+    const { title, category, subcategory, examType, isPublic, targetSchool, targetGrade, items } = body;
 
     // 유효성 검사
     if (!title || !category || !examType || !targetSchool || !targetGrade || !items || items.length === 0) {
@@ -153,6 +153,7 @@ export const POST = auth(async function POST(request) {
       data: {
         title,
         category,
+        subcategory: subcategory || null,
         examType,
         isPublic: isPublic ?? false,
         targetSchool,

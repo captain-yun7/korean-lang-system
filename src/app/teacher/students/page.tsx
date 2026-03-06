@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
+import PromoteButton from './PromoteButton';
 
 // 타입 정의
 interface StudentListItem {
@@ -113,6 +114,7 @@ export default async function StudentsPage({
           <p className="text-gray-600 mt-1">학생 정보를 관리하고 학습 현황을 확인하세요</p>
         </div>
         <div className="flex gap-3">
+          <PromoteButton />
           <Link
             href="/teacher/students/import"
             className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"

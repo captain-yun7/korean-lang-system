@@ -32,6 +32,7 @@ export default function AssignExamPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [dueDate, setDueDate] = useState('');
+  const [maxAttempts, setMaxAttempts] = useState(1);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -114,6 +115,7 @@ export default function AssignExamPage() {
         body: JSON.stringify({
           studentIds: Array.from(selectedStudents),
           dueDate: new Date(dueDate).toISOString(),
+          maxAttempts,
         }),
       });
 
@@ -188,6 +190,30 @@ export default function AssignExamPage() {
             />
             <p className="text-sm text-gray-500 mt-1">
               학생들이 이 날짜까지 시험을 완료해야 합니다.
+            </p>
+          </div>
+          <div>
+            <label htmlFor="maxAttempts" className="block text-sm font-medium text-gray-700 mb-1">
+              최대 응시 횟수
+            </label>
+            <select
+              id="maxAttempts"
+              value={maxAttempts}
+              onChange={(e) => setMaxAttempts(parseInt(e.target.value))}
+              className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value={1}>1회 (재응시 불가)</option>
+              <option value={2}>2회</option>
+              <option value={3}>3회</option>
+              <option value={5}>5회</option>
+              <option value={99}>무제한</option>
+            </select>
+            <p className="text-sm text-gray-500 mt-1">
+              {maxAttempts === 1
+                ? '학생은 1회만 응시할 수 있습니다.'
+                : maxAttempts === 99
+                ? '학생이 자유롭게 여러 번 응시할 수 있습니다.'
+                : `학생은 최대 ${maxAttempts}회까지 응시할 수 있습니다.`}
             </p>
           </div>
         </div>

@@ -15,7 +15,7 @@ export const POST = auth(async function POST(
     }
 
     const body = await request.json();
-    const { studentIds, dueDate } = body;
+    const { studentIds, dueDate, maxAttempts } = body;
 
     // 유효성 검사
     if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
@@ -75,6 +75,8 @@ export const POST = auth(async function POST(
             where: { id: existing.id },
             data: {
               dueDate: new Date(dueDate),
+              allowRetake: (maxAttempts || 1) > 1,
+              maxAttempts: maxAttempts || 1,
             },
           });
         } else {
@@ -85,6 +87,8 @@ export const POST = auth(async function POST(
               assignedBy: session.user.id, // 교사 ID
               assignedTo: studentId,
               dueDate: new Date(dueDate),
+              allowRetake: (maxAttempts || 1) > 1,
+              maxAttempts: maxAttempts || 1,
             },
           });
         }

@@ -7,6 +7,12 @@ import { useRouter } from 'next/navigation';
 // 영역 카테고리
 const CATEGORIES = ['비문학', '문학', '문법', '어휘', '기타'];
 
+// 세부 카테고리 맵
+const SUBCATEGORIES: Record<string, string[]> = {
+  '비문학': ['인문예술', '과학기술', '사회문화'],
+  '문학': ['고전산문', '고전시가', '현대산문', '현대시'],
+};
+
 const SCHOOL_LEVELS = ['중등', '고등'];
 const GRADES = [1, 2, 3];
 
@@ -39,6 +45,7 @@ interface ExamItem {
 interface ExamFormData {
   title: string;
   category: string;
+  subcategory: string;
   examType: string;
   isPublic: boolean;
   targetSchool: string;
@@ -64,6 +71,7 @@ export default function NewExamPaperPage() {
   const [formData, setFormData] = useState<ExamFormData>({
     title: '',
     category: '비문학',
+    subcategory: '',
     examType: 'ASSIGNED',
     isPublic: false,
     targetSchool: '중등',
@@ -414,7 +422,7 @@ export default function NewExamPaperPage() {
                       value={cat}
                       checked={formData.category === cat}
                       onChange={(e) =>
-                        setFormData({ ...formData, category: e.target.value })
+                        setFormData({ ...formData, category: e.target.value, subcategory: '' })
                       }
                       className="mr-2"
                     />
@@ -423,6 +431,31 @@ export default function NewExamPaperPage() {
                 ))}
               </div>
             </div>
+
+            {/* 세부 카테고리 선택 */}
+            {SUBCATEGORIES[formData.category] && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  세부 영역
+                </label>
+                <div className="flex gap-4">
+                  {SUBCATEGORIES[formData.category].map((sub) => (
+                    <label key={sub} className="flex items-center">
+                      <input
+                        type="radio"
+                        value={sub}
+                        checked={formData.subcategory === sub}
+                        onChange={(e) =>
+                          setFormData({ ...formData, subcategory: e.target.value })
+                        }
+                        className="mr-2"
+                      />
+                      {sub}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 시험지 타입 선택 */}
             <div>

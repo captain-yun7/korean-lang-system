@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
           select: {
             title: true,
             category: true,
+            subcategory: true,
           },
         },
       },
@@ -59,6 +60,7 @@ export async function GET(request: NextRequest) {
       date: r.submittedAt.toISOString().split('T')[0],
       examTitle: r.exam.title,
       category: r.exam.category,
+      subcategory: r.exam.subcategory,
       score: r.score,
       attemptNumber: r.attemptNumber,
     }));
@@ -75,6 +77,24 @@ export async function GET(request: NextRequest) {
 
     const categoryAvg = Array.from(categoryMap.entries()).map(([category, data]) => ({
       category,
+      avgScore: Math.round((data.total / data.count) * 10) / 10,
+      count: data.count,
+    }));
+
+    // 세부 카테고리별 평균 (category + subcategory 조합)
+    const subcategoryMap = new Map<string, { total: number; count: number }>();
+    for (const r of results) {
+      const sub = r.exam.subcategory;
+      if (!sub) continue;
+      const key = `${r.exam.category} ${sub}`;
+      const current = subcategoryMap.get(key) || { total: 0, count: 0 };
+      current.total += r.score;
+      current.count += 1;
+      subcategoryMap.set(key, current);
+    }
+
+    const subcategoryAvg = Array.from(subcategoryMap.entries()).map(([label, data]) => ({
+      label,
       avgScore: Math.round((data.total / data.count) * 10) / 10,
       count: data.count,
     }));
@@ -97,6 +117,7 @@ export async function GET(request: NextRequest) {
       },
       trendData,
       categoryAvg,
+      subcategoryAvg,
     });
   } catch (error) {
     console.error('Error fetching student statistics:', error);
