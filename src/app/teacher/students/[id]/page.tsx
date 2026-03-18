@@ -80,6 +80,7 @@ export default function StudentDetailPage() {
   const [assignDueDate, setAssignDueDate] = useState('');
   const [assignMaxAttempts, setAssignMaxAttempts] = useState(1);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStudent = async () => {
@@ -149,6 +150,30 @@ export default function StudentDetailPage() {
       alert(error.message || '시험지 배정에 실패했습니다.');
     } finally {
       setIsAssigning(false);
+    }
+  };
+
+  const handleCancelAssignment = async (assignmentId: string, examId: string, examTitle: string) => {
+    if (!confirm(`"${examTitle}" 시험지 배정을 취소하시겠습니까?`)) return;
+
+    setCancellingId(assignmentId);
+    try {
+      const res = await fetch(
+        `/api/teacher/exams/${examId}/assign?assignmentId=${assignmentId}`,
+        { method: 'DELETE' }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || '배정 취소에 실패했습니다.');
+      }
+      alert('배정이 취소되었습니다.');
+      const response = await fetch(`/api/teacher/students/${params.id}`);
+      const refreshed = await response.json();
+      setStudent(refreshed.student);
+    } catch (error: any) {
+      alert(error.message || '배정 취소에 실패했습니다.');
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -431,16 +456,31 @@ export default function StudentDetailPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {assignment.result ? (
-                          <Link
-                            href={`/teacher/results/${assignment.result.id}`}
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            상세
-                          </Link>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
+                        <div className="flex items-center justify-end gap-2">
+                          {assignment.result && (
+                            <Link
+                              href={`/teacher/results/${assignment.result.id}`}
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              상세
+                            </Link>
+                          )}
+                          {!assignment.result && (
+                            <button
+                              onClick={() =>
+                                handleCancelAssignment(
+                                  assignment.id,
+                                  assignment.examId,
+                                  assignment.exam.title
+                                )
+                              }
+                              disabled={cancellingId === assignment.id}
+                              className="text-red-600 hover:text-red-900 disabled:text-red-300"
+                            >
+                              {cancellingId === assignment.id ? '취소 중...' : '배정 취소'}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
