@@ -147,6 +147,7 @@ model Exam {
   isPublic     Boolean  @default(false) // 자습용 시험지 공개 여부
   targetSchool String // 중등, 고등
   targetGrade  Int // 대상 학년 (1, 2, 3)
+  maxAttempts  Int      @default(1) // 응시 가능 횟수 (1 = 재응시 불가)
   items        Json // 시험 문항 배열 [{ passageId?: string, passage?: string, questions: [{ text, type, options?, answers, explanation? }] }]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

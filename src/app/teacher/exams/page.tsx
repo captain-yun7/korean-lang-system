@@ -216,14 +216,27 @@ export default function ExamPapersPage() {
               <Card key={examPaper.id} padding="md" hover className="!p-3 sm:!p-4">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <Link
-                      href={`/teacher/exams/${examPaper.id}`}
-                      className="group"
-                    >
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
-                        {examPaper.title}
-                      </h3>
-                    </Link>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link
+                        href={`/teacher/exams/${examPaper.id}`}
+                        className="group"
+                      >
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+                          {examPaper.title}
+                        </h3>
+                      </Link>
+                      {examPaper.examType === 'ASSIGNED' && (
+                        <Link href={`/teacher/exams/${examPaper.id}/assign`}>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="text-xs !px-2 !py-1"
+                          >
+                            배정
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 mt-2 text-xs sm:text-sm text-gray-600 flex-wrap">
                       <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 rounded">
                         {examPaper.category}

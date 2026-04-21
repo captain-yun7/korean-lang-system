@@ -21,6 +21,7 @@ interface Exam {
   category: string;
   targetSchool: string;
   targetGrade: number;
+  maxAttempts: number;
 }
 
 export default function AssignExamPage() {
@@ -56,6 +57,7 @@ export default function AssignExamPage() {
       }
 
       setExam(examData.examPaper);
+      setMaxAttempts(examData.examPaper.maxAttempts ?? 1);
 
       // 학생 목록 가져오기
       const studentsResponse = await fetch('/api/teacher/students');
@@ -196,24 +198,18 @@ export default function AssignExamPage() {
             <label htmlFor="maxAttempts" className="block text-sm font-medium text-gray-700 mb-1">
               최대 응시 횟수
             </label>
-            <select
+            <input
+              type="number"
               id="maxAttempts"
+              min={1}
+              max={99}
               value={maxAttempts}
-              onChange={(e) => setMaxAttempts(parseInt(e.target.value))}
-              className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value={1}>1회 (재응시 불가)</option>
-              <option value={2}>2회</option>
-              <option value={3}>3회</option>
-              <option value={5}>5회</option>
-              <option value={99}>무제한</option>
-            </select>
+              onChange={(e) => setMaxAttempts(Math.max(1, parseInt(e.target.value) || 1))}
+              className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
             <p className="text-sm text-gray-500 mt-1">
-              {maxAttempts === 1
-                ? '학생은 1회만 응시할 수 있습니다.'
-                : maxAttempts === 99
-                ? '학생이 자유롭게 여러 번 응시할 수 있습니다.'
-                : `학생은 최대 ${maxAttempts}회까지 응시할 수 있습니다.`}
+              시험지 기본값({exam.maxAttempts ?? 1}회)으로 자동 설정되며, 이 배정에서만 변경할 수 있습니다.
+              {maxAttempts === 1 ? ' (현재: 재응시 불가)' : ` (현재: 최대 ${maxAttempts}회)`}
             </p>
           </div>
         </div>

@@ -93,7 +93,7 @@ export const POST = auth(async function POST(request) {
     }
 
     const body = await request.json();
-    const { title, category, subcategory, examType, isPublic, targetSchool, targetGrade, items } = body;
+    const { title, category, subcategory, examType, isPublic, targetSchool, targetGrade, maxAttempts, items } = body;
 
     // 유효성 검사
     if (!title || !category || !examType || !targetSchool || !targetGrade || !items || items.length === 0) {
@@ -158,6 +158,7 @@ export const POST = auth(async function POST(request) {
         isPublic: isPublic ?? false,
         targetSchool,
         targetGrade,
+        maxAttempts: Math.max(1, parseInt(maxAttempts) || 1),
         items,
       },
     });

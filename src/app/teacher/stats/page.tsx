@@ -574,6 +574,41 @@ export default function StatisticsPage() {
                 </Card>
               )}
 
+              {/* 학년 평균 vs 개인 평균 비교 */}
+              {(() => {
+                const gradeAvg = statistics.gradeStats.find(
+                  (g) => g.grade === studentStat.student.grade
+                );
+                if (!gradeAvg || studentStat.summary.totalExams === 0) return null;
+                const compareData = [
+                  {
+                    label: `${studentStat.student.grade}학년 평균`,
+                    score: Number(gradeAvg.avgScore),
+                  },
+                  {
+                    label: `${studentStat.student.name} 학생`,
+                    score: studentStat.summary.avgScore,
+                  },
+                ];
+                return (
+                  <Card padding="md">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                      학년 평균 vs 개인 평균
+                    </h2>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={compareData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="label" />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip formatter={(value: any) => [`${value}점`, '평균 점수']} />
+                        <Legend formatter={() => '평균 점수'} />
+                        <Bar dataKey="score" fill="#14b8a6" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </Card>
+                );
+              })()}
+
               {/* 개인 카테고리별 평균 */}
               {studentStat.categoryAvg.length > 0 && (
                 <Card padding="md">

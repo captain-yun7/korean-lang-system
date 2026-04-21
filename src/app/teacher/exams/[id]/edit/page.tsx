@@ -10,7 +10,8 @@ const CATEGORIES = ['비문학', '문학', '문법', '어휘', '기타'];
 // 세부 카테고리 맵
 const SUBCATEGORIES: Record<string, string[]> = {
   '비문학': ['인문예술', '과학기술', '사회문화'],
-  '문학': ['고전산문', '고전시가', '현대산문', '현대시'],
+  '문학': ['현대소설', '고전소설', '현대시', '고전시가', '수필'],
+  '문법': ['음운', '단어', '문장', '어문규정', '국어사'],
 };
 
 const SCHOOL_LEVELS = ['중등', '고등'];
@@ -48,6 +49,7 @@ interface ExamFormData {
   subcategory: string;
   targetSchool: string;
   targetGrade: number;
+  maxAttempts: number;
   items: ExamItem[];
 }
 
@@ -74,6 +76,7 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
     subcategory: '',
     targetSchool: '중등',
     targetGrade: 1,
+    maxAttempts: 1,
     items: [
       {
         passage: '',
@@ -155,6 +158,7 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
             subcategory: data.examPaper.subcategory || '',
             targetSchool: data.examPaper.targetSchool,
             targetGrade: data.examPaper.targetGrade,
+            maxAttempts: data.examPaper.maxAttempts ?? 1,
             items: data.examPaper.items,
           });
         } else {
@@ -524,6 +528,30 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
                   ))}
                 </div>
               </div>
+            </div>
+
+            {/* 응시 횟수 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                응시 횟수 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={formData.maxAttempts}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    maxAttempts: Math.max(1, parseInt(e.target.value) || 1),
+                  })
+                }
+                className="w-32 px-3 py-2 border border-gray-300 rounded-md"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                학생이 이 시험지를 응시할 수 있는 최대 횟수 (1 = 재응시 불가)
+              </p>
             </div>
           </div>
         </Card>
