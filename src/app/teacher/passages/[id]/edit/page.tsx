@@ -330,6 +330,9 @@ export default function EditPassagePage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="문단 내용을 입력하세요"
                     />
+                    <p className="mt-1 text-xs text-gray-500">
+                      유튜브 주소를 한 줄에 그대로 붙여넣으면 영상으로 재생됩니다.
+                    </p>
                   </div>
                 </div>
               ))}

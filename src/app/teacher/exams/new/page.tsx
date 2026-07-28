@@ -635,6 +635,9 @@ export default function NewExamPaperPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="제시문을 입력하세요 (비워두면 제시문 없는 문제)"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    유튜브 주소를 한 줄에 그대로 붙여넣으면 학생 화면에서 영상으로 재생됩니다.
+                  </p>
                 </div>
 
                 {/* 질문들 */}
