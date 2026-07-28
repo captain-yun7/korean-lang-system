@@ -17,7 +17,7 @@ export default auth((req) => {
   // If not logged in and not on public route, redirect to login
   if (!isLoggedIn && !isPublicRoute) {
     const loginUrl = new URL('/', req.url);
-    loginUrl.searchParams.set('callbackUrl', pathname);
+    loginUrl.searchParams.set('callbackUrl', pathname + req.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 
