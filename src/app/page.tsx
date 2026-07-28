@@ -7,6 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { getCallbackUrlFromLocation, resolveLoginRedirect } from '@/lib/redirect';
 
 const teacherLoginSchema = z.object({
   teacherId: z.string().min(1, '교사 ID를 입력해주세요'),
@@ -35,10 +36,8 @@ export default function LoginPage() {
     // 현재 경로가 정확히 로그인 페이지('/')일 때만 리디렉트
     if (pathname === '/' && status === 'authenticated' && session?.user) {
       const role = session.user.role;
-      if (role === 'TEACHER') {
-        router.replace('/teacher/dashboard');
-      } else if (role === 'STUDENT') {
-        router.replace('/student/dashboard');
+      if (role === 'TEACHER' || role === 'STUDENT') {
+        router.replace(resolveLoginRedirect(role, getCallbackUrlFromLocation()));
       }
     }
   }, [pathname, status, session, router]);
@@ -54,6 +53,7 @@ export default function LoginPage() {
   const onTeacherSubmit = async (data: TeacherLoginFormData) => {
     setLoading(true);
     setError('');
+    const callbackUrl = getCallbackUrlFromLocation();
 
     try {
       // 기존 세션이 있다면 먼저 로그아웃
@@ -77,7 +77,7 @@ export default function LoginPage() {
       }
 
       // 로그인 성공 후 완전히 새로고침하여 세션 동기화
-      window.location.href = '/teacher/dashboard';
+      window.location.href = resolveLoginRedirect('TEACHER', callbackUrl);
     } catch (err) {
       setError('로그인 중 오류가 발생했습니다');
       setLoading(false);
@@ -87,6 +87,7 @@ export default function LoginPage() {
   const onStudentSubmit = async (data: StudentLoginFormData) => {
     setLoading(true);
     setError('');
+    const callbackUrl = getCallbackUrlFromLocation();
 
     try {
       // 기존 세션이 있다면 먼저 로그아웃
@@ -111,7 +112,7 @@ export default function LoginPage() {
       }
 
       // 로그인 성공 후 완전히 새로고침하여 세션 동기화
-      window.location.href = '/student/dashboard';
+      window.location.href = resolveLoginRedirect('STUDENT', callbackUrl);
     } catch (err) {
       setError('로그인 중 오류가 발생했습니다');
       setLoading(false);
