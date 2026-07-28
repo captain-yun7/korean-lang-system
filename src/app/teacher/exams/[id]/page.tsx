@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, Button } from '@/components/ui';
+import PassageContent from '@/components/PassageContent';
 import Link from 'next/link';
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
@@ -186,9 +187,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
                   <div className="text-sm font-medium text-gray-700 mb-2">
                     제시문
                   </div>
-                  <div className="text-gray-900 whitespace-pre-wrap">
-                    {item.passage}
-                  </div>
+                  <PassageContent text={item.passage} className="text-gray-900" />
                 </div>
               )}
 
