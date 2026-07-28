@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, Button } from '@/components/ui';
+import PassageContent from '@/components/PassageContent';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -151,7 +152,7 @@ export default function PassageDetailPage() {
                 <h3 className="font-semibold text-gray-900">문단 {index + 1}</h3>
 
                 <div>
-                  <p className="text-gray-900 whitespace-pre-wrap">{block.para}</p>
+                  <PassageContent text={block.para} className="text-gray-900" />
                 </div>
               </div>
             ))}

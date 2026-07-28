@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui';
+import PassageContent from '@/components/PassageContent';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
@@ -278,9 +279,10 @@ export default async function TeacherResultDetailPage({
               {item.passage && (
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="text-sm font-medium text-gray-700 mb-2">제시문</div>
-                  <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">
-                    {item.passage}
-                  </div>
+                  <PassageContent
+                    text={item.passage}
+                    className="text-gray-900 leading-relaxed"
+                  />
                 </div>
               )}
 

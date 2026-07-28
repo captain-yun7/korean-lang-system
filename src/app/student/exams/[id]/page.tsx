@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, Button } from '@/components/ui';
+import PassageContent from '@/components/PassageContent';
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
@@ -273,9 +274,10 @@ export default function TakeExamPage() {
               {item.passage && (
                 <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
                   <div className="text-xs sm:text-sm font-medium text-gray-700 mb-2">제시문</div>
-                  <div className="text-sm sm:text-base text-gray-900 whitespace-pre-wrap leading-relaxed">
-                    {item.passage}
-                  </div>
+                  <PassageContent
+                    text={item.passage}
+                    className="text-sm sm:text-base text-gray-900 leading-relaxed"
+                  />
                 </div>
               )}
 
