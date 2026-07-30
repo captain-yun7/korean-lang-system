@@ -25,6 +25,7 @@ interface Exam {
   category: string;
   targetSchool: string;
   targetGrade: number;
+  shareCode: string | null;
   items: ExamItem[];
   createdAt: string;
   updatedAt: string;
@@ -39,6 +40,8 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
   const router = useRouter();
   const [exam, setExam] = useState<Exam | null>(null);
   const [loading, setLoading] = useState(true);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchExam();
@@ -61,6 +64,69 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
       router.push('/teacher/exams');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const shareUrl = exam?.shareCode
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/s/${exam.shareCode}`
+    : '';
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      prompt('아래 주소를 복사해서 공유하세요.', text);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!exam) return;
+
+    if (exam.shareCode) {
+      await copyToClipboard(shareUrl);
+      return;
+    }
+
+    setShareLoading(true);
+    try {
+      const response = await fetch(`/api/teacher/exams/${resolvedParams.id}/share`, {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+
+      setExam({ ...exam, shareCode: data.shareCode });
+      await copyToClipboard(`${window.location.origin}/s/${data.shareCode}`);
+    } catch (error) {
+      alert('공유 링크 발급에 실패했습니다.');
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleUnshare = async () => {
+    if (!exam) return;
+    if (!confirm('공유 링크를 해제하시겠습니까?\n\n기존에 공유한 주소는 더 이상 열리지 않습니다.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/teacher/exams/${resolvedParams.id}/share`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('해제 실패');
+      }
+
+      setExam({ ...exam, shareCode: null });
+    } catch (error) {
+      alert('공유 링크 해제에 실패했습니다.');
     }
   };
 
@@ -125,6 +191,9 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
         </div>
 
         <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={handleShare} disabled={shareLoading}>
+            {copied ? '복사됨!' : shareLoading ? '발급 중...' : '공유 링크 복사'}
+          </Button>
           <Link href={`/teacher/exams/${resolvedParams.id}/assign`}>
             <Button variant="primary">학생에게 배정</Button>
           </Link>
@@ -136,6 +205,29 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
           </Button>
         </div>
       </div>
+
+      {/* 공유 링크 */}
+      {exam.shareCode && (
+        <Card padding="md">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-gray-700 mb-1">공유 링크</div>
+              <div className="text-sm text-gray-900 truncate">{shareUrl}</div>
+              <div className="text-xs text-gray-500 mt-1">
+                로그인 없이 열람할 수 있습니다. 정답과 해설은 표시되지 않습니다.
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="secondary" onClick={() => copyToClipboard(shareUrl)}>
+                {copied ? '복사됨!' : '복사'}
+              </Button>
+              <Button variant="ghost" onClick={handleUnshare}>
+                해제
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* 통계 */}
       <div className="grid grid-cols-3 gap-4">
