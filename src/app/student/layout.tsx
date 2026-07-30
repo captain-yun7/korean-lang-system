@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import Link from 'next/link';
 import StudentLogoutButton from '@/components/StudentLogoutButton';
 import StudentMobileNav from '@/components/StudentMobileNav';
+import AccessNotice from '@/components/AccessNotice';
 
 const navItems = [
   {
@@ -119,6 +120,7 @@ export default async function StudentLayout({
 
       {/* Main Content - 하단 네비게이션 공간 확보 */}
       <main className="flex-1 px-4 py-4 sm:py-8 pb-20 md:pb-8 sm:container sm:mx-auto">
+        <AccessNotice />
         {children}
       </main>
 

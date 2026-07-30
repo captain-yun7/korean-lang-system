@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/auth';
+import { ROLE_MISMATCH_NOTICE } from '@/lib/redirect';
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
@@ -12,7 +13,9 @@ export default auth((req) => {
 
   // Public routes (allow without authentication)
   const publicRoutes = ['/', '/login', '/signup'];
-  const isPublicRoute = publicRoutes.some((route) => pathname === route);
+  // 공유 링크(/s/[shareCode])는 로그인 없이 열람 가능
+  const isPublicRoute =
+    publicRoutes.some((route) => pathname === route) || pathname.startsWith('/s/');
 
   // If not logged in and not on public route, redirect to login
   if (!isLoggedIn && !isPublicRoute) {
@@ -27,12 +30,20 @@ export default auth((req) => {
 
     // Teacher routes
     if (pathname.startsWith('/teacher') && userRole !== 'TEACHER') {
-      return NextResponse.redirect(new URL('/', req.url));
+      const target =
+        userRole === 'STUDENT'
+          ? `/student/dashboard?notice=${ROLE_MISMATCH_NOTICE}`
+          : '/';
+      return NextResponse.redirect(new URL(target, req.url));
     }
 
     // Student routes
     if (pathname.startsWith('/student') && userRole !== 'STUDENT') {
-      return NextResponse.redirect(new URL('/', req.url));
+      const target =
+        userRole === 'TEACHER'
+          ? `/teacher/dashboard?notice=${ROLE_MISMATCH_NOTICE}`
+          : '/';
+      return NextResponse.redirect(new URL(target, req.url));
     }
 
     // Dashboard routes (both can access)
