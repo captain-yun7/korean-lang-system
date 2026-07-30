@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import TeacherLayoutClient from '@/components/TeacherLayoutClient';
+import AccessNotice from '@/components/AccessNotice';
 
 export default async function TeacherLayout({
   children,
@@ -16,6 +17,7 @@ export default async function TeacherLayout({
 
   return (
     <TeacherLayoutClient user={session.user}>
+      <AccessNotice />
       {children}
     </TeacherLayoutClient>
   );
