@@ -12,7 +12,9 @@ export default auth((req) => {
 
   // Public routes (allow without authentication)
   const publicRoutes = ['/', '/login', '/signup'];
-  const isPublicRoute = publicRoutes.some((route) => pathname === route);
+  // 공유 링크(/s/[shareCode])는 로그인 없이 열람 가능
+  const isPublicRoute =
+    publicRoutes.some((route) => pathname === route) || pathname.startsWith('/s/');
 
   // If not logged in and not on public route, redirect to login
   if (!isLoggedIn && !isPublicRoute) {
