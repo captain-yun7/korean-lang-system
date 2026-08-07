@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { auth } from '@/auth';
 import { Card } from '@/components/ui';
 import PassageContent from '@/components/PassageContent';
 import { prisma } from '@/lib/prisma';
 import { isValidShareCode } from '@/lib/share-code';
+import TakeExamButton from './TakeExamButton';
 
 interface Question {
   text: string;
@@ -76,11 +78,13 @@ export default async function SharedExamPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  const exam = await getSharedExam(code);
+  const [exam, session] = await Promise.all([getSharedExam(code), auth()]);
 
   if (!exam) {
     notFound();
   }
+
+  const role = session?.user?.role;
 
   const totalQuestions = exam.items.reduce(
     (sum, item) => sum + item.questions.length,
@@ -117,8 +121,11 @@ export default async function SharedExamPage({
         </div>
 
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm text-purple-800">
-          미리보기 화면입니다. 정답과 해설은 표시되지 않으며, 답안을 제출할 수
-          없습니다. 실제로 응시하려면 로그인해주세요.
+          {role === 'STUDENT'
+            ? '미리보기 화면입니다. 아래 "지금 응시하기" 버튼을 누르면 답안을 제출할 수 있습니다.'
+            : role === 'TEACHER'
+              ? '미리보기 화면입니다. 학생이 이 링크를 열면 로그인 후 바로 응시할 수 있습니다.'
+              : '미리보기 화면입니다. 정답과 해설은 표시되지 않으며, 답안을 제출할 수 없습니다. 실제로 응시하려면 로그인해주세요.'}
         </div>
 
         {exam.items.map((item, itemIndex) => (
@@ -177,15 +184,30 @@ export default async function SharedExamPage({
         ))}
 
         <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
-          <p className="text-gray-700">
-            로그인하면 답안을 제출하고 채점 결과를 확인할 수 있습니다.
-          </p>
-          <Link
-            href="/"
-            className="inline-block mt-4 px-6 py-3 bg-purple-500 text-white font-medium rounded-lg hover:bg-purple-600"
-          >
-            로그인하고 응시하기
-          </Link>
+          {role === 'STUDENT' ? (
+            <>
+              <p className="text-gray-700">
+                응시를 시작하면 답안을 제출하고 채점 결과를 확인할 수 있습니다.
+              </p>
+              <TakeExamButton code={code} />
+            </>
+          ) : role === 'TEACHER' ? (
+            <p className="text-gray-700">
+              교사 계정으로 로그인되어 있습니다. 학생에게 이 링크를 공유해주세요.
+            </p>
+          ) : (
+            <>
+              <p className="text-gray-700">
+                로그인하면 답안을 제출하고 채점 결과를 확인할 수 있습니다.
+              </p>
+              <Link
+                href={`/?callbackUrl=${encodeURIComponent(`/s/${code}`)}`}
+                className="inline-block mt-4 px-6 py-3 bg-purple-500 text-white font-medium rounded-lg hover:bg-purple-600"
+              >
+                로그인하고 응시하기
+              </Link>
+            </>
+          )}
         </div>
       </main>
     </div>
